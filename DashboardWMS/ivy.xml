@@ -43,5 +43,8 @@
 			
 		<!-- Vaadin Charts Addon -->	
 		<dependency org="com.vaadin.addon" name="vaadin-charts" rev="2.0.0.beta2" />	
+		
+		<dependency org="org.vaadin.addon" name="jfreechartwrapper" rev="3.0.2" />
+
 	</dependencies>
 </ivy-module>
