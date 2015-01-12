@@ -28,9 +28,9 @@ import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.vaadin.addon.JFreeChartWrapper;
 
+import com.dashboardwms.service.GeoLocalization;
 import com.dashboardwms.service.XMLReader;
 import com.vaadin.annotations.Theme;
-import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -47,6 +47,7 @@ public class DashboardwmsUI extends UI {
 	@Override
 	protected void init(VaadinRequest request) {
 		final XMLReader xmlReader = new XMLReader();
+		final GeoLocalization geoLocation = new GeoLocalization();
 		final VerticalLayout layout = new VerticalLayout();
 		layout.setMargin(true);
 		setContent(layout);
@@ -61,6 +62,7 @@ public class DashboardwmsUI extends UI {
 				layout.addComponent(getLevelChart());
 
 				layout.addComponent(regressionChart());
+				layout.addComponent(geoLocation.getLocalization());
 					
 			//		xmlReader.getXML("http://s1.serverht.net:8086/connectioncounts");
 	//			} catch (ParserConfigurationException
