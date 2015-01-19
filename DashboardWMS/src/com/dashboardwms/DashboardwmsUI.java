@@ -3,8 +3,12 @@ package com.dashboardwms;
 
 import java.awt.Color;
 import java.awt.GradientPaint;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -27,15 +31,27 @@ import org.jfree.data.xy.DefaultTableXYDataset;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.vaadin.addon.JFreeChartWrapper;
+import org.xml.sax.SAXException;
 
+import com.dashboardwms.domain.Aplicacion;
+import com.dashboardwms.domain.Cliente;
+import com.dashboardwms.domain.Servidor;
 import com.dashboardwms.service.GeoLocalization;
+import com.dashboardwms.service.TiempoRealService;
 import com.dashboardwms.service.XMLReader;
+import com.geoip.LookupService;
 import com.vaadin.annotations.Theme;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinService;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
+import com.vaadin.ui.Table;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
@@ -46,34 +62,76 @@ public class DashboardwmsUI extends UI {
 
 	@Override
 	protected void init(VaadinRequest request) {
+		
 		final XMLReader xmlReader = new XMLReader();
+		final TiempoRealService tiempoRealService = new TiempoRealService();
 		final GeoLocalization geoLocation = new GeoLocalization();
+		final 
+		ComboBox cboxAplicaciones = new ComboBox("Aplicaciones");
+		String basepath = VaadinService.getCurrent().getBaseDirectory().getAbsolutePath();
+		String dbfile = basepath + "/location/GeoLiteCity.dat";
+		try{
+		final LookupService cl = new LookupService(dbfile,LookupService.GEOIP_MEMORY_CACHE);
 		final VerticalLayout layout = new VerticalLayout();
+		layout.setSizeFull();
 		layout.setMargin(true);
 		setContent(layout);
-
-		Button button = new Button("Click Me");
+	
+	
+		Button button = new Button("Prueba");
 		button.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
-			//	try {
+				try {
 					
-				layout.addComponent(createBasicDemo());
+		//		layout.addComponent(createBasicDemo());
 
-				layout.addComponent(getLevelChart());
+		//		layout.addComponent(getLevelChart());
 
-				layout.addComponent(regressionChart());
-				layout.addComponent(geoLocation.getLocalization());
+		//		layout.addComponent(regressionChart());
 					
-			//		xmlReader.getXML("http://s1.serverht.net:8086/connectioncounts");
-	//			} catch (ParserConfigurationException
-	//					| SAXException | IOException e) {
+					Servidor servidor = xmlReader.getXML("http://s1.serverht.net:8086/serverinfo");
+					BeanItemContainer<Aplicacion> listaAplicaciones = new BeanItemContainer<Aplicacion>(Aplicacion.class);
+					Aplicacion aplicacionTodas = new Aplicacion();
+					aplicacionTodas.setNombre("Todas");
+					aplicacionTodas.setListaClientes( tiempoRealService.getTodosClientes(servidor));
+					listaAplicaciones.addItemAt(0, aplicacionTodas);
+					listaAplicaciones.addAll(servidor.getListaAplicaciones());
+					cboxAplicaciones.setContainerDataSource(listaAplicaciones);
+					cboxAplicaciones.setItemCaptionPropertyId("nombre");
+					cboxAplicaciones.setImmediate(true);
+					cboxAplicaciones.setNullSelectionAllowed(false);
+					cboxAplicaciones.setInvalidAllowed(false);
+					cboxAplicaciones.setValue(aplicacionTodas);
+					geoLocation.setLocalization(cl, aplicacionTodas.getListaClientes());
+					geoLocation.setWidth("80%");
+					geoLocation.setHeight("80%");
+					layout.addComponent(cboxAplicaciones);
+					layout.addComponent(geoLocation);	
+					layout.setComponentAlignment(geoLocation, Alignment.MIDDLE_CENTER);
+					layout.setExpandRatio(geoLocation, 1f);
+					
+					cboxAplicaciones.addValueChangeListener(new ValueChangeListener() {
+						
+						@Override
+						public void valueChange(ValueChangeEvent event) {
+							Aplicacion aplicacionSeleccionada = (Aplicacion)cboxAplicaciones.getValue();
+						
+							geoLocation.setLocalization(cl, aplicacionSeleccionada.getListaClientes());
+						}
+					});
+					
+				} catch (ParserConfigurationException
+					| SAXException | IOException e) {
 					// TODO Auto-generated catch block
-	//				e.printStackTrace();
-	//			}
-				layout.addComponent(new Label("Thank you for clicking"));
+					e.printStackTrace();
+				}
 			}
 		});
 		layout.addComponent(button);
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	   public static JFreeChartWrapper createBasicDemo() {
