@@ -11,7 +11,15 @@ public class Cliente implements Serializable {
 	private String clientID;
 	private String flashVersion;
 	private String tiempoString;
-	
+    private String fechaInicio;
+    
+	public String getFechaInicio() {
+		return fechaInicio;
+	}
+
+	public void setFechaInicio(String fechaInicio) {
+		this.fechaInicio = fechaInicio;
+	}
 	
 	
 	

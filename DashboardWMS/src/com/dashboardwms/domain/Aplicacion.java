@@ -11,6 +11,7 @@ public class Aplicacion implements Serializable {
 	private List<Cliente> listaClientes;
 	private Double tiempoCorriendo;
 	
+	
 	 private Integer httpSessionCount = 0;
 
 	    private Integer sanJoseConnectionCount = 0;
@@ -29,7 +30,7 @@ public class Aplicacion implements Serializable {
 
 
 
-	    
+
 		public List<Cliente> getListaClientes() {
 			return listaClientes;
 		}

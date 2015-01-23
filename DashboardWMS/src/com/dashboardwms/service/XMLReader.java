@@ -3,6 +3,8 @@ package com.dashboardwms.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,11 +32,12 @@ public class XMLReader {
 			SAXException, IOException {
 		Servidor servidor = new Servidor();
 		try {
+			Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("svnplcm13", 8080));
 			// Crear URL
 			URL url = new URL(urllink);
 			// Crear conexion
 			HttpURLConnection urlConnection = (HttpURLConnection) url
-					.openConnection();
+					.openConnection(proxy);
 			urlConnection.setRequestMethod("GET");
 			urlConnection.setDoOutput(true);
 			urlConnection.setDoInput(true);
@@ -232,8 +235,12 @@ public class XMLReader {
 												}
 												case "FlashVersion": {
 													cliente.setFlashVersion(valorNodoCliente);
+													break;
 												}
-
+												case "DateStarted":{
+													cliente.setFechaInicio(valorNodoCliente);
+													break;
+												}
 												}
 											}
 											listaClientes.add(cliente);
@@ -276,7 +283,10 @@ public class XMLReader {
 													cliente.setTimeRunning(tiempoCorriendo);
 													break;
 												}
-
+												case "DateStarted":{
+													cliente.setFechaInicio(valorNodoCliente);
+													break;
+												}
 												}
 											}
 											listaClientes.add(cliente);
@@ -315,7 +325,10 @@ public class XMLReader {
 													cliente.setTimeRunning(tiempoCorriendo);
 													break;
 												}
-
+												case "DateStarted":{
+													cliente.setFechaInicio(valorNodoCliente);
+													break;
+												}
 												}
 											}
 											listaClientes.add(cliente);
