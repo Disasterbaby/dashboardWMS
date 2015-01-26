@@ -3,15 +3,15 @@ package com.dashboardwms.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import com.dashboardwms.domain.Aplicacion;
 import com.dashboardwms.domain.Cliente;
 import com.dashboardwms.domain.Servidor;
 
-public class TiempoRealService {
+@Service
+public class DashboardServiceImpl implements DashboardService {
 
-	public TiempoRealService() {
-
-	}
 
 	public List<Cliente> getTodosClientes(Servidor servidor) {
 		List<Cliente> listaClientes = new ArrayList<Cliente>();

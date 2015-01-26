@@ -13,6 +13,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -21,23 +22,24 @@ import org.xml.sax.SAXException;
 import com.dashboardwms.domain.Aplicacion;
 import com.dashboardwms.domain.Cliente;
 import com.dashboardwms.domain.Servidor;
+import com.dashboardwms.utilities.Utilidades;
 
-public class XMLReader {
+@Service
+public class XMLConnectionServiceImpl implements XMLConnectionService {
 
-	public XMLReader() {
 
-	}
-
-	public Servidor getXML(String urllink) throws ParserConfigurationException,
+	public Servidor getLiveData() throws ParserConfigurationException,
 			SAXException, IOException {
 		Servidor servidor = new Servidor();
 		try {
-			Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("svnplcm13", 8080));
+	//		Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("svnplcm13", 8080));
 			// Crear URL
-			URL url = new URL(urllink);
+			URL url = new URL(Utilidades.XML_URL);
 			// Crear conexion
+//			HttpURLConnection urlConnection = (HttpURLConnection) url
+//					.openConnection(proxy);
 			HttpURLConnection urlConnection = (HttpURLConnection) url
-					.openConnection(proxy);
+					.openConnection();
 			urlConnection.setRequestMethod("GET");
 			urlConnection.setDoOutput(true);
 			urlConnection.setDoInput(true);

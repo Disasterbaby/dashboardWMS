@@ -59,5 +59,7 @@
 		<!-- Spring Context -->
 		<dependency org="org.springframework" name="spring-context" rev="3.2.4.RELEASE"/>
 		
+			<!-- Spring web -->
+		<dependency org="org.springframework" name="spring-web" rev="3.2.4.RELEASE"/>
 	</dependencies>
 </ivy-module>

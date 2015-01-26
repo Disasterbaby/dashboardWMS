@@ -36,11 +36,10 @@ import org.springframework.stereotype.Component;
 
 import ru.xpoft.vaadin.DiscoveryNavigator;
 
-import com.dashboardwms.service.Conexion;
 import com.dashboardwms.service.GeoLocalization;
-import com.dashboardwms.service.TiempoRealService;
-import com.dashboardwms.service.XMLReader;
-import com.dashboardwms.utilidades.Utilidades;
+import com.dashboardwms.service.DashboardServiceImpl;
+import com.dashboardwms.service.XMLConnectionServiceImpl;
+
 import com.geoip.LookupService;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
@@ -57,7 +56,7 @@ import com.vaadin.ui.themes.ValoTheme;
 import com.dashboardwms.views.*;
 
 @SuppressWarnings("serial")
-@Theme(ValoTheme.THEME_NAME)
+@Theme("dashboard")
 @Title("PlugStreaming")
 @Component("DashboardwmsUI")
 @Scope("prototype")
@@ -80,26 +79,7 @@ public class DashboardwmsUI extends UI {
 		
 		System.out.println("despues de discovery navigator");
 		navigator.setErrorView(ErrorView.class);
-		navigator.addViewChangeListener(new ViewChangeListener() {
-	        
-	        @Override
-	        public boolean beforeViewChange(ViewChangeEvent event) {
-	       
-	            	
-	            	 getNavigator().navigateTo(MAINVIEW);
-	            
-	          
-	            
-
-	            return true;
-	        }
-	        
-	        @Override
-	        public void afterViewChange(ViewChangeEvent event) {
-	            System.out.println("after view change");
-	        }
-	    });
-		
+		navigator.navigateTo(MAINVIEW);
 	}
 }
 //				
