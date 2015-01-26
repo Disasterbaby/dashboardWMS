@@ -23,7 +23,13 @@
    
    <context:property-placeholder location="/WEB-INF/*.properties" />
    
-
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+ 
+		<property name="driverClassName" value="${database.driver}" />
+		<property name="url" value="${database.url}" />
+		
+	</bean>
 
 	
    
