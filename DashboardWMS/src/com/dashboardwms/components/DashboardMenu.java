@@ -1,6 +1,7 @@
 package com.dashboardwms.components;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 import com.dashboardwms.events.DashboardEvent.NotificationsCountUpdatedEvent;
 import com.dashboardwms.events.DashboardEvent.PostViewChangeEvent;
@@ -10,6 +11,7 @@ import com.vaadin.event.dd.DragAndDropEvent;
 import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.server.Responsive;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.Sizeable.Unit;
@@ -23,6 +25,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.DragAndDropWrapper;
+import com.vaadin.ui.NativeButton;
 import com.vaadin.ui.DragAndDropWrapper.DragStartMode;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -42,19 +45,24 @@ public final class DashboardMenu extends CustomComponent {
 
     public static final String ID = "dashboard-menu";
     private static final String STYLE_VISIBLE = "valo-menu-visible";
- 
+    public ValoMenuItemButton botonEstadisticasPaises;
+    public ValoMenuItemButton botonTiempoReal;
+    public ValoMenuItemButton botonOyentesDia;
+    private static final String STYLE_SELECTED = "selected";
+
+    final CssLayout menuContent = new CssLayout();
 
     public DashboardMenu() {
+    	Responsive.makeResponsive(this);
         addStyleName("valo-menu");
         setId(ID);
+      //  setHeight("100%");
         setSizeUndefined();
-
-
         setCompositionRoot(buildContent());
     }
 
     private Component buildContent() {
-        final CssLayout menuContent = new CssLayout();
+    	
         menuContent.addStyleName("sidebar");
         menuContent.addStyleName(ValoTheme.MENU_PART);
         menuContent.addStyleName("no-vertical-drag-hints");
@@ -70,7 +78,7 @@ public final class DashboardMenu extends CustomComponent {
     }
 
     private Component buildTitle() {
-        Label logo = new Label("Plug Streaming <strong>Dashboard</strong>",
+        Label logo = new Label("Plug Streaming",
                 ContentMode.HTML);
         logo.setSizeUndefined();
         HorizontalLayout logoWrapper = new HorizontalLayout(logo);
@@ -102,34 +110,58 @@ public final class DashboardMenu extends CustomComponent {
         CssLayout menuItemsLayout = new CssLayout();
         menuItemsLayout.addStyleName("valo-menuitems");
         menuItemsLayout.setHeight(100.0f, Unit.PERCENTAGE);
+  //      menuItemsLayout.setWidth(100.0f, Unit.PERCENTAGE);
 
-        for (final DashboardViewType view : DashboardViewType.values()) {
-            Component menuItemComponent = new ValoMenuItemButton(view);
-            if(view.getViewName().equals("TIEMPO_REAL")){
-            	 menuItemComponent.setStyleName("selected");
-            }
+        botonEstadisticasPaises = new ValoMenuItemButton(DashboardViewType.ESTADISTICAS_PAISES);
+        botonTiempoReal = new ValoMenuItemButton(DashboardViewType.TIEMPO_REAL);
+        botonTiempoReal.addStyleName(STYLE_SELECTED);
+        botonTiempoReal.addClickListener(buttonClickListener);
+        botonEstadisticasPaises.addClickListener(buttonClickListener);
+        botonOyentesDia = new ValoMenuItemButton(DashboardViewType.OYENTES_DIA);
+        botonOyentesDia.addClickListener(buttonClickListener);
+   //     for (final DashboardViewType view : DashboardViewType.values()) {
+     //       Component menuItemComponent = new ValoMenuItemButton(view);
+        
            
-            menuItemsLayout.addComponent(menuItemComponent);
-        }
+         //   menuItemsLayout.addComponent(menuItemComponent);
+        menuItemsLayout.addComponent(botonTiempoReal);
+        menuItemsLayout.addComponent(botonEstadisticasPaises);
+        menuItemsLayout.addComponent(botonOyentesDia);
+      //  }
         return menuItemsLayout;
 
     }
 
-    
-    @Override
-    public void attach() {
-        super.attach();
-    }
+    ClickListener buttonClickListener = new ClickListener() {
+			@Override
+			public void buttonClick(ClickEvent event) {
+				clearMenuSelection();
+				event.getButton().addStyleName(STYLE_SELECTED);
+				
 
+			}
+		};
+    
+    
+    
+    public void clearMenuSelection(){
+    	
+    	 for (Iterator<Component> it = menuContent.iterator(); it.hasNext();) {
+             Component next = it.next();
+             if (next instanceof ValoMenuItemButton) {
+                 next.removeStyleName(STYLE_SELECTED);
+             } 
+         }
+    	botonEstadisticasPaises.removeStyleName(STYLE_SELECTED);
+        botonTiempoReal.removeStyleName(STYLE_SELECTED);
+        botonOyentesDia.removeStyleName(STYLE_SELECTED);
+    }
 
     public final class ValoMenuItemButton extends Button {
 
-        private static final String STYLE_SELECTED = "selected";
-
-        private final DashboardViewType view;
-
+     
         public ValoMenuItemButton(final DashboardViewType view) {
-            this.view = view;
+           
             setPrimaryStyleName("valo-menu-item");
             setIcon(view.getIcon());
             setCaption(view.getViewName().substring(0, 1).toUpperCase()
@@ -139,12 +171,7 @@ public final class DashboardMenu extends CustomComponent {
 
         }
 
-        @Subscribe
-        public void postViewChange(final PostViewChangeEvent event) {
-            removeStyleName(STYLE_SELECTED);
-            if (event.getView() == view) {
-                addStyleName(STYLE_SELECTED);
-            }
-        }
+ 
+ 
     }
 }

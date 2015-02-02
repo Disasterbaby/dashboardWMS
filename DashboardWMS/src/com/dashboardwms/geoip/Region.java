@@ -1,4 +1,4 @@
-package com.geoip;
+package com.dashboardwms.geoip;
 
 public class Region {
 	public String countryCode;

@@ -1,6 +1,9 @@
 package com.dashboardwms.domain;
 
 import java.io.Serializable;
+import java.util.Date;
+
+import com.dashboardwms.geoip.Location;
 
 public class Cliente implements Serializable {
 	
@@ -12,7 +15,43 @@ public class Cliente implements Serializable {
 	private String flashVersion;
 	private String tiempoString;
     private String fechaInicio;
+     private String idAplicacion;
+    private Location location;
+    private Date timestamp;
     
+    
+    
+    
+    
+    
+    
+    
+	public Date getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(Date timestamp) {
+		this.timestamp = timestamp;
+	}
+
+	public Location getLocation() {
+		return location;
+	}
+
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+
+	public String getIdAplicacion() {
+		return idAplicacion;
+	}
+
+	public void setIdAplicacion(String idAplicacion) {
+		this.idAplicacion = idAplicacion;
+	}
+
+	
+
 	public String getFechaInicio() {
 		return fechaInicio;
 	}
@@ -27,7 +66,6 @@ public class Cliente implements Serializable {
 	public String getTiempoString() {
 	double tiempo = this.timeRunning.doubleValue();
 	int hor,min,seg; 
-		System.out.println(this.timeRunning);
 		int total = (int)tiempo;
 		hor=total/3600;  
         min=(total-(3600*hor))/60;  

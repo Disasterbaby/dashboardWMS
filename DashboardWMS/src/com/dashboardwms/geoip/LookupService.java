@@ -18,13 +18,14 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package com.geoip;
+package com.dashboardwms.geoip;
 
 import static java.lang.System.arraycopy;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -68,7 +69,9 @@ import java.net.UnknownHostException;
  *
  * @author Matt Tucker (matt@jivesoftware.com)
  */
-public class LookupService {
+
+
+public class LookupService implements Serializable {
 
     /**
      * Database file.

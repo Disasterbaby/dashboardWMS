@@ -1,6 +1,7 @@
 package com.dashboardwms.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 public class Aplicacion implements Serializable {
@@ -10,6 +11,8 @@ public class Aplicacion implements Serializable {
 	private Integer conexionesActuales = 0;
 	private List<Cliente> listaClientes;
 	private Double tiempoCorriendo;
+	private Date timestamp;
+	
 	
 	
 	 private Integer httpSessionCount = 0;
@@ -30,6 +33,14 @@ public class Aplicacion implements Serializable {
 
 
 
+
+		public Date getTimestamp() {
+			return timestamp;
+		}
+
+		public void setTimestamp(Date timestamp) {
+			this.timestamp = timestamp;
+		}
 
 		public List<Cliente> getListaClientes() {
 			return listaClientes;
