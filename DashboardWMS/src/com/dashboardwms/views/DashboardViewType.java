@@ -5,9 +5,9 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
 
 public enum DashboardViewType {
-    TIEMPO_REAL("Tiempo Real", FontAwesome.HOME, true), SALES(
-            "sales",  FontAwesome.BAR_CHART_O, false), TRANSACTIONS(
-            "transactions", FontAwesome.TABLE, false), REPORTS(
+    TIEMPO_REAL("Tiempo Real", FontAwesome.HOME, true), ESTADISTICAS_PAISES(
+            "Estadísticas Países",  FontAwesome.GLOBE, false), OYENTES_DIA(
+            "Oyentes por Día", FontAwesome.BAR_CHART_O, false), REPORTS(
             "reports",  FontAwesome.FILE_TEXT_O, true), SCHEDULE(
             "schedule",  FontAwesome.MAIL_FORWARD, false);
 

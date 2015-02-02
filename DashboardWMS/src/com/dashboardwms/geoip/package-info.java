@@ -5,4 +5,4 @@
  * @author javier.angel
  *
  */
-package com.geoip;
+package com.dashboardwms.geoip;

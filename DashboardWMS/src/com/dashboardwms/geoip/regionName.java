@@ -1,4 +1,4 @@
-package com.geoip;
+package com.dashboardwms.geoip;
 // generated automatically from admin/generate_regionName.pl
 public class regionName {
     static public String regionNameByCode(String country_code,String region_code) {
