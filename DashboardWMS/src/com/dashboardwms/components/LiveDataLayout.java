@@ -5,9 +5,9 @@ import java.util.List;
 import com.dashboardwms.domain.Aplicacion;
 import com.dashboardwms.domain.Cliente;
 import com.dashboardwms.domain.Servidor;
-import com.dashboardwms.geoip.Location;
-import com.dashboardwms.geoip.LookupService;
-import com.dashboardwms.service.AplicacionService;
+import com.dashboardwms.service.DashboardService;
+import com.geoip.Location;
+import com.geoip.LookupService;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -24,38 +24,19 @@ import com.vaadin.ui.themes.ValoTheme;
 
 public class LiveDataLayout extends VerticalLayout {
 
-	public LookupService cl;
-    private final Table table = new Table();
+
+    private final Table table;
     private final ComboBox cboxAplicaciones = new ComboBox();
-    public Servidor servidor;
-    public AplicacionService aplicacionService;
 
-	
-
-	Aplicacion aplicacionTodas = new Aplicacion();
-
-	BeanItemContainer<Aplicacion> listaAplicaciones = new BeanItemContainer<Aplicacion>(Aplicacion.class);
-    public LiveDataLayout() {
-    	Responsive.makeResponsive(this);
+    public LiveDataLayout(DashboardService dashboardService) {
         setSizeFull();
         addStyleName("transactions");
         addComponent(buildToolbar());
-        aplicacionTodas.setNombre("Todas");
-        buildTable();
+
+        table = buildTable();
         table.setSizeFull();
         addComponent(table);
         setExpandRatio(table, 1);
-        
-	cboxAplicaciones.addValueChangeListener(new ValueChangeListener() {
-			
-			@Override
-			public void valueChange(ValueChangeEvent event) {
-				Aplicacion aplicacionSeleccionada = (Aplicacion)cboxAplicaciones.getValue();
-			
-				fillTable(aplicacionSeleccionada.getListaClientes());
-			}		});
-		
-		
     }
 
     private Component buildToolbar() {
@@ -87,35 +68,46 @@ public class LiveDataLayout extends VerticalLayout {
     	
     }
 
-    private void buildTable() {
+    private Table buildTable() {
+    	Table table = new Table();
     	table.addContainerProperty("Localidad", String.class, null);
     	table.addContainerProperty("Dirección IP",  String.class, null);
     	table.addContainerProperty("Protocolo", String.class, null);
     	table.addContainerProperty("Tiempo de Conexión", String.class, null);
     	table.setRowHeaderMode(Table.RowHeaderMode.ICON_ONLY);
     	table.setFooterVisible(true);
-
+    	
+    	return table;
     }
 
  
 
 
 
-    public void fillComboBox(Servidor servidor){
-    	
-    	
-    	listaAplicaciones.removeAllItems();
-		aplicacionTodas.setListaClientes(aplicacionService.getTodosClientes(servidor));
+    public void fillComboBox(Servidor servidor, DashboardService dashboardService, final LookupService cl){
+    	cboxAplicaciones.removeAllItems();
+		BeanItemContainer<Aplicacion> listaAplicaciones = new BeanItemContainer<Aplicacion>(Aplicacion.class);
+		Aplicacion aplicacionTodas = new Aplicacion();
+		aplicacionTodas.setNombre("Todas");
+		aplicacionTodas.setListaClientes(dashboardService.getTodosClientes(servidor));
 		listaAplicaciones.addItemAt(0, aplicacionTodas);
 		listaAplicaciones.addAll(servidor.getListaAplicaciones());
 		cboxAplicaciones.setContainerDataSource(listaAplicaciones);
 		cboxAplicaciones.setItemCaptionPropertyId("nombre");
-		cboxAplicaciones.setValue(aplicacionTodas);
 		
-	
+		cboxAplicaciones.addValueChangeListener(new ValueChangeListener() {
+			
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				Aplicacion aplicacionSeleccionada = (Aplicacion)cboxAplicaciones.getValue();
+			
+				fillTable(cl, aplicacionSeleccionada.getListaClientes());
+			}		});
+		
+		cboxAplicaciones.setValue(aplicacionTodas);
     }
     
-	public void fillTable(List<Cliente> listaClientes){
+	public void fillTable(LookupService cl, List<Cliente> listaClientes){
 		Integer usuariosConectados = 0;
 		table.removeAllItems();
 		if(listaClientes!=null)

@@ -31,33 +31,28 @@ import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.springframework.context.annotation.Scope;
 import org.vaadin.addon.JFreeChartWrapper;
+
 import org.springframework.stereotype.Component;
 
 import ru.xpoft.vaadin.DiscoveryNavigator;
 
+import com.dashboardwms.service.GeoLocalization;
+import com.dashboardwms.service.DashboardServiceImpl;
+import com.dashboardwms.service.XMLConnectionServiceImpl;
 
-
-
-
-
-
+import com.geoip.LookupService;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.server.Page;
-import com.vaadin.server.Responsive;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.Page.BrowserWindowResizeEvent;
-import com.vaadin.server.Page.BrowserWindowResizeListener;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
-import com.dashboardwms.geoip.LookupService;
 import com.dashboardwms.views.*;
 
 @SuppressWarnings("serial")
@@ -67,30 +62,26 @@ import com.dashboardwms.views.*;
 @Scope("prototype")
 public class DashboardwmsUI extends UI {
 
-        private Navigator navigator;
+	private Navigator navigator;
 
-        public static final String LOGINVIEW = "";
-        public static final String MAINVIEW = "form";
-        public static final String ERRORVIEW = "error";
+	public static final String LOGINVIEW = "";
+	public static final String MAINVIEW = "form";
+	public static final String ERRORVIEW = "error";
 
-       
-       
-        @Override
-        protected void init(VaadinRequest request) {
-               
-                UI.getCurrent().setLocale(new Locale("es"));
-        
-                
-                
-                Responsive.makeResponsive(this);
-        navigator = new DiscoveryNavigator(this, this);
-               
-                System.out.println("despues de discovery navigator");
-                navigator.setErrorView(ErrorView.class);
-                navigator.navigateTo(MAINVIEW);
-        }
+	
+	
+	@Override
+	protected void init(VaadinRequest request) {
+		
+		UI.getCurrent().setLocale(new Locale("es"));
+		
+	navigator = new DiscoveryNavigator(this, this);
+		
+		System.out.println("despues de discovery navigator");
+		navigator.setErrorView(ErrorView.class);
+		navigator.navigateTo(MAINVIEW);
+	}
 }
-
 //				
 //		final XMLReader xmlReader = new XMLReader();
 //		final TiempoRealService tiempoRealService = new TiempoRealService();

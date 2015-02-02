@@ -1,4 +1,4 @@
-package com.dashboardwms.geoip;
+package com.geoip;
 
 // generated automatically from admin/generate_timeZone.pl
 public class timeZone {
