@@ -60,7 +60,7 @@ public class JdbcAplicacionDAO implements AplicacionDAO {
 
 	@Override
 	public List<Aplicacion> getTodasAplicacionesPorFecha(String fecha) {
-		System.out.println("fecha " + fecha);
+		
 		System.out.println("string " + QUERY_SPECIFIC_DATE_TODOS);
 		 List<Aplicacion> listaAplicaciones=
 				 this.jdbcTemplate.query(QUERY_SPECIFIC_DATE_TODOS,
@@ -71,9 +71,17 @@ public class JdbcAplicacionDAO implements AplicacionDAO {
 
 	@Override
 	public List<Aplicacion> getAplicacionPorFecha(String fecha, String nombre) {
+
 		 List<Aplicacion> listaAplicaciones=
 				 this.jdbcTemplate.query(QUERY_SPECIFIC_DATE_BY_NOMBRE,
 				 new AplicacionMapper(),fecha, nombre);
+		return listaAplicaciones;
+	}
+
+	@Override
+	public List<Aplicacion> getAplicacionRangoFechas(String nombre, String fechaInicio, String fechaFin) {
+		List<Aplicacion> listaAplicaciones=  this.jdbcTemplate.query(QUERY_DATE_RANGE,
+				 new AplicacionMapper(), nombre, fechaInicio, fechaFin);
 		return listaAplicaciones;
 	}
 	

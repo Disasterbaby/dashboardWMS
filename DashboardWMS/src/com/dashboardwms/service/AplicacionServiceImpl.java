@@ -55,7 +55,17 @@ AplicacionDAO aplicacionDao;
 	@Override
 	public List<Aplicacion> getAplicacionPorFecha(Date fecha, String nombre) {
 		String fechaString = Utilidades.DATE_QUERY.format(fecha);
+	
 		return aplicacionDao.getAplicacionPorFecha(fechaString, nombre);
+	}
+
+	@Override
+	public List<Aplicacion> getAplicacionRangoFechas(String nombre,
+			Date fechaInicio, Date fechaFin) {
+		String fechaInicioString = Utilidades.DATE_QUERY.format(fechaInicio);
+		String fechaFinString = Utilidades.DATE_QUERY.format(fechaFin);
+		
+		return aplicacionDao.getAplicacionRangoFechas(nombre, fechaInicioString, fechaFinString);
 	}
 	
 	

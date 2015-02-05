@@ -19,4 +19,6 @@ public interface AplicacionService {
 	public List<Aplicacion> getTodasAplicacionesPorFecha(Date fecha);
 	
 	public List<Aplicacion> getAplicacionPorFecha(Date fecha, String nombre);
+	
+	public List<Aplicacion> getAplicacionRangoFechas(String nombre, Date fechaInicio, Date fechaFin);
 }

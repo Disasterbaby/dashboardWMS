@@ -1,6 +1,7 @@
 package com.dashboardwms.views;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class MainView extends HorizontalLayout implements View {
    private final DashboardMenu menu = new DashboardMenu();
    private final LiveDataLayout liveDataLayout = new LiveDataLayout();
    private final CountryStatisticsPanel countryStatisticsPanel = new CountryStatisticsPanel();
-
+   DailyStatisticsPanel dailyStatisticsPanel = new DailyStatisticsPanel();
     
     @PostConstruct
 	public void PostConstruct() {
@@ -79,7 +80,7 @@ public class MainView extends HorizontalLayout implements View {
 		countryStatisticsPanel.setLookupService(cl);
 		liveDataLayout.cl = cl;
 		countryStatisticsPanel.fillComboBox(listaAplicaciones);
-    	
+    	dailyStatisticsPanel.setAplicacionService(aplicacionService);
 
         setSizeFull();
         addStyleName("mainview");
@@ -90,7 +91,8 @@ public class MainView extends HorizontalLayout implements View {
 			
 			@Override
 			public void buttonClick(ClickEvent event) {
-		//		removeComponent(dailyStatisticsPanel);
+
+				removeComponent(dailyStatisticsPanel);
 				removeComponent(liveDataLayout);
 				addComponent(countryStatisticsPanel);
 				 setExpandRatio(countryStatisticsPanel, 1.0f);
@@ -101,11 +103,13 @@ public class MainView extends HorizontalLayout implements View {
 			
 			@Override
 			public void buttonClick(ClickEvent event) {
-				DailyStatisticsPanel dailyStatisticsPanel = new DailyStatisticsPanel(aplicacionService);
+				
 			System.out.println("oyentes dia");
 			removeComponent(countryStatisticsPanel);
 			removeComponent(liveDataLayout);
+			dailyStatisticsPanel.fillData(new Date(), null);
 			addComponent(dailyStatisticsPanel);
+			 setExpandRatio(dailyStatisticsPanel, 1.0f);
 			}
 		});
         
@@ -126,7 +130,7 @@ public class MainView extends HorizontalLayout implements View {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-			//		removeComponent(dailyStatisticsPanel);
+					removeComponent(dailyStatisticsPanel);
 					removeComponent(countryStatisticsPanel);
 					addComponent(liveDataLayout);
 					 setExpandRatio(liveDataLayout, 1.0f);
@@ -164,13 +168,7 @@ public class MainView extends HorizontalLayout implements View {
     }
         
 
- 
-//	} catch (ParserConfigurationException | SAXException | IOException e) {
-
-//		e.printStackTrace();
-//	}
-
-    
+   
    
     
 

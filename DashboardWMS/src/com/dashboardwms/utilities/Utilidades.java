@@ -18,4 +18,5 @@ public static final String ABSOLUTE_PATH = VaadinService.getCurrent()
 
  public static final DateFormat DATE_QUERY = new SimpleDateFormat("yyyy-MM-dd");
  
+
 }
