@@ -16,7 +16,6 @@ import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.time.Hour;
 import org.jfree.data.time.Minute;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -26,6 +25,7 @@ import org.vaadin.addon.JFreeChartWrapper;
 
 import com.dashboardwms.domain.Aplicacion;
 import com.dashboardwms.service.AplicacionService;
+import com.dashboardwms.service.ClienteService;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.FontAwesome;
@@ -54,6 +54,7 @@ public class DailyStatisticsPanel extends Panel{
 	private CheckBox cbRango = new CheckBox("Rango de Fechas");
     private CssLayout componentGraficoDiario =  new CssLayout();
 	private AplicacionService aplicacionService;
+	private ClienteService clienteService;
 	private Date today = new Date();
 	
 	
@@ -86,6 +87,9 @@ public class DailyStatisticsPanel extends Panel{
 		this.aplicacionService = aplicacionService;
 	}
 	
+	public void setClienteService(ClienteService clienteService){
+		this.clienteService = clienteService;
+	}
 	
     private Component buildHeader() {
         HorizontalLayout header = new HorizontalLayout();
@@ -159,11 +163,13 @@ public class DailyStatisticsPanel extends Panel{
 	    private void fillContentWrapperGraficoMinutos(Date fechaInicio, Date fechaFin){
 	    	List<Aplicacion> listaAplicaciones = new ArrayList<Aplicacion>();
 	    	System.out.println("fecha inicio " + fechaInicio);
-	    	if(fechaFin == null)
+	       	if(fechaFin == null)
 	    		listaAplicaciones = aplicacionService.getAplicacionPorFecha(fechaInicio, "planetafm");
-	    	else
+	    	else{
 	    		listaAplicaciones = aplicacionService.getAplicacionRangoFechas("planetafm", fechaInicio, fechaFin);
-	    	
+	    	 	System.out.println("avg " + clienteService.getAvgMinutosRangoFecha("planetafm", fechaInicio, fechaFin));
+	    		System.out.println("total " + clienteService.getCantidadMinutosRangoFecha("planetafm", fechaInicio, fechaFin));
+	    	}
 	    	
 	      	XYDataset datasetMinutosEscuchados = datasetDiario(listaAplicaciones);
 	      	Component chartCantidadMinutos = wrapperChartDiario(datasetMinutosEscuchados);

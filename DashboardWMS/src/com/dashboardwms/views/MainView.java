@@ -81,6 +81,7 @@ public class MainView extends HorizontalLayout implements View {
 		liveDataLayout.cl = cl;
 		countryStatisticsPanel.fillComboBox(listaAplicaciones);
     	dailyStatisticsPanel.setAplicacionService(aplicacionService);
+    	dailyStatisticsPanel.setClienteService(clienteService);
 
         setSizeFull();
         addStyleName("mainview");
