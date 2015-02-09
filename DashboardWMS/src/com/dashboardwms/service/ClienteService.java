@@ -1,7 +1,9 @@
 package com.dashboardwms.service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.dashboardwms.domain.Cliente;
@@ -22,4 +24,6 @@ public interface ClienteService {
 			Date fechaInicio, Date fechaFin);
 	
 	public Double getAvgMinutosRangoFecha(String nombre, Date fechaInicio, Date fechaFin);
+
+	public LinkedHashMap<String, Double> getInfoRangoFechas(String nombre, Date fechaInicio, Date fechaFin);
 }

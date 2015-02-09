@@ -7,6 +7,7 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dashboardwms.dao.mapper.AplicacionMapper;
 import com.dashboardwms.dao.mapper.ClienteMapper;
@@ -14,6 +15,7 @@ import com.dashboardwms.domain.Aplicacion;
 import com.dashboardwms.domain.Cliente;
  
 @Repository
+@Transactional(readOnly = true)
 public class JdbcClienteDAO implements ClienteDAO {
 
     private JdbcTemplate jdbcTemplate;
@@ -78,5 +80,13 @@ public class JdbcClienteDAO implements ClienteDAO {
 		Double avgMinutos = this.jdbcTemplate.queryForObject(QUERY_AVG_MINUTOS_RANGO_FECHA,  new Object[] { nombre, fechaInicio, fechaFin }, Double.class);
 		return avgMinutos;
 	}
+
+
+@Override
+public Integer getCantidadUsuariosRangoFecha(String nombre, String fechaInicio,
+		String fechaFin) {
+	Integer cantidadUsuarios = this.jdbcTemplate.queryForObject(QUERY_GET_CANTIDAD_USUARIOS_RANGO_FECHA, new Object[] { nombre, fechaInicio, fechaFin }, Integer.class);
+	return cantidadUsuarios;
+}
 
 }

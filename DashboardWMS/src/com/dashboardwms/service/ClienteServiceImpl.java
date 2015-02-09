@@ -2,7 +2,9 @@ package com.dashboardwms.service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ public class ClienteServiceImpl implements ClienteService {
 
 	@Autowired
 	ClienteDAO clienteDao;
+	
+	@Autowired
+	AplicacionService aplicacionService;
 
 	public HashSet<Location> getCantidadClientesPorPais(
 			String nombreAplicacion, final LookupService cl) {
@@ -88,7 +93,22 @@ public class ClienteServiceImpl implements ClienteService {
 		return clienteDao.getAvgMinutosRangoFecha(nombre, fechaInicioString, fechaFinString);
 	}
 	
+	private Integer getCantidadUsuariosRangoFecha(String nombre, Date fechaInicio, Date fechaFin){
+
+		String fechaInicioString = Utilidades.DATE_QUERY.format(fechaInicio);
+		String fechaFinString = Utilidades.DATE_QUERY.format(fechaFin);
+		return clienteDao.getCantidadUsuariosRangoFecha(nombre, fechaInicioString, fechaFinString);
+	}
 	
 	
+	public LinkedHashMap<String, Double> getInfoRangoFechas(String nombre, Date fechaInicio, Date fechaFin){
+		LinkedHashMap<String, Double> info = new LinkedHashMap<>();
+		info.put("Total de Oyentes", getCantidadUsuariosRangoFecha(nombre, fechaInicio, fechaFin).doubleValue());
+		info.put("Pico de Oyentes", aplicacionService.getPicoUsuariosRangoFecha(nombre, fechaInicio, fechaFin).doubleValue());
+		info.put("Total Minutos Escuchados", getCantidadMinutosRangoFecha(nombre, fechaInicio, fechaFin)/60);
+		info.put("Promedio Minutos por Oyente", getAvgMinutosRangoFecha(nombre, fechaInicio, fechaFin)/60);
+	return info;
+		
+	}
 
 }

@@ -26,35 +26,28 @@ public class LiveDataLayout extends VerticalLayout {
 
 	public LookupService cl;
     private final Table table = new Table();
-    private final ComboBox cboxAplicaciones = new ComboBox();
     public Servidor servidor;
     public AplicacionService aplicacionService;
 
-	
-
-	Aplicacion aplicacionTodas = new Aplicacion();
-
-	BeanItemContainer<Aplicacion> listaAplicaciones = new BeanItemContainer<Aplicacion>(Aplicacion.class);
-    public LiveDataLayout() {
+ public LiveDataLayout() {
     	Responsive.makeResponsive(this);
         setSizeFull();
         addStyleName("transactions");
         addComponent(buildToolbar());
-        aplicacionTodas.setNombre("Todas");
         buildTable();
         table.setSizeFull();
         addComponent(table);
         setExpandRatio(table, 1);
         
-	cboxAplicaciones.addValueChangeListener(new ValueChangeListener() {
-			
-			@Override
-			public void valueChange(ValueChangeEvent event) {
-				Aplicacion aplicacionSeleccionada = (Aplicacion)cboxAplicaciones.getValue();
-			
-				fillTable(aplicacionSeleccionada.getListaClientes());
-			}		});
-		
+//	cboxAplicaciones.addValueChangeListener(new ValueChangeListener() {
+//			
+//			@Override
+//			public void valueChange(ValueChangeEvent event) {
+//				Aplicacion aplicacionSeleccionada = (Aplicacion)cboxAplicaciones.getValue();
+//			
+//				fillTable(aplicacionSeleccionada.getListaClientes());
+//			}		});
+//		
 		
     }
 
@@ -69,10 +62,10 @@ public class LiveDataLayout extends VerticalLayout {
         title.addStyleName(ValoTheme.LABEL_H1);
         title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
         header.addComponent(title);
-        HorizontalLayout tools = new HorizontalLayout(cboxAplicaciones);
-        tools.setSpacing(true);
-        tools.addStyleName("toolbar");
-        header.addComponent(tools);
+//        HorizontalLayout tools = new HorizontalLayout(cboxAplicaciones);
+//        tools.setSpacing(true);
+//        tools.addStyleName("toolbar");
+//        header.addComponent(tools);
 
         return header;
     }
@@ -80,9 +73,7 @@ public class LiveDataLayout extends VerticalLayout {
 
     private void buildFilter() {
 
-		cboxAplicaciones.setImmediate(true);
-		cboxAplicaciones.setNullSelectionAllowed(false);
-		cboxAplicaciones.setInvalidAllowed(false);
+	
 		
     	
     }
@@ -100,21 +91,21 @@ public class LiveDataLayout extends VerticalLayout {
  
 
 
-
-    public void fillComboBox(Servidor servidor){
-    	
-    	
-    	listaAplicaciones.removeAllItems();
-		aplicacionTodas.setListaClientes(aplicacionService.getTodosClientes(servidor));
-		listaAplicaciones.addItemAt(0, aplicacionTodas);
-		listaAplicaciones.addAll(servidor.getListaAplicaciones());
-		cboxAplicaciones.setContainerDataSource(listaAplicaciones);
-		cboxAplicaciones.setItemCaptionPropertyId("nombre");
-		cboxAplicaciones.setValue(aplicacionTodas);
-		
-	
-    }
-    
+//
+//    public void fillComboBox(Servidor servidor){
+//    	
+//    	
+//    	listaAplicaciones.removeAllItems();
+//		aplicacionTodas.setListaClientes(aplicacionService.getTodosClientes(servidor));
+//		listaAplicaciones.addItemAt(0, aplicacionTodas);
+//		listaAplicaciones.addAll(servidor.getListaAplicaciones());
+//		cboxAplicaciones.setContainerDataSource(listaAplicaciones);
+//		cboxAplicaciones.setItemCaptionPropertyId("nombre");
+//		cboxAplicaciones.setValue(aplicacionTodas);
+//		
+//	
+//    }
+//    
 	public void fillTable(List<Cliente> listaClientes){
 		Integer usuariosConectados = 0;
 		table.removeAllItems();

@@ -67,6 +67,15 @@ AplicacionDAO aplicacionDao;
 		
 		return aplicacionDao.getAplicacionRangoFechas(nombre, fechaInicioString, fechaFinString);
 	}
+
+	@Override
+	public Integer getPicoUsuariosRangoFecha(String nombre, Date fechaInicio,
+			Date fechaFin) {
+
+		String fechaInicioString = Utilidades.DATE_QUERY.format(fechaInicio);
+		String fechaFinString = Utilidades.DATE_QUERY.format(fechaFin);
+		return aplicacionDao.getPicoConexiones(nombre, fechaInicioString, fechaFinString);
+	}
 	
 	
 	

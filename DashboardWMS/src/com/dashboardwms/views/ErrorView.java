@@ -7,8 +7,6 @@ import org.springframework.stereotype.Component;
 
 import ru.xpoft.vaadin.VaadinView;
 import com.dashboardwms.DashboardwmsUI;
-import com.dashboardwms.components.FooterPanel;
-import com.dashboardwms.components.HeaderPanel;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -39,9 +37,6 @@ public class ErrorView  extends GridLayout implements View{
 
 	private final Button loginButton = new Button("Volver");
 
-	private final HeaderPanel headerPanel = new HeaderPanel();
-
-	private final FooterPanel footerPanel = new FooterPanel();
 
 	private final Label expandingGap1 = new Label("&nbsp;", ContentMode.HTML);
 
@@ -56,7 +51,6 @@ public class ErrorView  extends GridLayout implements View{
 	@PostConstruct
 	public void PostConstruct() {
 
-		System.out.println("hola en el post");
 		setSizeFull();
 		addStyleName("mylayout");
 		loginButton.setClickShortcut(KeyCode.ENTER);
@@ -66,7 +60,7 @@ public class ErrorView  extends GridLayout implements View{
 	
 		mensajeError.setSizeUndefined();
 		mensajeError.setStyleName(ChameleonTheme.LABEL_ERROR);
-		mensajeError.setValue("Disculpe. La página a la que intenta ingresar no existe. Por favor pulse el botón para volver a la pantalla de Inicio de Sesión");
+		mensajeError.setValue("Disculpe. La página a la que intenta ingresar no existe. Por favor pulse el botón para volver ");
 		
 
 		lbTitulo.setValue("PlugStreaming");
@@ -83,17 +77,12 @@ public class ErrorView  extends GridLayout implements View{
 		fields.setComponentAlignment(loginButton, Alignment.BOTTOM_CENTER);
 		fields.setExpandRatio(expandingGap1, 1.0f);
 		fields.setExpandRatio(expandingGap2, 1.0f);
-		headerPanel.setHeight("100px");
+	
 
-		footerPanel.setHeight("80px");
-
-		addComponent(headerPanel);
 
 		addComponent(fields);
-		addComponent(footerPanel);
 
 		setComponentAlignment(fields, Alignment.TOP_CENTER);
-		setComponentAlignment(footerPanel, Alignment.TOP_CENTER);
 		setRowExpandRatio(1, 1);
 
 	}

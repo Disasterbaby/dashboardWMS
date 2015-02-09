@@ -12,12 +12,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dashboardwms.dao.mapper.AplicacionMapper;
 import com.dashboardwms.domain.Aplicacion;
 
 
 @Repository
+
+@Transactional(readOnly = true)
 public class JdbcAplicacionDAO implements AplicacionDAO {
 	
     private JdbcTemplate jdbcTemplate;
@@ -83,6 +86,13 @@ public class JdbcAplicacionDAO implements AplicacionDAO {
 		List<Aplicacion> listaAplicaciones=  this.jdbcTemplate.query(QUERY_DATE_RANGE,
 				 new AplicacionMapper(), nombre, fechaInicio, fechaFin);
 		return listaAplicaciones;
+	}
+
+	@Override
+	public Integer getPicoConexiones(String nombre, String fechaInicio,
+			String fechaFin) {
+		Integer cantidadUsuarios = this.jdbcTemplate.queryForObject(QUERY_PICO_USUARIOS_BY_RANGE, new Object[] { nombre, fechaInicio, fechaFin }, Integer.class);
+		return cantidadUsuarios;
 	}
 	
 	

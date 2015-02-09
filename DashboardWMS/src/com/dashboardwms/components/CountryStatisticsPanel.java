@@ -50,7 +50,6 @@ public class CountryStatisticsPanel extends Panel {
 	
 	  private CssLayout dashboardPanels;
 	    private final VerticalLayout root;
-	    private final ComboBox cboxAplicaciones = new ComboBox();
 	    private final Table tablaUsuariosConectados = new Table();
 	    private final Table tablaMinutosTotales = new Table();
 	    private CssLayout componentGraficoUsuarios =  new CssLayout();
@@ -60,7 +59,6 @@ public class CountryStatisticsPanel extends Panel {
 	    
 	    
     public CountryStatisticsPanel() {
-    	cboxAplicaciones.setImmediate(true);
         addStyleName(ValoTheme.PANEL_BORDERLESS);
         setSizeFull();
         root = new VerticalLayout();
@@ -71,7 +69,7 @@ public class CountryStatisticsPanel extends Panel {
         Responsive.makeResponsive(root);
         Responsive.makeResponsive(tablaMinutosTotales);
         Responsive.makeResponsive(tablaUsuariosConectados);
-        Responsive.makeResponsive(cboxAplicaciones);
+        
         Responsive.makeResponsive(componentGraficoUsuarios);
         Responsive.makeResponsive(componentGraficoMinutos);
         root.addComponent(buildHeader());
@@ -96,10 +94,10 @@ public class CountryStatisticsPanel extends Panel {
         title.addStyleName(ValoTheme.LABEL_H1);
         title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
         header.addComponent(title);
-        HorizontalLayout tools = new HorizontalLayout(cboxAplicaciones);
-        tools.setSpacing(true);
-        tools.addStyleName("toolbar");
-        header.addComponent(tools);
+//        HorizontalLayout tools = new HorizontalLayout();
+//        tools.setSpacing(true);
+//        tools.addStyleName("toolbar");
+//        header.addComponent(tools);
 
         return header;
     }
@@ -107,10 +105,7 @@ public class CountryStatisticsPanel extends Panel {
     
     private void buildFilter() {
 
-		cboxAplicaciones.setImmediate(true);
-		cboxAplicaciones.setNullSelectionAllowed(false);
-		cboxAplicaciones.setInvalidAllowed(false);
-		
+
     	
     }
     
@@ -482,25 +477,25 @@ public class CountryStatisticsPanel extends Panel {
 	   	}
     
 	   
-	    public void fillComboBox(List<String> listaAplicaciones){
-	    	cboxAplicaciones.removeAllItems();
-			BeanItemContainer<String> listaAplicacionesContainer = new BeanItemContainer<String>(String.class);
-			listaAplicaciones.add(0, "Todas");
-			listaAplicacionesContainer.addAll(listaAplicaciones);
-			cboxAplicaciones.setContainerDataSource(listaAplicacionesContainer);
-			fillData(clienteService.getCantidadClientesPorPais("Todas", cl));
-			
-			cboxAplicaciones.addValueChangeListener(new ValueChangeListener() {
-				
-				@Override
-				public void valueChange(ValueChangeEvent event) {
-					String aplicacionSeleccionada = (String)cboxAplicaciones.getValue();
-				
-					fillData(clienteService.getCantidadClientesPorPais(aplicacionSeleccionada, cl));
-				}		});
-			
-			cboxAplicaciones.setValue("Todas");
-	    }
+//	    public void fillComboBox(List<String> listaAplicaciones){
+//	    	cboxAplicaciones.removeAllItems();
+//			BeanItemContainer<String> listaAplicacionesContainer = new BeanItemContainer<String>(String.class);
+//			listaAplicaciones.add(0, "Todas");
+//			listaAplicacionesContainer.addAll(listaAplicaciones);
+//			cboxAplicaciones.setContainerDataSource(listaAplicacionesContainer);
+//			fillData(clienteService.getCantidadClientesPorPais("Todas", cl));
+//			
+//			cboxAplicaciones.addValueChangeListener(new ValueChangeListener() {
+//				
+//				@Override
+//				public void valueChange(ValueChangeEvent event) {
+//					String aplicacionSeleccionada = (String)cboxAplicaciones.getValue();
+//				
+//					
+//				}		});
+//			
+//			cboxAplicaciones.setValue("Todas");
+//	    }
 
 	    
 	    public void fillData(HashSet<Location> listaPaises){

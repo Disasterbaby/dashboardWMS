@@ -86,7 +86,7 @@ public class XMLConnectionServiceImpl implements XMLConnectionService {
 						}
 
 						if (nodeNameVHost.equalsIgnoreCase("Application")) {
-							System.out.println("Aplicacion");
+							
 							Aplicacion aplicacion = new Aplicacion();
 							List<Cliente> listaClientes = new ArrayList<Cliente>();
 							NodeList nodosAplicacion = cNode.getChildNodes();
@@ -124,7 +124,7 @@ public class XMLConnectionServiceImpl implements XMLConnectionService {
 								}
 								if (nombreNodoAplicacion
 										.equalsIgnoreCase("ApplicationInstance")) {
-									System.out.println("Aplicacion Instance");
+									
 									NodeList nodosInstancia = nodoAplicacion
 											.getChildNodes();
 									for (int l = 0; l < nodosInstancia
@@ -200,7 +200,7 @@ public class XMLConnectionServiceImpl implements XMLConnectionService {
 
 										if (nombreNodoInstancia
 												.equalsIgnoreCase("Client")) {
-											System.out.println("client");
+											
 											Cliente cliente = new Cliente();
 											cliente.setTipo("Cliente");
 											NodeList nodosCliente = nodoInstancia
@@ -250,7 +250,7 @@ public class XMLConnectionServiceImpl implements XMLConnectionService {
 										}
 										if (nombreNodoInstancia
 												.equalsIgnoreCase("HTTPSession")) {
-											System.out.println("Cliente http ");
+											
 											Cliente cliente = new Cliente();
 											cliente.setTipo("HTTPSession");
 											NodeList nodosCliente = nodoInstancia
@@ -295,7 +295,7 @@ public class XMLConnectionServiceImpl implements XMLConnectionService {
 										}
 										if (nombreNodoInstancia
 												.equalsIgnoreCase("RTPSession")) {
-											System.out.println("Cliente rtp");
+											
 											Cliente cliente = new Cliente();
 											cliente.setTipo("RTPSession");
 											cliente.setProtocolo("RTP");

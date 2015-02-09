@@ -21,4 +21,6 @@ public interface AplicacionService {
 	public List<Aplicacion> getAplicacionPorFecha(Date fecha, String nombre);
 	
 	public List<Aplicacion> getAplicacionRangoFechas(String nombre, Date fechaInicio, Date fechaFin);
+
+	public Integer getPicoUsuariosRangoFecha(String nombre, Date fechaInicio, Date fechaFin);
 }

@@ -71,7 +71,7 @@ public class Cliente implements Serializable {
         min=(total-(3600*hor))/60;  
         seg=total-((hor*3600)+(min*60));  
 		tiempoString = hor + " hrs, " + min + " mins, " + seg + " segs.";
-		System.out.println(tiempoString);
+		
 		return tiempoString;
 	}
 	public void setTiempoString(String tiempoString) {
