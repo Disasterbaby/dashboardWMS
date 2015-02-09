@@ -278,7 +278,7 @@ public class DailyStatisticsPanel extends Panel {
 		tablaInformacionDiaria.addContainerProperty("Key", String.class, null);
 		tablaInformacionDiaria
 				.addContainerProperty("Value", Double.class, null);
-
+		tablaInformacionDiaria.setColumnAlignment("Value", Align.RIGHT);
 	}
 
 	private void fillContentWrapperGraficoMinutos(Date fecha) {
