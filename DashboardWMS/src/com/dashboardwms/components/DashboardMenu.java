@@ -49,14 +49,18 @@ public final class DashboardMenu extends CustomComponent {
     public ValoMenuItemButton botonTiempoReal;
     public ValoMenuItemButton botonOyentesDia;
     private static final String STYLE_SELECTED = "selected";
+    private MenuItem settingsItem;
 
+    
     final CssLayout menuContent = new CssLayout();
 
     public DashboardMenu() {
+   
+    	
     	Responsive.makeResponsive(this);
         addStyleName("valo-menu");
         setId(ID);
-      //  setHeight("100%");
+         //  setHeight("100%");
         setSizeUndefined();
         setCompositionRoot(buildContent());
     }
@@ -71,8 +75,11 @@ public final class DashboardMenu extends CustomComponent {
         menuContent.setHeight("100%");
 
         menuContent.addComponent(buildTitle());
+        menuContent.addComponent(buildUserMenu());
         menuContent.addComponent(buildToggleButton());
         menuContent.addComponent(buildMenuItems());
+        Responsive.makeResponsive(menuContent);
+       
 
         return menuContent;
     }
@@ -87,6 +94,32 @@ public final class DashboardMenu extends CustomComponent {
         return logoWrapper;
     }
 
+    
+    public void setItemTexto(String emisora){
+    	settingsItem.setText(emisora);
+    }
+    
+    private Component buildUserMenu() {
+        final MenuBar settings = new MenuBar();
+        settings.addStyleName("user-menu");
+       
+
+        settingsItem = settings.addItem("", null, null);
+       
+   
+        settingsItem.addItem("Salir", new Command() {
+            @Override
+            public void menuSelected(final MenuItem selectedItem) {
+
+                VaadinSession.getCurrent().setAttribute("emisora", null);
+               
+                getUI().getPage().setLocation( "" );
+                VaadinSession.getCurrent().close();
+               
+            }
+        });
+        return settings;
+    }
 
     private Component buildToggleButton() {
         Button valoMenuToggleButton = new Button("Menu", new ClickListener() {
@@ -110,7 +143,7 @@ public final class DashboardMenu extends CustomComponent {
         CssLayout menuItemsLayout = new CssLayout();
         menuItemsLayout.addStyleName("valo-menuitems");
         menuItemsLayout.setHeight(100.0f, Unit.PERCENTAGE);
-  //      menuItemsLayout.setWidth(100.0f, Unit.PERCENTAGE);
+       menuItemsLayout.setWidthUndefined();
 
         botonEstadisticasPaises = new ValoMenuItemButton(DashboardViewType.ESTADISTICAS_PAISES);
         botonTiempoReal = new ValoMenuItemButton(DashboardViewType.TIEMPO_REAL);

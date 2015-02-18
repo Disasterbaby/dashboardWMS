@@ -32,12 +32,15 @@ import com.dashboardwms.service.XMLConnectionService;
 import com.dashboardwms.utilities.Utilidades;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.server.Page;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.VaadinSession;
+import com.vaadin.shared.Position;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Notification;
 
 /*
  * Dashboard MainView is a simple HorizontalLayout that wraps the menu on the
@@ -78,7 +81,8 @@ public class MainView extends HorizontalLayout implements View {
     	
     	try {
     		    
-		
+
+            
     		Responsive.makeResponsive(this);
     		
     		liveDataLayout.aplicacionService = aplicacionService;
@@ -93,7 +97,7 @@ public class MainView extends HorizontalLayout implements View {
     	countryStatisticsPanel.setEmisora(emisora);
         setSizeFull();
         addStyleName("mainview");
-
+        menu.setItemTexto(emisora);
         Responsive.makeResponsive(menu);
         
         menu.botonEstadisticasPaises.addClickListener(new ClickListener() {
@@ -105,7 +109,7 @@ public class MainView extends HorizontalLayout implements View {
 				removeComponent(liveDataLayout);
 				countryStatisticsPanel.cboxPeriodo.setValue(Utilidades.ULTIMO_MES);
 				addComponent(countryStatisticsPanel);
-				 setExpandRatio(countryStatisticsPanel, 1.0f);
+				 setExpandRatio(countryStatisticsPanel,  1.0f);
 			}
 		});
         
@@ -125,7 +129,8 @@ public class MainView extends HorizontalLayout implements View {
 			}
 			
 			addComponent(dailyStatisticsPanel);
-			 setExpandRatio(dailyStatisticsPanel, 1.0f);
+			
+			 setExpandRatio(dailyStatisticsPanel,  1.0f);
 			}
 		});
         
@@ -183,7 +188,7 @@ public class MainView extends HorizontalLayout implements View {
 			}
 			
             addComponent(liveDataLayout);
-        
+
                setExpandRatio(liveDataLayout, 1.0f);
                
                

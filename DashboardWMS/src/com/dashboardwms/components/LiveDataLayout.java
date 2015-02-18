@@ -5,13 +5,16 @@ import java.util.List;
 import com.dashboardwms.domain.Aplicacion;
 import com.dashboardwms.domain.Cliente;
 import com.dashboardwms.domain.Servidor;
+import com.dashboardwms.events.DashboardEvent.BrowserResizeEvent;
 import com.dashboardwms.geoip.Location;
 import com.dashboardwms.geoip.LookupService;
 import com.dashboardwms.service.AplicacionService;
+import com.google.common.eventbus.Subscribe;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.server.Page;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.ComboBox;
@@ -28,7 +31,9 @@ public class LiveDataLayout extends VerticalLayout {
     private final Table table = new Table();
     public Servidor servidor;
     public AplicacionService aplicacionService;
-
+    private static final String[] DEFAULT_COLLAPSIBLE = {"Protocolo", "Cliente", "Sistema Operativo"};
+ 
+    
  public LiveDataLayout() {
     	Responsive.makeResponsive(this);
         setSizeFull();
@@ -87,6 +92,16 @@ public class LiveDataLayout extends VerticalLayout {
     	table.addContainerProperty("Tiempo de Conexión", String.class, null);
     	table.setRowHeaderMode(Table.RowHeaderMode.ICON_ONLY);
     	table.setFooterVisible(true);
+    	table.addStyleName(ValoTheme.TABLE_BORDERLESS);
+        table.addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
+        table.addStyleName(ValoTheme.TABLE_COMPACT);
+        table.setSelectable(true);
+
+          table.setColumnCollapsingAllowed(true);
+          table.setColumnCollapsible("Localidad", false);
+          table.setColumnCollapsible("Dirección IP", false);
+          table.setColumnCollapsible("Tiempo de Conexión", false);
+          table.setColumnReorderingAllowed(true);
 
     }
 
@@ -108,6 +123,30 @@ public class LiveDataLayout extends VerticalLayout {
 //	
 //    }
 //    
+    private boolean defaultColumnsVisible() {
+        boolean result = true;
+        for (String propertyId : DEFAULT_COLLAPSIBLE) {
+            if (table.isColumnCollapsed(propertyId) == Page.getCurrent()
+                    .getBrowserWindowWidth() < 800) {
+                result = false;
+            }
+        }
+        return result;
+    }
+
+    @Subscribe
+    public void browserResized(final BrowserResizeEvent event) {
+        // Some columns are collapsed when browser window width gets small
+        // enough to make the table fit better.
+        if (defaultColumnsVisible()) {
+            for (String propertyId : DEFAULT_COLLAPSIBLE) {
+                table.setColumnCollapsed(propertyId, Page.getCurrent()
+                        .getBrowserWindowWidth() < 800);
+            }
+        }
+    }
+
+    
 	public void fillTable(List<Cliente> listaClientes){
 		Integer usuariosConectados = 0;
 		table.removeAllItems();

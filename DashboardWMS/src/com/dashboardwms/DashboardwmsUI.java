@@ -42,6 +42,7 @@ import ru.xpoft.vaadin.DiscoveryNavigator;
 
 
 
+
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.navigator.Navigator;
@@ -56,6 +57,7 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
@@ -105,7 +107,7 @@ public class DashboardwmsUI extends UI {
 
 
         	            if (!isLoggedIn && !isLoginView) {
-        	 
+        	         
         	                getNavigator().navigateTo(LOGINVIEW);
         	                return false;
 
@@ -117,6 +119,7 @@ public class DashboardwmsUI extends UI {
         	            	return true;
         	            else if (!isLoggedIn)
         	            {
+        	            
         	            	 getNavigator().navigateTo(LOGINVIEW);
         		                return false;
         	            }

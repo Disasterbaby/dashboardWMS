@@ -13,7 +13,6 @@ import ru.xpoft.vaadin.VaadinView;
 
 import com.dashboardwms.DashboardwmsUI;
 import com.dashboardwms.service.AplicacionService;
-import com.dashboardwms.utilities.Utilidades;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.navigator.View;
@@ -50,23 +49,24 @@ public class LoginView extends VerticalLayout implements View  {
     @PostConstruct
 	public void PostConstruct() {
     	
+
+		Responsive.makeResponsive(this);
+    	
  	listaAplicaciones.addAll(aplicacionService.getListaAplicacionesDistinct());
     	
-    	
+
+ 	
+ 	
     	setSizeFull();
+    	
+    	  addStyleName("mainview");
 
         VerticalLayout loginForm = buildLoginForm();
         addComponent(loginForm);
         setComponentAlignment(loginForm, Alignment.MIDDLE_CENTER);
 
-        Notification notification = new Notification(
-                "Bienvenido");
-        notification
-                .setDescription("<span>Seleccione la emisora y presione Ingresar.</span>");
-        notification.setHtmlContentAllowed(true);
-        notification.setStyleName("tray dark small closable login-help");
-        notification.setPosition(Position.BOTTOM_CENTER);
-        notification.show(Page.getCurrent());
+
+        
     }
 
     private VerticalLayout buildLoginForm() {
@@ -100,8 +100,8 @@ public class LoginView extends VerticalLayout implements View  {
      
         final Button signin = new Button("Ingresar");
         signin.addStyleName(ValoTheme.BUTTON_PRIMARY);
-        signin.setClickShortcut(KeyCode.ENTER);
-        signin.focus();
+      //  signin.setClickShortcut(KeyCode.ENTER);
+        
 
         fields.addComponents(listaEmisoras, signin);
         fields.setComponentAlignment(signin, Alignment.BOTTOM_LEFT);
@@ -109,7 +109,7 @@ public class LoginView extends VerticalLayout implements View  {
         signin.addClickListener(new ClickListener() {
             @Override
             public void buttonClick(final ClickEvent event) {
-            	
+
             	if(listaEmisoras.getValue()!= null)
             	{	String emisora = (String)listaEmisoras.getValue();
                 VaadinSession.getCurrent().setAttribute("emisora", emisora);
@@ -142,8 +142,7 @@ public class LoginView extends VerticalLayout implements View  {
 
 	@Override
 	public void enter(ViewChangeEvent event) {
-		// TODO Auto-generated method stub
-		
+     
 	}
 
 }
