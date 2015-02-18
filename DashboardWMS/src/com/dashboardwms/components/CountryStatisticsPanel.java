@@ -3,6 +3,9 @@ package com.dashboardwms.components;
 import java.awt.Color;
 import java.awt.Font;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -23,6 +26,7 @@ import com.dashboardwms.geoip.Location;
 import com.dashboardwms.geoip.LookupService;
 import com.dashboardwms.service.ClienteService;
 import com.dashboardwms.service.AplicacionService;
+import com.dashboardwms.utilities.Utilidades;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -37,6 +41,7 @@ import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.Panel;
@@ -56,9 +61,23 @@ public class CountryStatisticsPanel extends Panel {
 	    private CssLayout componentGraficoMinutos = new CssLayout();
 	    private ClienteService clienteService;
 	    private LookupService cl;
+		public ComboBox cboxPeriodo = new ComboBox();
+
+		private Date today = new Date();
+		Calendar calendar = Calendar.getInstance();
+		public PopupDateField dfFecha = new PopupDateField();
 	    
-	    
+		private String emisora;
+
+		
+		public void setEmisora(String emisora){
+			this.emisora = emisora;
+		}
     public CountryStatisticsPanel() {
+
+		cboxPeriodo.setImmediate(true);
+		calendar.setTime(today);
+		calendar.add(Calendar.DATE, -30);
         addStyleName(ValoTheme.PANEL_BORDERLESS);
         setSizeFull();
         root = new VerticalLayout();
@@ -69,7 +88,10 @@ public class CountryStatisticsPanel extends Panel {
         Responsive.makeResponsive(root);
         Responsive.makeResponsive(tablaMinutosTotales);
         Responsive.makeResponsive(tablaUsuariosConectados);
-        
+
+		Responsive.makeResponsive(cboxPeriodo);
+		Responsive.makeResponsive(dfFecha);
+
         Responsive.makeResponsive(componentGraficoUsuarios);
         Responsive.makeResponsive(componentGraficoMinutos);
         root.addComponent(buildHeader());
@@ -94,20 +116,114 @@ public class CountryStatisticsPanel extends Panel {
         title.addStyleName(ValoTheme.LABEL_H1);
         title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
         header.addComponent(title);
-//        HorizontalLayout tools = new HorizontalLayout();
-//        tools.setSpacing(true);
-//        tools.addStyleName("toolbar");
-//        header.addComponent(tools);
+        HorizontalLayout tools = new HorizontalLayout(cboxPeriodo, dfFecha);
+        dfFecha.setVisible(false);
+        tools.setSpacing(true);
+        tools.addStyleName("toolbar");
+        header.addComponent(tools);
 
         return header;
     }
 
     
     private void buildFilter() {
+    	dfFecha.setValue(today);
+		dfFecha.setDateFormat("dd-MM-yyyy");
+		dfFecha.setImmediate(true);
+		dfFecha.setRangeEnd(today);
+		dfFecha.setRangeStart(calendar.getTime());
 
+		dfFecha.addValueChangeListener(dfChangeListener);
+		dfFecha.setTextFieldEnabled(false);
+
+		cboxPeriodo.setImmediate(true);
+		cboxPeriodo.setNullSelectionAllowed(false);
+		cboxPeriodo.setInvalidAllowed(false);
+		BeanItemContainer<String> listaPeriodosContainer = new BeanItemContainer<String>(
+				String.class);
+
+		listaPeriodosContainer.addAll(Utilidades.LISTA_PERIODOS);
+		cboxPeriodo.setContainerDataSource(listaPeriodosContainer);
+		cboxPeriodo.setTextInputAllowed(false);
+		cboxPeriodo.select(Utilidades.LISTA_PERIODOS.get(0));
+		cboxPeriodo.addValueChangeListener(cboxChangeListener);
 
     	
     }
+    
+
+
+	public ValueChangeListener cboxChangeListener = new ValueChangeListener() {
+		@Override
+		public void valueChange(ValueChangeEvent event) {
+			String periodo = (String) cboxPeriodo.getValue();
+			Date fechaFin = today;
+			dfFecha.setVisible(false);
+			dfFecha.setDescription(null);
+
+			dfFecha.removeValueChangeListener(dfChangeListener);
+			Calendar fechaInicio = Calendar.getInstance();
+			fechaInicio.setTime(fechaFin);
+			switch (periodo) {
+			
+			case Utilidades.HOY:{
+				fechaInicio.setTime(fechaFin);
+
+				fillData(clienteService.getClientesPorPaisFechas(emisora, fechaInicio.getTime(), fechaFin, cl));
+				break;
+			}
+			
+			case Utilidades.ULTIMA_SEMANA:{
+				fechaInicio.add(Calendar.DATE, -7);
+
+				fillData(clienteService.getClientesPorPaisFechas(emisora, fechaInicio.getTime(), fechaFin, cl));
+				break;
+			}
+
+			case Utilidades.ULTIMA_QUINCENA:
+			{
+				fechaInicio.add(Calendar.DATE, -14);
+
+				fillData(clienteService.getClientesPorPaisFechas(emisora, fechaInicio.getTime(), fechaFin, cl));
+				break;
+			}
+			case Utilidades.ULTIMO_MES:
+			{
+				fechaInicio.add(Calendar.DATE, -30);
+
+				fillData(clienteService.getClientesPorPaisFechas(emisora, fechaInicio.getTime(), fechaFin, cl));
+				break;
+			}
+				
+			case Utilidades.CUSTOM_DATE:{
+				dfFecha.setVisible(true);
+				dfFecha.focus();
+				dfFecha.setDescription("Seleccionar Fecha");
+
+				dfFecha.addValueChangeListener(dfChangeListener);
+				break;
+			}
+			}
+			
+			
+	
+		}
+
+		
+
+	};
+	public ValueChangeListener dfChangeListener = new ValueChangeListener() {
+
+		@Override
+		public void valueChange(ValueChangeEvent event) {
+			Date fecha = dfFecha.getValue();
+
+			fillData(clienteService.getClientesPorPaisFechas(emisora, fecha, fecha, cl));
+
+
+		}
+	};
+    
     
     private Component buildContent() {
         dashboardPanels = new CssLayout();

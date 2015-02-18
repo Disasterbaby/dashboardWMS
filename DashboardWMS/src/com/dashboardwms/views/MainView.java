@@ -1,6 +1,7 @@
 package com.dashboardwms.views;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +11,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.jdbc.InvalidResultSetAccessException;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
@@ -88,6 +90,7 @@ public class MainView extends HorizontalLayout implements View {
    	dailyStatisticsPanel.setAplicacionService(aplicacionService);
     	dailyStatisticsPanel.setClienteService(clienteService);
     	dailyStatisticsPanel.setEmisora(emisora);
+    	countryStatisticsPanel.setEmisora(emisora);
         setSizeFull();
         addStyleName("mainview");
 
@@ -100,7 +103,7 @@ public class MainView extends HorizontalLayout implements View {
 
 				removeComponent(dailyStatisticsPanel);
 				removeComponent(liveDataLayout);
-				countryStatisticsPanel.fillData(clienteService.getCantidadClientesPorPais(emisora, cl));
+				countryStatisticsPanel.cboxPeriodo.setValue(Utilidades.ULTIMO_MES);
 				addComponent(countryStatisticsPanel);
 				 setExpandRatio(countryStatisticsPanel, 1.0f);
 			}
@@ -114,7 +117,12 @@ public class MainView extends HorizontalLayout implements View {
 			
 			removeComponent(countryStatisticsPanel);
 			removeComponent(liveDataLayout);
-			dailyStatisticsPanel.fillData(new Date());
+			try {
+				dailyStatisticsPanel.fillData();
+			} catch (InvalidResultSetAccessException | ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 			addComponent(dailyStatisticsPanel);
 			 setExpandRatio(dailyStatisticsPanel, 1.0f);

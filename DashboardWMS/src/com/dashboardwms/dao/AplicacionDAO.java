@@ -14,6 +14,8 @@ public interface AplicacionDAO {
 	public String QUERY_SPECIFIC_DATE_TODOS = "SELECT * from aplicacion  WHERE strftime('%Y-%m-%d', timestamp) = ?;";
 	public String QUERY_SPECIFIC_DATE_BY_NOMBRE = "SELECT * from aplicacion  WHERE strftime('%Y-%m-%d', timestamp) = ? and nombre = ?;";
 	public String QUERY_DATE_RANGE = "SELECT * from aplicacion WHERE nombre = ? AND strftime('%Y-%m-%d', timestamp) BETWEEN ? AND ?";
+	
+
 	public String QUERY_PICO_USUARIOS_BY_RANGE = "SELECT ifnull(max(conexiones_actuales),0)from aplicacion WHERE nombre = ? AND strftime('%Y-%m-%d', timestamp) BETWEEN ? AND ?;";
 	
 	public Integer getPicoConexiones (String nombre, String fechaInicio, String fechaFin);

@@ -1,13 +1,15 @@
 package com.dashboardwms.service;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.InvalidResultSetAccessException;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 
 import com.dashboardwms.dao.ClienteDAO;
@@ -109,6 +111,58 @@ public class ClienteServiceImpl implements ClienteService {
 		info.put("Promedio Minutos por Oyente", getAvgMinutosRangoFecha(nombre, fechaInicio, fechaFin)/60);
 	return info;
 		
+	}
+
+	@Override
+	public HashSet<Location> getClientesPorPaisFechas(String nombre,
+			Date fechaInicio, Date fechaFin, final LookupService cl) {
+		List<Cliente> listaClientesPais = new ArrayList<Cliente>();
+		HashSet<Location> hsClientesPais = new HashSet<>();
+
+		String fechaInicioString = Utilidades.DATE_QUERY.format(fechaInicio);
+		String fechaFinString = Utilidades.DATE_QUERY.format(fechaFin);
+		
+			listaClientesPais = clienteDao.getListaIPPorAplicacionFechas(nombre, fechaInicioString, fechaFinString);
+		
+
+		for (Cliente cliente : listaClientesPais) {
+			Location location = cl.getLocation(cliente.getIpAddress());
+			Location pais = new Location(location.countryCode,
+					location.countryName);
+			cliente.setLocation(pais);
+				hsClientesPais.add(pais);
+		}
+
+		for (Location location : hsClientesPais) {
+			double minutos = 0;
+			int total = 0;
+			for (Cliente cliente : listaClientesPais) {
+				if (cliente.getLocation().equals(location)) {
+					total = total + 1;
+					minutos = minutos + cliente.getTimeRunning();
+				}
+			}
+			
+			location.setCantidadUsuarios(total);
+			location.setMinutosEscuchados(minutos);
+		}
+
+	
+		return hsClientesPais;
+	}
+
+	@Override
+	public LinkedHashMap<Date, Integer> getUsuariosConectadosPorHora(
+			String nombre, Date fechaInicio, Date fechaFin) throws InvalidResultSetAccessException, ParseException {
+
+		LinkedHashMap<Date, Integer>  hashmap= new LinkedHashMap<>() ;
+		String fechaInicioString = Utilidades.DATE_QUERY.format(fechaInicio);
+		String fechaFinString = Utilidades.DATE_QUERY.format(fechaFin);
+		SqlRowSet rowset = clienteDao.getUsuariosConectadosPorHora(nombre, fechaInicioString, fechaFinString);
+		 while (rowset.next()) {
+			 hashmap.put(Utilidades.DATE_FORMAT.parse(rowset.getString("hora")),rowset.getInt("total"));
+			  }
+		return hashmap;
 	}
 
 }

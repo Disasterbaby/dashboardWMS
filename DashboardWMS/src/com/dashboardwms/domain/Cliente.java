@@ -20,12 +20,34 @@ public class Cliente implements Serializable {
     private Date timestamp;
     
     
+    private String sistemaOperativo;
+    
+    
+    private String cliente;
     
     
     
     
     
     
+    
+    
+	public String getCliente() {
+		return cliente;
+	}
+
+	public void setCliente(String cliente) {
+		this.cliente = cliente;
+	}
+
+	public String getSistemaOperativo() {
+		return sistemaOperativo;
+	}
+
+	public void setSistemaOperativo(String sistemaOperativo) {
+		this.sistemaOperativo = sistemaOperativo;
+	}
+
 	public Date getTimestamp() {
 		return timestamp;
 	}
@@ -84,6 +106,15 @@ public class Cliente implements Serializable {
 	}
 	public void setFlashVersion(String flashVersion) {
 		this.flashVersion = flashVersion;
+		if(flashVersion!=null){
+		if(flashVersion.contains("WIN"))
+			setSistemaOperativo("Windows");
+		else if (flashVersion.contains("MAC"))
+			setSistemaOperativo("Mac OS");
+		else if (flashVersion.contains("LNX"))
+			setSistemaOperativo("Linux");
+		else if(flashVersion.contains("FME") || flashVersion.contains("FMLE"))
+			setSistemaOperativo("Windows");}
 	}
 	public String getTipo() {
 		return tipo;
@@ -102,6 +133,16 @@ public class Cliente implements Serializable {
 	}
 	public void setProtocolo(String protocolo) {
 		this.protocolo = protocolo;
+		if(protocolo.contains("cupertino"))
+			setCliente("iPad / iPhone");
+		if(protocolo.contains("san"))
+			setCliente("Adobe Flash Player");
+		if(protocolo.contains("smooth"))
+			setCliente("Silverlight");
+		if(protocolo.contains("RTP"))
+			setCliente("Player");
+		if(protocolo.contains("RTMP"))
+			setCliente("Adobe Flash Player");
 	}
 	public Double getTimeRunning() {
 		

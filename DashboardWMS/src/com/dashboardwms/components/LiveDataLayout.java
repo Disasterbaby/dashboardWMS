@@ -82,6 +82,8 @@ public class LiveDataLayout extends VerticalLayout {
     	table.addContainerProperty("Localidad", String.class, null);
     	table.addContainerProperty("Dirección IP",  String.class, null);
     	table.addContainerProperty("Protocolo", String.class, null);
+    	table.addContainerProperty("Cliente", String.class, null);
+    	table.addContainerProperty("Sistema Operativo", String.class, null);
     	table.addContainerProperty("Tiempo de Conexión", String.class, null);
     	table.setRowHeaderMode(Table.RowHeaderMode.ICON_ONLY);
     	table.setFooterVisible(true);
@@ -122,6 +124,8 @@ public class LiveDataLayout extends VerticalLayout {
 			row.getItemProperty("Localidad").setValue(ciudad + location.countryName);
 			row.getItemProperty("Dirección IP").setValue(cliente.getIpAddress());
 			row.getItemProperty("Protocolo").setValue(cliente.getProtocolo());
+			row.getItemProperty("Cliente").setValue(cliente.getCliente());
+			row.getItemProperty("Sistema Operativo").setValue(cliente.getSistemaOperativo());
 			row.getItemProperty("Tiempo de Conexión").setValue(cliente.getTiempoString());
 			table.setItemIcon(cliente, new ThemeResource("../flags/" + location.countryCode.toLowerCase() + ".png"));
 			table.setColumnWidth(null, 40);

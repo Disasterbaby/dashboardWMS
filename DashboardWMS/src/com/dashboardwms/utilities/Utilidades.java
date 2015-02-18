@@ -18,9 +18,14 @@ public static final String ABSOLUTE_PATH = VaadinService.getCurrent()
 
  public static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
  
+ 
+ 
+ 
  public static final DateFormat DATE_QUERY = new SimpleDateFormat("yyyy-MM-dd");
  
  public static final DateFormat DATE_FORMAT_LOCAL = new SimpleDateFormat("dd-MM-yyyy");
+ 
+ public static final String HOY = "Hoy";
  
  public static final String ULTIMA_SEMANA = "Última Semana";
 		 
@@ -28,7 +33,9 @@ public static final String ABSOLUTE_PATH = VaadinService.getCurrent()
  
  public static final String ULTIMO_MES = "Últimos 30 Días";
  
- public static final List<String> LISTA_PERIODOS = Arrays.asList(ULTIMA_SEMANA, ULTIMA_QUINCENA, ULTIMO_MES);
+ public static final String CUSTOM_DATE = "Día Específico";
+ 
+ public static final List<String> LISTA_PERIODOS = Arrays.asList(HOY, ULTIMA_SEMANA, ULTIMA_QUINCENA, ULTIMO_MES, CUSTOM_DATE);
 
  
  }

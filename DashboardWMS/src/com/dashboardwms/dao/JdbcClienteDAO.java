@@ -1,11 +1,15 @@
 package com.dashboardwms.dao;
 
+import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.sql.DataSource;
+import javax.sql.RowSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,5 +92,25 @@ public Integer getCantidadUsuariosRangoFecha(String nombre, String fechaInicio,
 	Integer cantidadUsuarios = this.jdbcTemplate.queryForObject(QUERY_GET_CANTIDAD_USUARIOS_RANGO_FECHA, new Object[] { nombre, fechaInicio, fechaFin }, Integer.class);
 	return cantidadUsuarios;
 }
+
+
+@Override
+public List<Cliente> getListaIPPorAplicacionFechas(String nombre,
+		String fechaInicio, String fechaFin) {
+	List<Cliente> listaClientesIp =
+			 this.jdbcTemplate.query(QUERY_GET_IP_APLICACION_RANGO_FECHAS,
+					 new ClienteMapper(),nombre, fechaInicio, fechaFin);
+
+			return listaClientesIp;
+		}
+
+
+@Override
+public SqlRowSet getUsuariosConectadosPorHora(String nombre,
+		String fechaInicio, String fechaFin) {
+	SqlRowSet rowset = this.jdbcTemplate.queryForRowSet(QUERY_DATE_RANGE_BY_HOUR, new Object[] { nombre, fechaInicio, fechaFin });
+	return rowset;
+}
+
 
 }
