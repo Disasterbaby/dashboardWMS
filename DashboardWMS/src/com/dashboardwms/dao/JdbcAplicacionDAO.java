@@ -10,6 +10,7 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -95,6 +96,12 @@ public class JdbcAplicacionDAO implements AplicacionDAO {
 		return cantidadUsuarios;
 	}
 	
-	
+	@Override
+	public SqlRowSet getUsuariosConectadosPorHora(String nombre,
+			String fechaInicio, String fechaFin) {
+		SqlRowSet rowset = this.jdbcTemplate.queryForRowSet(QUERY_DATE_RANGE_BY_HOUR, new Object[] { nombre, fechaInicio, fechaFin });
+		return rowset;
+	}
+
 
 }

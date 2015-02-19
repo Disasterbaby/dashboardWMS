@@ -1,7 +1,11 @@
 package com.dashboardwms.service;
 
+import java.text.ParseException;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+
+import org.springframework.jdbc.InvalidResultSetAccessException;
 
 import com.dashboardwms.dao.mapper.AplicacionMapper;
 import com.dashboardwms.domain.Aplicacion;
@@ -23,4 +27,7 @@ public interface AplicacionService {
 	public List<Aplicacion> getAplicacionRangoFechas(String nombre, Date fechaInicio, Date fechaFin);
 
 	public Integer getPicoUsuariosRangoFecha(String nombre, Date fechaInicio, Date fechaFin);
+	
+	public LinkedHashMap<Date, Integer> getUsuariosConectadosPorHora(String nombre, Date fechaInicio, Date fechaFin) throws InvalidResultSetAccessException, ParseException;
+
 }

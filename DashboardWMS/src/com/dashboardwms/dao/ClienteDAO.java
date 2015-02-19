@@ -34,6 +34,10 @@ public interface ClienteDAO {
 		public String QUERY_DATE_RANGE_BY_HOUR = "select strftime('%Y-%m-%d %H:00:00', timestamp) hora, count() total from cliente where id_aplicacion = ? AND strftime('%Y-%m-%d', timestamp) BETWEEN ? AND ? group by strftime('%Y-%m-%d %H:00:00', timestamp);";
 
 		
+	public String QUERY_TIPO_CLIENTE_RANGO_FECHA = "select protocolo, count(*) total from cliente where id_aplicacion = ? and  strftime('%Y-%m-%d', timestamp) BETWEEN ? AND ? group by protocolo order by total desc;";
+	
+	public SqlRowSet getClientesUsadosRangoFechas(String nombre, String fechaInicio, String fechaFin);
+	
  public SqlRowSet getUsuariosConectadosPorHora(String nombre, String fechaInicio, String fechaFin);
 	public List<Cliente> getListaIpPorAplicacion(String nombreAplicacion);
 	
@@ -48,6 +52,7 @@ public interface ClienteDAO {
 	public Double getCantidadMinutosRangoFecha(String nombre, String fechaInicio, String fechaFin);
 	
 	public Double getAvgMinutosRangoFecha(String nombre, String fechaInicio, String fechaFin);
+	
 	
 	
 	

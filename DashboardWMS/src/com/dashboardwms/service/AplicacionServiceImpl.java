@@ -1,10 +1,14 @@
 package com.dashboardwms.service;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.InvalidResultSetAccessException;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 
 import com.dashboardwms.dao.AplicacionDAO;
@@ -78,6 +82,18 @@ AplicacionDAO aplicacionDao;
 	}
 	
 	
-	
+	@Override
+	public LinkedHashMap<Date, Integer> getUsuariosConectadosPorHora(
+			String nombre, Date fechaInicio, Date fechaFin) throws InvalidResultSetAccessException, ParseException {
+
+		LinkedHashMap<Date, Integer>  hashmap= new LinkedHashMap<>() ;
+		String fechaInicioString = Utilidades.DATE_QUERY.format(fechaInicio);
+		String fechaFinString = Utilidades.DATE_QUERY.format(fechaFin);
+		SqlRowSet rowset = aplicacionDao.getUsuariosConectadosPorHora(nombre, fechaInicioString, fechaFinString);
+		 while (rowset.next()) {
+			 hashmap.put(Utilidades.DATE_FORMAT.parse(rowset.getString("hora")),rowset.getInt("total"));
+			  }
+		return hashmap;
+	}
 
 }

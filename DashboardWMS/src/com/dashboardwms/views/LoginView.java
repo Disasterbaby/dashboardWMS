@@ -100,8 +100,8 @@ public class LoginView extends VerticalLayout implements View  {
      
         final Button signin = new Button("Ingresar");
         signin.addStyleName(ValoTheme.BUTTON_PRIMARY);
-      //  signin.setClickShortcut(KeyCode.ENTER);
-        
+        signin.setClickShortcut(KeyCode.ENTER);
+        signin.focus();
 
         fields.addComponents(listaEmisoras, signin);
         fields.setComponentAlignment(signin, Alignment.BOTTOM_LEFT);
@@ -126,15 +126,15 @@ public class LoginView extends VerticalLayout implements View  {
         CssLayout labels = new CssLayout();
         labels.addStyleName("labels");
 
-        Label welcome = new Label("PlugStreaming");
+        Label welcome = new Label("Bienvenido");
         welcome.setSizeUndefined();
-        welcome.addStyleName(ValoTheme.LABEL_H4);
+        welcome.addStyleName(ValoTheme.LABEL_H3);
         welcome.addStyleName(ValoTheme.LABEL_COLORED);
         labels.addComponent(welcome);
         
-        Label title = new Label("Bienvenido");
+        Label title = new Label("Seleccione la emisora");
         title.setSizeUndefined();
-        title.addStyleName(ValoTheme.LABEL_H3);
+        title.addStyleName(ValoTheme.LABEL_H4);
         title.addStyleName(ValoTheme.LABEL_LIGHT);
         labels.addComponent(title);
         return labels;

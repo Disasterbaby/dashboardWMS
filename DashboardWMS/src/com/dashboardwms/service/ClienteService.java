@@ -34,4 +34,6 @@ public interface ClienteService {
 	public LinkedHashMap<String, Double> getInfoRangoFechas(String nombre, Date fechaInicio, Date fechaFin);
 	
 	public LinkedHashMap<Date, Integer> getUsuariosConectadosPorHora(String nombre, Date fechaInicio, Date fechaFin) throws InvalidResultSetAccessException, ParseException;
+
+	public LinkedHashMap<String, Integer> getCantidadDispositivosRangoFechas(String nombre, Date fechaInicio, Date fechaFin);
 }

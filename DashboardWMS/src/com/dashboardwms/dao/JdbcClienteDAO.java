@@ -113,4 +113,12 @@ public SqlRowSet getUsuariosConectadosPorHora(String nombre,
 }
 
 
+@Override
+public SqlRowSet getClientesUsadosRangoFechas(String nombre,
+		String fechaInicio, String fechaFin) {
+	SqlRowSet rowset = this.jdbcTemplate.queryForRowSet(QUERY_TIPO_CLIENTE_RANGO_FECHA, new Object[] { nombre, fechaInicio, fechaFin });
+	return rowset;
+}
+
+
 }

@@ -165,4 +165,18 @@ public class ClienteServiceImpl implements ClienteService {
 		return hashmap;
 	}
 
+	@Override
+	public LinkedHashMap<String, Integer> getCantidadDispositivosRangoFechas(
+			String nombre, Date fechaInicio, Date fechaFin) {
+		LinkedHashMap<String, Integer>  hashmap= new LinkedHashMap<>() ;
+		String fechaInicioString = Utilidades.DATE_QUERY.format(fechaInicio);
+		String fechaFinString = Utilidades.DATE_QUERY.format(fechaFin);
+		SqlRowSet rowset = clienteDao.getClientesUsadosRangoFechas(nombre, fechaInicioString, fechaFinString);
+
+		while (rowset.next()) {
+			 hashmap.put(rowset.getString("protocolo"),rowset.getInt("total"));
+			  }
+		return hashmap;
+	}
+
 }
