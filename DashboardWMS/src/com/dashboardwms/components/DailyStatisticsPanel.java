@@ -25,6 +25,7 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.category.CategoryDataset;
@@ -134,7 +135,7 @@ public class DailyStatisticsPanel extends Panel {
 		buildFilter();
 		Label title = new Label("Oyentes Diarios");
 		title.setSizeUndefined();
-		title.addStyleName(ValoTheme.LABEL_H2);
+		title.addStyleName(ValoTheme.LABEL_H1);
 		title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 		header.addComponent(title);
 		HorizontalLayout tools = new HorizontalLayout(cboxPeriodo, dfFecha);
@@ -223,9 +224,7 @@ public class DailyStatisticsPanel extends Panel {
 				null);
 		tablaDispositivosPeriodo.setColumnAlignment("Value", Align.RIGHT);
 	}
-	
-	
-	
+		
 	private void buildTableInfoPeriodo() {
 
 		tablaInformacionPeriodo.setSizeFull();
@@ -240,8 +239,6 @@ public class DailyStatisticsPanel extends Panel {
 		tablaInformacionPeriodo.setColumnAlignment("Value", Align.RIGHT);
 	}
 	
-	
-
 	private void fillContentWrapperGraficoDispositivos(Date fechaInicio, Date fechaFin)
 			throws InvalidResultSetAccessException, ParseException {
 		LinkedHashMap<String, Integer> lista = new LinkedHashMap<>();
@@ -295,11 +292,7 @@ public class DailyStatisticsPanel extends Panel {
 		card.addComponents(toolbar, chartDispositivos);
 		componentGraficoDispositivos.addComponent(card);
 	}
-	
-	
-	
-	
-
+		
 	private void fillContentWrapperGraficoPeriodo(Date fechaInicio, Date fechaFin)
 			throws InvalidResultSetAccessException, ParseException {
 		LinkedHashMap<Date, Integer> listaAplicaciones = new LinkedHashMap<>();
@@ -354,8 +347,7 @@ public class DailyStatisticsPanel extends Panel {
 		card.addComponents(toolbar, chartPeriodo);
 		componentGraficoPeriodo.addComponent(card);
 	}
-	
-	
+		
 	private Component createContentWrapperDispositivos(final Component content) {
 		final CssLayout slot = new CssLayout();
 		slot.setWidth("100%");
@@ -402,9 +394,6 @@ public class DailyStatisticsPanel extends Panel {
 		return slot;
 	}
 	
-	
-	
-
 	private Component createContentWrapperPeriodo(final Component content) {
 		final CssLayout slot = new CssLayout();
 		slot.setWidth("100%");
@@ -483,16 +472,14 @@ public class DailyStatisticsPanel extends Panel {
 
 		return new JFreeChartWrapper(createchart);
 	}
-
-
 	
     private static JFreeChart chartDispositivos(CategoryDataset dataset) {
         
         // create the chart...
         final JFreeChart chart = ChartFactory.createBarChart(
-            "Bar Chart Demo",         // chart title
-            "Category",               // domain axis label
-            "Value",                  // range axis label
+            "",         // chart title
+            "Cantidad",               // domain axis label
+            "Medio",                  // range axis label
             dataset,                  // data
             PlotOrientation.VERTICAL, // orientation
             true,                     // include legend
@@ -503,51 +490,40 @@ public class DailyStatisticsPanel extends Panel {
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
 
         // set the background color for the chart...
-        chart.setBackgroundPaint(Color.white);
-
+        chart.setBackgroundPaint(Color.WHITE);
+        
         // get a reference to the plot for further customisation...
         final CategoryPlot plot = chart.getCategoryPlot();
-        plot.setBackgroundPaint(Color.lightGray);
-        plot.setDomainGridlinePaint(Color.white);
-        plot.setRangeGridlinePaint(Color.white);
-
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setDomainGridlinePaint(Color.GRAY);
+        plot.setRangeGridlinePaint(Color.GRAY);
+		plot.getRangeAxis().setLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
+		plot.getRangeAxis().setTickLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
+	
         // set the range axis to display integers only...
         final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
         // disable bar outlines...
         final BarRenderer renderer = (BarRenderer) plot.getRenderer();
-        renderer.setDrawBarOutline(false);
-        
-        // set up gradient paints for series...
-        final GradientPaint gp0 = new GradientPaint(
-            0.0f, 0.0f, Color.blue, 
-            0.0f, 0.0f, Color.lightGray
-        );
-        final GradientPaint gp1 = new GradientPaint(
-            0.0f, 0.0f, Color.green, 
-            0.0f, 0.0f, Color.lightGray
-        );
-        final GradientPaint gp2 = new GradientPaint(
-            0.0f, 0.0f, Color.red, 
-            0.0f, 0.0f, Color.lightGray
-        );
-        renderer.setSeriesPaint(0, gp0);
-        renderer.setSeriesPaint(1, gp1);
-        renderer.setSeriesPaint(2, gp2);
-
+        renderer.setDrawBarOutline(true);
+        renderer.setMaximumBarWidth(0.25); 
+       
+         renderer.setItemMargin(0);
+       renderer.setBarPainter(new StandardBarPainter());
+       	renderer.setOutlinePaint(Color.BLACK);
+       	
         final CategoryAxis domainAxis = plot.getDomainAxis();
-        domainAxis.setCategoryLabelPositions(
-            CategoryLabelPositions.createUpRotationLabelPositions(Math.PI / 6.0)
-        );
+        
+        domainAxis.setLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
+        domainAxis.setTickLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
+      
         // OPTIONAL CUSTOMISATION COMPLETED.
         
         return chart;
         
     }
 	
-	
-
 	private static JFreeChart chartPeriodo(XYDataset dataset) {
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(null, // title
@@ -581,13 +557,14 @@ public class DailyStatisticsPanel extends Panel {
 		DateAxis axis = (DateAxis) plot.getDomainAxis();
 		plot.getRangeAxis().setLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
 		plot.getRangeAxis().setTickLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
+
+		axis.setLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
+		axis.setTickLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
 		if (tipoRango)
 			axis.setTickUnit(new DateTickUnit(DateTickUnitType.DAY, 1,
 					new SimpleDateFormat("dd-MM")));
 		else
 		{	axis.setLabel("Hora");
-		axis.setLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
-		axis.setTickLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
 			axis.setTickUnit(new DateTickUnit(DateTickUnitType.HOUR, 1,
 					new SimpleDateFormat("HH:mm")));}
 		
@@ -602,16 +579,14 @@ public class DailyStatisticsPanel extends Panel {
 	}
 
 	private CategoryDataset datasetDispositivos(LinkedHashMap<String, Integer> lista){
-		
-
 
         final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-
+        
 		Iterator it = lista.entrySet().iterator();
 		while (it.hasNext()) {
 
 			Map.Entry pairs = (Map.Entry) it.next();
-			dataset.addValue((Integer) pairs.getValue(), (String) pairs.getKey(), (String) pairs.getKey());
+			dataset.addValue((Integer) pairs.getValue(), (String) pairs.getKey(), "");
 			it.remove();
 		}
 
@@ -667,10 +642,12 @@ public class DailyStatisticsPanel extends Panel {
 			captionInfoPeriodo.setValue(captionGrafico);
 			captionTablaDispositivos.setValue(captionDispositivos);
 			captionTablaPeriodo.setValue(captionTabla);
+			captionInfoDispositivos.setValue(captionDispositivos);
 			fillTablePeriodo(fecha, fecha);
 			fillTableDispositivos(fecha, fecha);
 			try {
 				fillContentWrapperGraficoPeriodo(fecha, fecha);
+				fillContentWrapperGraficoDispositivos(fecha, fecha);
 			} catch (InvalidResultSetAccessException | ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -708,6 +685,7 @@ public class DailyStatisticsPanel extends Panel {
 			captionInfoPeriodo.setValue(captionGrafico);
 			captionTablaPeriodo.setValue(captionTabla);
 			captionTablaDispositivos.setValue(captionDispositivos);
+			captionInfoDispositivos.setValue(captionDispositivos);
 			break;
 		}
 
@@ -715,11 +693,13 @@ public class DailyStatisticsPanel extends Panel {
 			fechaInicio.add(Calendar.DATE, -7);
 
 			fillContentWrapperGraficoPeriodo(fechaInicio.getTime(), fechaFin);
+			fillContentWrapperGraficoDispositivos(fechaInicio.getTime(), fechaFin);
 			fillTablePeriodo(fechaInicio.getTime(), fechaFin);
 			fillTableDispositivos(fechaInicio.getTime(), fechaFin);
 			captionInfoPeriodo.setValue(captionGrafico);
 			captionTablaPeriodo.setValue(captionTabla);
 			captionTablaDispositivos.setValue(captionDispositivos);
+			captionInfoDispositivos.setValue(captionDispositivos);
 			break;
 		}
 		case Utilidades.ULTIMA_QUINCENA:{
@@ -727,11 +707,12 @@ public class DailyStatisticsPanel extends Panel {
 			fechaInicio.add(Calendar.DATE, -14);
 
 			fillContentWrapperGraficoPeriodo(fechaInicio.getTime(), fechaFin);
+			fillContentWrapperGraficoDispositivos(fechaInicio.getTime(), fechaFin);
 			fillTablePeriodo(fechaInicio.getTime(), fechaFin);
 			fillTableDispositivos(fechaInicio.getTime(), fechaFin);
 			captionInfoPeriodo.setValue(captionGrafico);
 			captionTablaPeriodo.setValue(captionTabla);
-
+			captionInfoDispositivos.setValue(captionDispositivos);
 			captionTablaDispositivos.setValue(captionDispositivos);
 			break;
 		}
@@ -741,11 +722,12 @@ public class DailyStatisticsPanel extends Panel {
 			
 
 			fillContentWrapperGraficoPeriodo(fechaInicio.getTime(), fechaFin);
+			fillContentWrapperGraficoDispositivos(fechaInicio.getTime(), fechaFin);
 			fillTablePeriodo(fechaInicio.getTime(), fechaFin);
 			fillTableDispositivos(fechaInicio.getTime(), fechaFin);
 			captionInfoPeriodo.setValue(captionGrafico);
 			captionTablaPeriodo.setValue(captionTabla);
-
+			captionInfoDispositivos.setValue(captionDispositivos);
 			captionTablaDispositivos.setValue(captionDispositivos);
 			break;
 		}
