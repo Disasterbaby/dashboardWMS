@@ -86,7 +86,7 @@ public class LiveDataLayout extends VerticalLayout {
     private void buildTable() {
     	table.addContainerProperty("Localidad", String.class, null);
     	table.addContainerProperty("Dirección IP",  String.class, null);
-    	table.addContainerProperty("Protocolo", String.class, null);
+    	table.addContainerProperty("Dispositivo", String.class, null);
     	table.addContainerProperty("Cliente", String.class, null);
     	table.addContainerProperty("Sistema Operativo", String.class, null);
     	table.addContainerProperty("Tiempo de Conexión", String.class, null);
