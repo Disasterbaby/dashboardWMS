@@ -38,4 +38,15 @@ public static final String ABSOLUTE_PATH = VaadinService.getCurrent()
  public static final List<String> LISTA_PERIODOS = Arrays.asList(HOY, ULTIMA_SEMANA, ULTIMA_QUINCENA, ULTIMO_MES, CUSTOM_DATE);
 
  
+ public static String timeRunning(double tiempo){
+	 
+		int hor,min; 
+			int total = (int)tiempo;
+			hor=total/3600;  
+	        min=(total-(3600*hor))/60;  
+			return hor +" Horas Transmitidas";
+			
+		
+ }
+ 
  }

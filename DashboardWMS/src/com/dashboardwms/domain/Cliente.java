@@ -18,7 +18,7 @@ public class Cliente implements Serializable {
      private String idAplicacion;
     private Location location;
     private Date timestamp;
-    
+    private String dispositivo;
     
     private String sistemaOperativo;
     
@@ -32,6 +32,14 @@ public class Cliente implements Serializable {
     
     
     
+	public String getDispositivo() {
+		return dispositivo;
+	}
+
+	public void setDispositivo(String dispositivo) {
+		this.dispositivo = dispositivo;
+	}
+
 	public String getCliente() {
 		return cliente;
 	}
@@ -108,13 +116,13 @@ public class Cliente implements Serializable {
 		this.flashVersion = flashVersion;
 		if(flashVersion!=null){
 		if(flashVersion.contains("WIN"))
-			setSistemaOperativo("Windows");
+			setCliente("Windows Flash Player");
 		else if (flashVersion.contains("MAC"))
-			setSistemaOperativo("Mac OS");
+			setCliente("Mac OS Flash Player");
 		else if (flashVersion.contains("LNX"))
-			setSistemaOperativo("Linux");
+			setCliente("Linux Flash Player");
 		else if(flashVersion.contains("FME") || flashVersion.contains("FMLE"))
-			setSistemaOperativo("Windows");}
+			setCliente("Flash Player");}
 	}
 	public String getTipo() {
 		return tipo;
@@ -133,16 +141,25 @@ public class Cliente implements Serializable {
 	}
 	public void setProtocolo(String protocolo) {
 		this.protocolo = protocolo;
-		if(protocolo.contains("cupertino"))
+		if(protocolo.contains("cupertino")){
 			setCliente("iPad / iPhone");
-		if(protocolo.contains("san"))
-			setCliente("Adobe Flash Player");
-		if(protocolo.contains("smooth"))
-			setCliente("Silverlight");
-		if(protocolo.contains("RTP"))
-			setCliente("Player");
-		if(protocolo.contains("RTMP"))
-			setCliente("Adobe Flash Player");
+		setDispositivo("Móvil");}
+		if(protocolo.contains("san")){
+			setCliente("Flash Player");
+			setDispositivo("Escritorio");
+		}
+		if(protocolo.contains("smooth")){
+			setCliente("Windows Phone");
+		setDispositivo("Móvil");	
+		}
+		if(protocolo.contains("RTP")){
+			setCliente("Android / BlackBerry");
+			setDispositivo("Móvil");
+		}
+		if(protocolo.contains("RTMP")){
+			////	setCliente("Adobe Flash Player");
+			setDispositivo("Escritorio");
+		}
 	}
 	public Double getTimeRunning() {
 		

@@ -9,6 +9,7 @@ import com.dashboardwms.events.DashboardEvent.BrowserResizeEvent;
 import com.dashboardwms.geoip.Location;
 import com.dashboardwms.geoip.LookupService;
 import com.dashboardwms.service.AplicacionService;
+import com.dashboardwms.utilities.Utilidades;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -32,7 +33,7 @@ public class LiveDataLayout extends VerticalLayout {
     public Servidor servidor;
     public AplicacionService aplicacionService;
     private static final String[] DEFAULT_COLLAPSIBLE = {"Protocolo", "Cliente", "Sistema Operativo"};
- 
+    private Label horasTransmitidas = new Label();
     
  public LiveDataLayout() {
     	Responsive.makeResponsive(this);
@@ -62,15 +63,18 @@ public class LiveDataLayout extends VerticalLayout {
         header.setSpacing(true);
         Responsive.makeResponsive(header);
         buildFilter();
-        Label title = new Label("Usuarios Conectados");
+        Label title = new Label("Oyentes en Línea");
         title.setSizeUndefined();
         title.addStyleName(ValoTheme.LABEL_H1);
         title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
         header.addComponent(title);
-//        HorizontalLayout tools = new HorizontalLayout(cboxAplicaciones);
-//        tools.setSpacing(true);
-//        tools.addStyleName("toolbar");
-//        header.addComponent(tools);
+        horasTransmitidas.setSizeUndefined();
+        horasTransmitidas.addStyleName(ValoTheme.LABEL_H2);
+        horasTransmitidas.addStyleName(ValoTheme.LABEL_NO_MARGIN);
+        HorizontalLayout tools = new HorizontalLayout(horasTransmitidas);
+        tools.setSpacing(true);
+        tools.addStyleName("toolbar");
+        header.addComponent(tools);
 
         return header;
     }
@@ -86,9 +90,8 @@ public class LiveDataLayout extends VerticalLayout {
     private void buildTable() {
     	table.addContainerProperty("Localidad", String.class, null);
     	table.addContainerProperty("Dirección IP",  String.class, null);
-    	table.addContainerProperty("Dispositivo", String.class, null);
-    	table.addContainerProperty("Cliente", String.class, null);
-    	table.addContainerProperty("Sistema Operativo", String.class, null);
+    	table.addContainerProperty("Tipo de Conexión", String.class, null);
+    	table.addContainerProperty("Tipo de Cliente", String.class, null);
     	table.addContainerProperty("Tiempo de Conexión", String.class, null);
     	table.setRowHeaderMode(Table.RowHeaderMode.ICON_ONLY);
     	table.setFooterVisible(true);
@@ -147,9 +150,11 @@ public class LiveDataLayout extends VerticalLayout {
     }
 
     
-	public void fillTable(List<Cliente> listaClientes){
+	public void fillTable(Aplicacion aplicacion){
 		Integer usuariosConectados = 0;
+		horasTransmitidas.setValue(Utilidades.timeRunning(aplicacion.getTiempoCorriendo()));
 		table.removeAllItems();
+		List<Cliente> listaClientes = aplicacion.getListaClientes();
 		if(listaClientes!=null)
 		{	
 			usuariosConectados = listaClientes.size();
@@ -162,9 +167,8 @@ public class LiveDataLayout extends VerticalLayout {
 				ciudad = location.city + ", ";
 			row.getItemProperty("Localidad").setValue(ciudad + location.countryName);
 			row.getItemProperty("Dirección IP").setValue(cliente.getIpAddress());
-			row.getItemProperty("Protocolo").setValue(cliente.getProtocolo());
-			row.getItemProperty("Cliente").setValue(cliente.getCliente());
-			row.getItemProperty("Sistema Operativo").setValue(cliente.getSistemaOperativo());
+			row.getItemProperty("Tipo de Conexión").setValue(cliente.getDispositivo());
+			row.getItemProperty("Tipo de Cliente").setValue(cliente.getCliente());
 			row.getItemProperty("Tiempo de Conexión").setValue(cliente.getTiempoString());
 			table.setItemIcon(cliente, new ThemeResource("../flags/" + location.countryCode.toLowerCase() + ".png"));
 			table.setColumnWidth(null, 40);

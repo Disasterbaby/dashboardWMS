@@ -138,8 +138,6 @@ public class MainView extends HorizontalLayout implements View {
 			
 			@Override
 			public void buttonClick(ClickEvent event) {
-				System.out.println("tiemporial");
-		
 		   		
 		   		
 					try {
@@ -148,7 +146,7 @@ public class MainView extends HorizontalLayout implements View {
 						for (Aplicacion aplicacion : servidor.getListaAplicaciones()) {
 							if(aplicacion.getNombre().equalsIgnoreCase(emisora)){
 
-								liveDataLayout.fillTable(aplicacion.getListaClientes());
+								liveDataLayout.fillTable(aplicacion);
 								break;
 							}
 						}
@@ -177,7 +175,7 @@ public class MainView extends HorizontalLayout implements View {
 				for (Aplicacion aplicacion : servidor.getListaAplicaciones()) {
 					if(aplicacion.getNombre().equalsIgnoreCase(emisora)){
 
-						liveDataLayout.fillTable(aplicacion.getListaClientes());
+						liveDataLayout.fillTable(aplicacion);
 						break;
 					}
 				}

@@ -174,7 +174,22 @@ public class ClienteServiceImpl implements ClienteService {
 		SqlRowSet rowset = clienteDao.getClientesUsadosRangoFechas(nombre, fechaInicioString, fechaFinString);
 
 		while (rowset.next()) {
-			 hashmap.put(rowset.getString("protocolo"),rowset.getInt("total"));
+			String dispositivo = rowset.getString("protocolo");
+			if(dispositivo.contains("smooth")){
+				dispositivo = "Windows Phone";
+			}
+			if(dispositivo.contains("RTP")){
+				dispositivo = "Android / BlackBerry";
+			
+			}
+			if(dispositivo.contains("cupertino")){
+				dispositivo = "iPad / iPhone";
+			}
+			if(dispositivo.contains("RTMP")){
+				dispositivo = "Escritorio";
+			
+			}
+			 hashmap.put(dispositivo,rowset.getInt("total"));
 			  }
 		return hashmap;
 	}

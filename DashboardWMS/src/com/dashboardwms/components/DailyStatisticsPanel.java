@@ -185,8 +185,8 @@ public class DailyStatisticsPanel extends Panel {
 		
 		Component componentTablaDispositivos = buildComponentTablaDispositivos();
 		dashboardPanels.addComponent(componentTablaDispositivos);
-		String captionPeriodo = "Oyentes " + Utilidades.LISTA_PERIODOS.get(0);
-		String captionDispositivos = "Tipo de Conexión " + Utilidades.LISTA_PERIODOS.get(0);
+		String captionPeriodo = "Cantidad de Oyentes " + Utilidades.LISTA_PERIODOS.get(0);
+		String captionDispositivos = "Tipos de Conexión " + Utilidades.LISTA_PERIODOS.get(0);
 		captionTablaPeriodo.setValue(captionPeriodo);
 		captionTablaDispositivos.setValue(captionDispositivos);
 		captionInfoPeriodo.setValue(captionPeriodo);
@@ -636,9 +636,9 @@ public class DailyStatisticsPanel extends Panel {
 		public void valueChange(ValueChangeEvent event) {
 			Date fecha = dfFecha.getValue();
 			String periodo = Utilidades.DATE_FORMAT_LOCAL.format(fecha);
-			String captionGrafico = "Oyentes " + periodo;
+			String captionGrafico = "Cantidad de Oyentes " + periodo;
 			String captionTabla = "Estadísticas " + periodo;
-			String captionDispositivos = "Tipo de Conexión " + periodo;
+			String captionDispositivos = "Tipos de Conexión " + periodo;
 			captionInfoPeriodo.setValue(captionGrafico);
 			captionTablaDispositivos.setValue(captionDispositivos);
 			captionTablaPeriodo.setValue(captionTabla);
@@ -660,10 +660,10 @@ public class DailyStatisticsPanel extends Panel {
 	public void fillData() throws InvalidResultSetAccessException,
 			ParseException {
 		String periodo = (String) cboxPeriodo.getValue();
-		String captionGrafico = "Oyentes " + periodo;
+		String captionGrafico = "Cantidad de Oyentes " + periodo;
 		String captionTabla = "Estadísticas " + periodo;
 
-		String captionDispositivos = "Tipo de Conexión " + periodo;
+		String captionDispositivos = "Tipos de Conexión " + periodo;
 		dfFecha.setVisible(false);
 		dfFecha.setDescription(null);
 
