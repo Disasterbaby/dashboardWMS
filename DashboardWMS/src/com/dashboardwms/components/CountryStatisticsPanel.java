@@ -3,8 +3,9 @@ package com.dashboardwms.components;
 import java.awt.Color;
 import java.awt.Font;
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,17 +16,15 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.labels.StandardPieToolTipGenerator;
 import org.jfree.chart.plot.PiePlot3D;
+import org.jfree.chart.plot.Plot;
 import org.jfree.data.general.DatasetUtilities;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
 import org.vaadin.addon.JFreeChartWrapper;
 
-import com.dashboardwms.domain.Aplicacion;
-import com.dashboardwms.domain.Servidor;
 import com.dashboardwms.geoip.Location;
 import com.dashboardwms.geoip.LookupService;
 import com.dashboardwms.service.ClienteService;
-import com.dashboardwms.service.AplicacionService;
 import com.dashboardwms.utilities.Utilidades;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -41,10 +40,10 @@ import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.Align;
 import com.vaadin.ui.Table.ColumnHeaderMode;
@@ -116,7 +115,9 @@ public class CountryStatisticsPanel extends Panel {
         title.addStyleName(ValoTheme.LABEL_H1);
         title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
         header.addComponent(title);
-        HorizontalLayout tools = new HorizontalLayout(cboxPeriodo, dfFecha);
+        Label lbVer = new Label("Ver: ");
+        HorizontalLayout tools = new HorizontalLayout(lbVer, cboxPeriodo, dfFecha);
+        tools.setComponentAlignment(lbVer, Alignment.MIDDLE_CENTER);
         dfFecha.setVisible(false);
         tools.setSpacing(true);
         tools.addStyleName("toolbar");
@@ -565,25 +566,51 @@ public class CountryStatisticsPanel extends Panel {
         plot.setBackgroundPaint(Color.WHITE);
      
         plot.setOutlinePaint(Color.WHITE);
-      
              plot.setDarkerSides(true);
        plot.setLabelBackgroundPaint(Color.WHITE);
         plot.setBackgroundAlpha(0.0F); 
         plot.setLabelOutlinePaint(null);
         plot.setLabelShadowPaint(null);
         plot.setLabelPaint(new Color(70, 70, 70));
-        plot.setLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
+        plot.setLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 22));
         plot.setShadowPaint(null);
         plot.setBaseSectionOutlinePaint(Color.BLACK);
-    
+  
         plot.setInteriorGap(0);
         plot.setNoDataMessage("No existen datos disponibles");
         plot.setCircular(true);
         plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0} - {2}"));
         plot.setToolTipGenerator(new StandardPieToolTipGenerator("{2}")); 
+        colorChart(plot,  dataset.getKeys());
         return chart;
         
     }
+    
+
+
+        /**
+         * Assign a color from the standard ones to each category
+         */
+        public static  void colorChart(PiePlot3D plot, List<String> categories ) {
+             Color[] COLORS;
+            
+                COLORS = new Color[ 7 ];
+                COLORS[4] = Color.CYAN;
+                COLORS[0] = Color.BLUE;
+                COLORS[2] = Color.GREEN;
+                COLORS[1] = Color.MAGENTA;
+                COLORS[5] = Color.ORANGE;
+                COLORS[3] = Color.PINK;
+                COLORS[6] = Color.YELLOW;
+            // Use the standard colors as a list so we can shuffle it and get 
+            // a different order each time.
+            List<Color> myColors = Arrays.asList( COLORS );
+       
+            for ( int i = 0; i < categories.size(); i++ ) {
+                plot.setSectionPaint( categories.get(i), myColors.get( i ) );
+            }
+        }
+  
     
 	   private static JFreeChartWrapper wrapperChartPaises(PieDataset datasetCantidadPais) {
 		   

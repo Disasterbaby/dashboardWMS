@@ -34,6 +34,7 @@ public class LiveDataLayout extends VerticalLayout {
     public AplicacionService aplicacionService;
     private static final String[] DEFAULT_COLLAPSIBLE = {"Protocolo", "Cliente", "Sistema Operativo"};
     private Label horasTransmitidas = new Label();
+    private Label numeroConexiones = new Label();
     
  public LiveDataLayout() {
     	Responsive.makeResponsive(this);
@@ -68,10 +69,10 @@ public class LiveDataLayout extends VerticalLayout {
         title.addStyleName(ValoTheme.LABEL_H1);
         title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
         header.addComponent(title);
-        horasTransmitidas.setSizeUndefined();
-        horasTransmitidas.addStyleName(ValoTheme.LABEL_H2);
-        horasTransmitidas.addStyleName(ValoTheme.LABEL_NO_MARGIN);
-        HorizontalLayout tools = new HorizontalLayout(horasTransmitidas);
+        numeroConexiones.setSizeUndefined();
+        numeroConexiones.addStyleName(ValoTheme.LABEL_H2);
+        numeroConexiones.addStyleName(ValoTheme.LABEL_NO_MARGIN);
+        HorizontalLayout tools = new HorizontalLayout(numeroConexiones);
         tools.setSpacing(true);
         tools.addStyleName("toolbar");
         header.addComponent(tools);
@@ -176,7 +177,7 @@ public class LiveDataLayout extends VerticalLayout {
 		}
 		
 
-	
+		numeroConexiones.setValue(usuariosConectados + " Usuarios Conectados");
 		table.setColumnFooter("Localidad", "Total: " + usuariosConectados);
 			cl.close();
 			

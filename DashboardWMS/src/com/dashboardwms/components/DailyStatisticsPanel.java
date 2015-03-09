@@ -138,7 +138,9 @@ public class DailyStatisticsPanel extends Panel {
 		title.addStyleName(ValoTheme.LABEL_H1);
 		title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 		header.addComponent(title);
-		HorizontalLayout tools = new HorizontalLayout(cboxPeriodo, dfFecha);
+	     Label lbVer = new Label("Ver: ");
+	        HorizontalLayout tools = new HorizontalLayout(lbVer, cboxPeriodo, dfFecha);
+	        tools.setComponentAlignment(lbVer, Alignment.MIDDLE_CENTER);
 		dfFecha.setVisible(false);
 		Responsive.makeResponsive(tools);
 		tools.setSpacing(true);

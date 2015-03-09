@@ -97,6 +97,7 @@ public final class DashboardMenu extends CustomComponent {
     
     public void setItemTexto(String emisora){
     	settingsItem.setText(emisora);
+    	settingsItem.setIcon(new ThemeResource("img/icoplug.ico"));
     }
     
     private Component buildUserMenu() {
