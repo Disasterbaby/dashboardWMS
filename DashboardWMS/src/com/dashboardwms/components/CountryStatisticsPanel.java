@@ -228,51 +228,36 @@ public class CountryStatisticsPanel extends Panel {
     
     private Component buildContent() {
         dashboardPanels = new CssLayout();
+        dashboardPanels.setSizeFull();
         dashboardPanels.addStyleName("dashboard-panels");
         Responsive.makeResponsive(dashboardPanels);
-
+    	buildTableMinutosTotales();
+        buildTableUsuariosConectados();
         
         dashboardPanels.addComponent(componentGraficoUsuarios);
-        dashboardPanels.addComponent(buildComponentTablaTopSesiones());
+//        dashboardPanels.addComponent(buildComponentTablaTopSesiones());
        dashboardPanels.addComponent(componentGraficoMinutos);
-        dashboardPanels.addComponent(buildComponentTablaTopTiempo());
+//        dashboardPanels.addComponent(buildComponentTablaTopTiempo());
 
         return dashboardPanels;
     }
     
     
-    private Component buildComponentTablaTopSesiones() {
-    	buildTableUsuariosConectados();
-        Component contentWrapper = createContentWrapper(tablaUsuariosConectados);
-      
-        contentWrapper.addStyleName("top10-revenue");
-        Responsive.makeResponsive(contentWrapper);
-        return contentWrapper;
-    }
 
-    private Component buildComponentTablaTopTiempo() {
-    	buildTableMinutosTotales();
-        Component contentWrapper = createContentWrapper(tablaMinutosTotales);
-      
-        contentWrapper.addStyleName("top10-revenue");
-        Responsive.makeResponsive(contentWrapper);
-        return contentWrapper;
-    }
-
-    
  
     
     private void fillContentWrapperGraficoMinutos(HashSet<Location> listaPaises){
       	PieDataset datasetMinutosEscuchados = dataSetCantidadMinutos(listaPaises);
     	PieDataset datasetConsolidadoMinutos = DatasetUtilities.createConsolidatedPieDataset(datasetMinutosEscuchados, "Otros", 0.02, 4);
     	Component chartCantidadMinutos = wrapperChartPaises(datasetConsolidadoMinutos);
+HorizontalLayout hLayout = new HorizontalLayout();
+hLayout.setSizeFull();
     	Responsive.makeResponsive(chartCantidadMinutos);
     	chartCantidadMinutos.setCaption("Minutos Conectados");
     	chartCantidadMinutos.setSizeFull();
     	componentGraficoMinutos.removeAllComponents();
     	componentGraficoMinutos.setWidth("100%");
-    	componentGraficoMinutos.addStyleName("dashboard-panel-slot");
-
+    	componentGraficoMinutos.addStyleName("dashboard-pais");
         CssLayout card = new CssLayout();
         card.setWidth("100%");
         card.addStyleName(ValoTheme.LAYOUT_CARD);
@@ -307,12 +292,16 @@ public class CountryStatisticsPanel extends Panel {
         max.setStyleName("icon-only");
    
     
+    	tablaMinutosTotales.addStyleName("top10-revenue");
+        Responsive.makeResponsive(tablaMinutosTotales);
 
         toolbar.addComponents(caption, tools);
         toolbar.setExpandRatio(caption, 1);
         toolbar.setComponentAlignment(caption, Alignment.MIDDLE_LEFT);
-
-        card.addComponents(toolbar, chartCantidadMinutos);
+        hLayout.addComponent(chartCantidadMinutos);
+        hLayout.addComponent(tablaMinutosTotales);
+        hLayout.setSpacing(true);
+        card.addComponents(toolbar, hLayout);
         componentGraficoMinutos.addComponent(card);
     }
     
@@ -322,14 +311,17 @@ public class CountryStatisticsPanel extends Panel {
     private void fillContentWrapperGraficoUsuarios(HashSet<Location> listaPaises){
     	PieDataset datasetCantidadPais = dataSetNumeroUsuarios(listaPaises);
     	PieDataset datasetConsolidadoPais = DatasetUtilities.createConsolidatedPieDataset(datasetCantidadPais, "Otros", 0.03, 4);
-    	   
+    	HorizontalLayout hLayout = new HorizontalLayout();
+    	hLayout.setSizeFull();
     	Component chartCantidadUsuarios = wrapperChartPaises(datasetConsolidadoPais);
     	Responsive.makeResponsive(chartCantidadUsuarios);
     	chartCantidadUsuarios.setCaption("Sesiones");
     	chartCantidadUsuarios.setSizeFull();
     	componentGraficoUsuarios.removeAllComponents();
     	componentGraficoUsuarios.setWidth("100%");
-    	componentGraficoUsuarios.addStyleName("dashboard-panel-slot");
+    	componentGraficoUsuarios.addStyleName("dashboard-pais");
+
+    	
 
         CssLayout card = new CssLayout();
         card.setWidth("100%");
@@ -364,70 +356,26 @@ public class CountryStatisticsPanel extends Panel {
         });
         max.setStyleName("icon-only");
    
-    
+       
+      
+        tablaUsuariosConectados.addStyleName("top10-revenue");
+        Responsive.makeResponsive(tablaUsuariosConectados);
+        
 
         toolbar.addComponents(caption, tools);
         toolbar.setExpandRatio(caption, 1);
         toolbar.setComponentAlignment(caption, Alignment.MIDDLE_LEFT);
-
-        card.addComponents(toolbar, chartCantidadUsuarios);
+        hLayout.addComponent(chartCantidadUsuarios);
+        hLayout.addComponent(tablaUsuariosConectados);
+        hLayout.setSpacing(true);
+        hLayout.addStyleName(ValoTheme.LAYOUT_HORIZONTAL_WRAPPING);
+        card.addComponents(toolbar, hLayout);
         componentGraficoUsuarios.addComponent(card);
     }
     
     
     
      
-   
-    private Component createContentWrapper(final Component content) {
-        final CssLayout slot = new CssLayout();
-        slot.setWidth("100%");
-        slot.addStyleName("dashboard-panel-slot");
-
-        CssLayout card = new CssLayout();
-        card.setWidth("100%");
-        card.addStyleName(ValoTheme.LAYOUT_CARD);
-
-        HorizontalLayout toolbar = new HorizontalLayout();
-        toolbar.addStyleName("dashboard-panel-toolbar");
-        toolbar.setWidth("100%");
-
-        Label caption = new Label(content.getCaption());
-        caption.addStyleName(ValoTheme.LABEL_H4);
-        caption.addStyleName(ValoTheme.LABEL_COLORED);
-        caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
-        content.setCaption(null);
-
-        MenuBar tools = new MenuBar();
-        tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
-       
-        MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
-
-            @Override
-            public void menuSelected(final MenuItem selectedItem) {
-                if (!slot.getStyleName().contains("max")) {
-                    selectedItem.setIcon(FontAwesome.COMPRESS);
-                    toggleMaximized(slot, true);
-                } else {
-                    slot.removeStyleName("max");
-                    selectedItem.setIcon(FontAwesome.EXPAND);
-                    toggleMaximized(slot, false);
-                }
-            }
-        });
-        max.setStyleName("icon-only");
-   
-    
-
-        toolbar.addComponents(caption, tools);
-        toolbar.setExpandRatio(caption, 1);
-        toolbar.setComponentAlignment(caption, Alignment.MIDDLE_LEFT);
-
-        card.addComponents(toolbar, content);
-        slot.addComponent(card);
-        return slot;
-    }
- 
-    
     private void toggleMaximized(final Component panel, final boolean maximized) {
         for (Iterator<Component> it = root.iterator(); it.hasNext();) {
             it.next().setVisible(!maximized);
@@ -451,7 +399,6 @@ public class CountryStatisticsPanel extends Panel {
     private void buildTableMinutosTotales(){
     	
     	tablaMinutosTotales.setSizeFull();
-    	tablaMinutosTotales.setCaption("Minutos Conectados");
     	tablaMinutosTotales.addStyleName(ValoTheme.TABLE_BORDERLESS);
     	tablaMinutosTotales.addStyleName(ValoTheme.TABLE_NO_STRIPES);
     	tablaMinutosTotales.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
@@ -487,7 +434,6 @@ public class CountryStatisticsPanel extends Panel {
     
     private void buildTableUsuariosConectados(){
     	tablaUsuariosConectados.setSizeFull();
-    	tablaUsuariosConectados.setCaption("Sesiones");
     	tablaUsuariosConectados.addStyleName(ValoTheme.TABLE_BORDERLESS);
     	 tablaUsuariosConectados.addStyleName(ValoTheme.TABLE_NO_STRIPES);
     	 tablaUsuariosConectados.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);

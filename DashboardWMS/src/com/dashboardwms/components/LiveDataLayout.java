@@ -1,25 +1,23 @@
 package com.dashboardwms.components;
 
+import java.util.Calendar;
 import java.util.List;
 
 import com.dashboardwms.domain.Aplicacion;
 import com.dashboardwms.domain.Cliente;
 import com.dashboardwms.domain.Servidor;
-import com.dashboardwms.events.DashboardEvent.BrowserResizeEvent;
 import com.dashboardwms.geoip.Location;
 import com.dashboardwms.geoip.LookupService;
 import com.dashboardwms.service.AplicacionService;
+import com.dashboardwms.service.ClienteService;
 import com.dashboardwms.utilities.Utilidades;
-import com.google.common.eventbus.Subscribe;
 import com.vaadin.data.Item;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.server.Page;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.ThemeResource;
+import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
@@ -27,63 +25,119 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 public class LiveDataLayout extends VerticalLayout {
-
 	public LookupService cl;
     private final Table table = new Table();
     public Servidor servidor;
-    public AplicacionService aplicacionService;
-    private static final String[] DEFAULT_COLLAPSIBLE = {"Protocolo", "Cliente", "Sistema Operativo"};
-    private Label horasTransmitidas = new Label();
+    private AplicacionService aplicacionService;
+    private Label horasTransmitidas = new Label("horas transmitidas");
     private Label numeroConexiones = new Label();
-    
+    Label picoDiario = new Label("pico");
+	public ComboBox cboxPeriodo = new ComboBox();
+	Calendar calendar = Calendar.getInstance();
+	
+	
  public LiveDataLayout() {
+	 calendar.setTime(Utilidades.TODAY);
+	 cboxPeriodo.setImmediate(true);
     	Responsive.makeResponsive(this);
         setSizeFull();
         addStyleName("transactions");
-        addComponent(buildToolbar());
+        HorizontalLayout hLayoutTitulo = buildToolbar();
+        VerticalLayout vLayout = new VerticalLayout();
+        vLayout.addComponent(hLayoutTitulo);
+        HorizontalLayout hLayoutTitulo2 = buildSecondToolbar();
+ 
+        vLayout.addComponent(hLayoutTitulo2);
+        vLayout.setWidth("100%");
+
+        Responsive.makeResponsive(vLayout);
         buildTable();
         table.setSizeFull();
+        addComponent(vLayout);
         addComponent(table);
         setExpandRatio(table, 1);
         
-//	cboxAplicaciones.addValueChangeListener(new ValueChangeListener() {
-//			
-//			@Override
-//			public void valueChange(ValueChangeEvent event) {
-//				Aplicacion aplicacionSeleccionada = (Aplicacion)cboxAplicaciones.getValue();
-//			
-//				fillTable(aplicacionSeleccionada.getListaClientes());
-//			}		});
-//		
-		
-    }
 
-    private Component buildToolbar() {
+    }
+ 
+ private HorizontalLayout buildSecondToolbar() {
+     HorizontalLayout header = new HorizontalLayout();
+     header.addStyleName("viewsecondheader");
+     header.setSpacing(true);
+     header.addStyleName(ValoTheme.LAYOUT_HORIZONTAL_WRAPPING);
+     header.addStyleName("toolbar");
+     Responsive.makeResponsive(header);
+     horasTransmitidas.setSizeFull();
+     horasTransmitidas.addStyleName(ValoTheme.LABEL_H3);
+     picoDiario.setSizeFull();
+     picoDiario.addStyleName(ValoTheme.LABEL_H3);        
+     picoDiario.addStyleName(ValoTheme.LABEL_NO_MARGIN);
+     horasTransmitidas.addStyleName(ValoTheme.LABEL_NO_MARGIN);
+ 
+     buildFilter();
+     HorizontalLayout principal = new HorizontalLayout(picoDiario, horasTransmitidas);
+     header.addComponent(principal);
+     principal.setSizeFull();
+     principal.setComponentAlignment(picoDiario, Alignment.MIDDLE_LEFT);
+     principal.setComponentAlignment(horasTransmitidas, Alignment.MIDDLE_LEFT);
+     Label lbVer = new Label("Ver: ");
+     HorizontalLayout tools = new HorizontalLayout(lbVer, cboxPeriodo);
+     tools.setComponentAlignment(lbVer, Alignment.MIDDLE_LEFT);
+
+	Responsive.makeResponsive(tools);
+	tools.setSpacing(true);
+	tools.addStyleName("toolbar");
+	header.addComponent(tools);
+	header.setMargin(new MarginInfo(false, false, false, true));
+	header.setExpandRatio(principal, 1);
+	header.setComponentAlignment(principal, Alignment.MIDDLE_LEFT);
+	header.setComponentAlignment(tools, Alignment.MIDDLE_RIGHT);
+	header.setSizeFull();
+     return header;
+ }
+
+ 
+
+    private HorizontalLayout buildToolbar() {
         HorizontalLayout header = new HorizontalLayout();
-        header.addStyleName("viewheader");
+        
+        header.addStyleName("viewheader2");
         header.setSpacing(true);
         Responsive.makeResponsive(header);
-        buildFilter();
+       
         Label title = new Label("Oyentes en Línea");
         title.setSizeUndefined();
         title.addStyleName(ValoTheme.LABEL_H1);
         title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
         header.addComponent(title);
-        numeroConexiones.setSizeUndefined();
         numeroConexiones.addStyleName(ValoTheme.LABEL_H2);
         numeroConexiones.addStyleName(ValoTheme.LABEL_NO_MARGIN);
-        HorizontalLayout tools = new HorizontalLayout(numeroConexiones);
-        tools.setSpacing(true);
-        tools.addStyleName("toolbar");
-        header.addComponent(tools);
+        
+	       HorizontalLayout tools = new HorizontalLayout(numeroConexiones);
+			Responsive.makeResponsive(tools);
+		tools.setSpacing(true);
+		tools.addStyleName("toolbar");
+		tools.setSizeUndefined();
+		header.addComponent(tools);
 
+
+		header.setComponentAlignment(tools, Alignment.MIDDLE_LEFT);
         return header;
     }
 
 
     private void buildFilter() {
 
-	
+		cboxPeriodo.setImmediate(true);
+		cboxPeriodo.setNullSelectionAllowed(false);
+		cboxPeriodo.setInvalidAllowed(false);
+		BeanItemContainer<String> listaPeriodosContainer = new BeanItemContainer<String>(
+				String.class);
+
+		listaPeriodosContainer.addAll(Utilidades.LISTA_PERIODOS);
+		cboxPeriodo.setContainerDataSource(listaPeriodosContainer);
+		cboxPeriodo.setTextInputAllowed(false);
+		cboxPeriodo.select(Utilidades.LISTA_PERIODOS.get(0));
 		
     	
     }
@@ -95,7 +149,7 @@ public class LiveDataLayout extends VerticalLayout {
     	table.addContainerProperty("Tipo de Cliente", String.class, null);
     	table.addContainerProperty("Tiempo de Conexión", String.class, null);
     	table.setRowHeaderMode(Table.RowHeaderMode.ICON_ONLY);
-    	table.setFooterVisible(true);
+    	table.setFooterVisible(false);
     	table.addStyleName(ValoTheme.TABLE_BORDERLESS);
         table.addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
         table.addStyleName(ValoTheme.TABLE_COMPACT);
@@ -112,48 +166,12 @@ public class LiveDataLayout extends VerticalLayout {
  
 
 
-//
-//    public void fillComboBox(Servidor servidor){
-//    	
-//    	
-//    	listaAplicaciones.removeAllItems();
-//		aplicacionTodas.setListaClientes(aplicacionService.getTodosClientes(servidor));
-//		listaAplicaciones.addItemAt(0, aplicacionTodas);
-//		listaAplicaciones.addAll(servidor.getListaAplicaciones());
-//		cboxAplicaciones.setContainerDataSource(listaAplicaciones);
-//		cboxAplicaciones.setItemCaptionPropertyId("nombre");
-//		cboxAplicaciones.setValue(aplicacionTodas);
-//		
-//	
-//    }
-//    
-    private boolean defaultColumnsVisible() {
-        boolean result = true;
-        for (String propertyId : DEFAULT_COLLAPSIBLE) {
-            if (table.isColumnCollapsed(propertyId) == Page.getCurrent()
-                    .getBrowserWindowWidth() < 800) {
-                result = false;
-            }
-        }
-        return result;
-    }
-
-    @Subscribe
-    public void browserResized(final BrowserResizeEvent event) {
-        // Some columns are collapsed when browser window width gets small
-        // enough to make the table fit better.
-        if (defaultColumnsVisible()) {
-            for (String propertyId : DEFAULT_COLLAPSIBLE) {
-                table.setColumnCollapsed(propertyId, Page.getCurrent()
-                        .getBrowserWindowWidth() < 800);
-            }
-        }
-    }
 
     
 	public void fillTable(Aplicacion aplicacion){
+		Integer picoOyentes = aplicacionService.getPicoUsuariosRangoFecha(aplicacion.getNombre(), Utilidades.TODAY, Utilidades.TODAY);
+	
 		Integer usuariosConectados = 0;
-		horasTransmitidas.setValue(Utilidades.timeRunning(aplicacion.getTiempoCorriendo()));
 		table.removeAllItems();
 		List<Cliente> listaClientes = aplicacion.getListaClientes();
 		if(listaClientes!=null)
@@ -178,10 +196,21 @@ public class LiveDataLayout extends VerticalLayout {
 		
 
 		numeroConexiones.setValue(usuariosConectados + " Usuarios Conectados");
-		table.setColumnFooter("Localidad", "Total: " + usuariosConectados);
+		picoDiario.setValue("Pico de Oyentes Hoy: " + picoOyentes);
+
+		horasTransmitidas.setValue(Utilidades.timeRunning(aplicacion.getTiempoCorriendo()));
 			cl.close();
 			
 		
 		}
-  
+
+
+
+
+	public void setAplicacionService(AplicacionService aplicacionService){
+		this.aplicacionService = aplicacionService;
+	}
+	
+	
+
 }

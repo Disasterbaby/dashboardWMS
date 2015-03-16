@@ -22,7 +22,16 @@
   .v-ui[width-range~="0-800px"] {
     .valo-menu-title {
       @include valo-gradient($color: $valo-menu-background-color);
+      
+    line-height: 2.8;
       border-bottom-color: first-color(valo-border($color: $valo-menu-background-color));
+           .v-icon {
+	max-height: 80px;
+	display:none;
+	
+}
+
+  
     }
     .valo-menu .v-menubar-user-menu {
       color: inherit;
@@ -38,11 +47,29 @@
       background: transparent;
       @include box-shadow(none);
       border-bottom: none;
+      
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+      .v-icon {
+	max-height: 80px;
+	text-align: center;
+	
+}
+  .v-caption-on-top {
+  text-align: center;
+  }
+  .v-caption-on-top {
+  text-align: center;
+  }
     }
   }
 
   .valo-menu-title {
     line-height: 1.2;
+    padding-left: 0;
+     padding-right: 0;
+    padding-bottom: 0;
   }
 
   .v-menubar-user-menu:after {
@@ -306,4 +333,85 @@
       border-radius: 0;
     }
   }
+  
+  
+  .viewheader2 {
+    padding-bottom: $view-padding / 2;
+    width: 100%;
+    text-align: right;
+    white-space: normal;
+
+    .v-slot-h1 {
+      float: left;
+    }
+
+    .h1 {
+      white-space: normal;
+    }
+	 
+    @include width-range($max: 400px) {
+      padding-bottom: round($v-unit-size);
+      text-align: left;
+
+      .v-slot-h1 {
+        float: none;
+      }
+
+      .h1 {
+        font-size: round($v-font-size--h1 * 0.8);
+      }
+
+      > .v-slot {
+        display: block;
+      }
+
+      .toolbar {
+        white-space: normal;
+        > .v-spacing {
+          height: round($v-unit-size / 4);
+        }
+      }
+    }
+  }
+  
+    .viewsecondheader {
+    padding-bottom: 10px;
+    width: 100%;
+    text-align: right;
+    white-space: normal;
+
+	 
+
+   &[width-range~="0-750px"]  {
+    
+      padding-bottom: round($v-unit-size / 2);
+      text-align: left;
+
+      .v-slot-h3 {
+        display:none;
+      }
+
+  
+          
+
+      .toolbar {
+        white-space: normal;
+         display:none;
+          }
+      }
+    }
+  }
+  
+  
+  .header{
+   content: "";
+        display: block;
+        background: url("img/plugstreaming.png") no-repeat top center;
+        background-size: contain;
+        position: absolute;
+        top: 2px;
+        left: 0;
+        width: 100%;
+        height: 10%;
+}
 }

@@ -12,16 +12,16 @@ import org.springframework.stereotype.Component;
 import ru.xpoft.vaadin.VaadinView;
 
 import com.dashboardwms.DashboardwmsUI;
+import com.dashboardwms.components.HeaderPanel;
 import com.dashboardwms.service.AplicacionService;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.server.Page;
 import com.vaadin.server.Responsive;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.server.VaadinSession;
-import com.vaadin.shared.Position;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -30,7 +30,6 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -45,6 +44,8 @@ public class LoginView extends VerticalLayout implements View  {
 	final List<String> listaAplicaciones = new ArrayList<String>();
 
     final ComboBox listaEmisoras = new ComboBox();
+    
+
 
     @PostConstruct
 	public void PostConstruct() {
@@ -62,10 +63,15 @@ public class LoginView extends VerticalLayout implements View  {
     	  addStyleName("mainview");
 
         VerticalLayout loginForm = buildLoginForm();
+       HorizontalLayout headerPanel = new HorizontalLayout();
+        headerPanel.setHeight("80px");
+        headerPanel.setWidth("100%");
+        headerPanel.addStyleName("header");
+        addComponent(headerPanel);
         addComponent(loginForm);
+        setComponentAlignment(headerPanel, Alignment.TOP_LEFT);
         setComponentAlignment(loginForm, Alignment.MIDDLE_CENTER);
-
-
+        setExpandRatio(loginForm, 1f);
         
     }
 

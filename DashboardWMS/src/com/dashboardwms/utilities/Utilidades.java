@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import com.vaadin.server.VaadinService;
@@ -19,7 +20,7 @@ public static final String ABSOLUTE_PATH = VaadinService.getCurrent()
  public static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
  
  
- 
+ public static final Date TODAY = new Date();
  
  public static final DateFormat DATE_QUERY = new SimpleDateFormat("yyyy-MM-dd");
  
@@ -38,13 +39,17 @@ public static final String ABSOLUTE_PATH = VaadinService.getCurrent()
  public static final List<String> LISTA_PERIODOS = Arrays.asList(HOY, ULTIMA_SEMANA, ULTIMA_QUINCENA, ULTIMO_MES, CUSTOM_DATE);
 
  
+ public static final String STYLE_SELECTED = "selected";
+
+ public static final String STYLE_VISIBLE = "valo-menu-visible";
+ 
  public static String timeRunning(double tiempo){
 	 
 		int hor,min; 
 			int total = (int)tiempo;
 			hor=total/3600;  
 	        min=(total-(3600*hor))/60;  
-			return hor +" Horas Transmitidas";
+			return "Horas Transmitidas: " + hor;
 			
 		
  }

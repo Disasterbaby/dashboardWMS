@@ -106,6 +106,44 @@
         padding: round($view-padding / 3);
         min-height: 220px;
       }
+      
+         .dashboard-pais {
+        padding: round($view-padding / 3);
+        min-height: 220px;
+      }
+      
+       &[width-range~="0-700px"] {
+  	    .dashboard-pais {
+  	      width: 100% !important;
+  	    }
+  	  }
+  	  
+  	  	  &[width-range~="701px-"] {
+  	    .dashboard-pais {
+  	      width: 100% !important;
+  	        
+  	    }
+  	  }
+  	  
+  	     &[height-range~="0-440px"] {
+  	    .dashboard-pais {
+  	      height: 100%;
+  	    }
+  	  }
+
+  	  &[height-range~="441px-"] {
+  	    .dashboard-pais {
+  	      height: 50%;
+  	    }
+  	  }
+
+      .dashboard-pais.max {
+        width: 100% !important;
+        height: 100%;
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+  	  
 
   	  &[width-range~="0-700px"] {
   	    .dashboard-panel-slot {
@@ -116,6 +154,7 @@
   	  &[width-range~="701px-"] {
   	    .dashboard-panel-slot {
   	      width: 50% !important;
+  	        
   	    }
   	  }
 
@@ -142,7 +181,7 @@
         .card {
           padding: $v-unit-size + 2px 0 0;
         }
-
+      
         .v-textarea {
           border-top: valo-border($strength: 0.5);
           padding: 20px 20px 0;

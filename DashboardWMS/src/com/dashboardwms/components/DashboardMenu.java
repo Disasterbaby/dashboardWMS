@@ -85,9 +85,11 @@ public final class DashboardMenu extends CustomComponent {
     }
 
     private Component buildTitle() {
-        Label logo = new Label("Plug Streaming",
-                ContentMode.HTML);
+        Label logo = new Label("Plug Streaming");
+        logo.setIcon(new ThemeResource("img/icoplug.ico"));
         logo.setSizeUndefined();
+        logo.addStyleName("valo-menu-title");
+        
         HorizontalLayout logoWrapper = new HorizontalLayout(logo);
         logoWrapper.setComponentAlignment(logo, Alignment.MIDDLE_CENTER);
         logoWrapper.addStyleName("valo-menu-title");
@@ -97,7 +99,6 @@ public final class DashboardMenu extends CustomComponent {
     
     public void setItemTexto(String emisora){
     	settingsItem.setText(emisora);
-    	settingsItem.setIcon(new ThemeResource("img/icoplug.ico"));
     }
     
     private Component buildUserMenu() {

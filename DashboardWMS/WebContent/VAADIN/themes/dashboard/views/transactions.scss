@@ -5,6 +5,22 @@
       padding: $view-padding;
       border-bottom: valo-border($strength: 0.5);
     }
+        .viewsecondheader {
+        padding-left: $view-padding;
+        padding-right: $view-padding;
+      border-bottom: valo-border($strength: 0.5);
+    }
+    
+      .viewheader2 {
+      padding-top: $view-padding;
+       padding-left: $view-padding;
+        padding-right: $view-padding;
+        padding-bottom:15px;
+    }
   }
+	
+	.nomarginbottom {
+	 margin-bottom: 0px;
+	}
 
 }

@@ -2,7 +2,7 @@ package com.dashboardwms.components;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.GradientPaint;
+import java.awt.Shape;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -35,6 +35,7 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.RectangleInsets;
+import org.jfree.util.ShapeUtilities;
 import org.springframework.jdbc.InvalidResultSetAccessException;
 import org.vaadin.addon.JFreeChartWrapper;
 
@@ -74,7 +75,7 @@ public class DailyStatisticsPanel extends Panel {
 	private AplicacionService aplicacionService;
 	private ClienteService clienteService;
 	private Date today = new Date();
-	private ComboBox cboxPeriodo = new ComboBox();
+	public ComboBox cboxPeriodo = new ComboBox();
 	private final Table tablaInformacionPeriodo = new Table();
 	private final Table tablaDispositivosPeriodo = new Table();
 	private Label captionTablaPeriodo = new Label();
@@ -548,13 +549,17 @@ public class DailyStatisticsPanel extends Panel {
 		plot.setDomainCrosshairVisible(true);
 		plot.setRangeCrosshairVisible(true);
 		XYItemRenderer r = plot.getRenderer();
+
+		Shape theShape = ShapeUtilities.createDiamond(1);
+		
+		r.setShape(theShape);
+		
 		if (r instanceof XYLineAndShapeRenderer) {
 			XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) r;
 			renderer.setPaint(Color.BLUE);
 			renderer.setBaseShapesVisible(true);
 			renderer.setBaseShapesFilled(true);
-			renderer.setDrawSeriesLineAsPath(true);
-		}
+			}
 
 		DateAxis axis = (DateAxis) plot.getDomainAxis();
 		plot.getRangeAxis().setLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
