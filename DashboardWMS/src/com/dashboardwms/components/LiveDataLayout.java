@@ -196,6 +196,8 @@ public class LiveDataLayout extends VerticalLayout {
 		
 
 		numeroConexiones.setValue(usuariosConectados + " Usuarios Conectados");
+		if(usuariosConectados > picoOyentes)
+			picoOyentes = usuariosConectados;
 		picoDiario.setValue("Pico de Oyentes Hoy: " + picoOyentes);
 
 		horasTransmitidas.setValue(Utilidades.timeRunning(aplicacion.getTiempoCorriendo()));
