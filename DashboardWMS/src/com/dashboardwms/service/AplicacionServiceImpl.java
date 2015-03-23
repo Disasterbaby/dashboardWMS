@@ -82,10 +82,12 @@ AplicacionDAO aplicacionDao;
 	}
 	
 	
+
+
 	@Override
 	public LinkedHashMap<Date, Integer> getUsuariosConectadosPorHora(
 			String nombre, Date fechaInicio, Date fechaFin) throws InvalidResultSetAccessException, ParseException {
-
+	
 		LinkedHashMap<Date, Integer>  hashmap= new LinkedHashMap<>() ;
 		String fechaInicioString = Utilidades.DATE_QUERY.format(fechaInicio);
 		String fechaFinString = Utilidades.DATE_QUERY.format(fechaFin);

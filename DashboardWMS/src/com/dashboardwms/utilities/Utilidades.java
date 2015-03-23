@@ -11,12 +11,15 @@ import com.vaadin.server.VaadinService;
 
 public class Utilidades {
  public static final String XML_URL = "http://s1.serverht.net:8086/serverinfo";
+ 
+ 
 
 public static final String ABSOLUTE_PATH = VaadinService.getCurrent()
 			.getBaseDirectory().getAbsolutePath();
  public static final String LOCATIONS_DB = ABSOLUTE_PATH + "/location/GeoLiteCity.dat";
 
-
+public static final String TODAS_EMISORAS = "Todas";
+ 
  public static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
  
  
@@ -42,6 +45,20 @@ public static final String ABSOLUTE_PATH = VaadinService.getCurrent()
  public static final String STYLE_SELECTED = "selected";
 
  public static final String STYLE_VISIBLE = "valo-menu-visible";
+ 
+ public static final String RUTA_XLS = "C:/Users/Virgilio Melo/Desktop/Pantallas estadisticas/";
+ 
+ public static final String RUTA_STREAMING_MINUTES = RUTA_XLS + "Streaming Minutes.xls";
+ 
+ public static final String RUTA_STREAMING_SESSIONS = RUTA_XLS + "Streaming Sessions.xls";
+ 
+ public static final String RUTA_CUSTOM_REGISTRATIONS = RUTA_XLS + "CustomRegistrations.xls";
+ 
+// public static final String RUTA_XLS = "/home/plugradio/plugstreaming/plugstds/";
+ 
+ 
+
+public static final SimpleDateFormat formatoFechaArchivos = new SimpleDateFormat("yyyyMMdd");
  
  public static String timeRunning(double tiempo){
 	 

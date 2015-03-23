@@ -1,22 +1,14 @@
 package com.dashboardwms.components;
 
-import java.util.Collection;
 import java.util.Iterator;
 
-import com.dashboardwms.events.DashboardEvent.NotificationsCountUpdatedEvent;
-import com.dashboardwms.events.DashboardEvent.PostViewChangeEvent;
+import com.dashboardwms.service.UsuarioService;
 import com.dashboardwms.views.DashboardViewType;
-import com.google.common.eventbus.Subscribe;
-import com.vaadin.event.dd.DragAndDropEvent;
-import com.vaadin.event.dd.DropHandler;
-import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.server.VaadinSession;
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.AbstractSelect.AcceptItem;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -24,16 +16,15 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.DragAndDropWrapper;
-import com.vaadin.ui.NativeButton;
-import com.vaadin.ui.DragAndDropWrapper.DragStartMode;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.UI;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.PasswordField;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -48,15 +39,22 @@ public final class DashboardMenu extends CustomComponent {
     public ValoMenuItemButton botonEstadisticasPaises;
     public ValoMenuItemButton botonTiempoReal;
     public ValoMenuItemButton botonOyentesDia;
+    public ValoMenuItemButton botonAdministracion;
+    public ValoMenuItemButton botonEstadisticasMoviles;
     private static final String STYLE_SELECTED = "selected";
     private MenuItem settingsItem;
+    private UsuarioService usuarioService;
+ 
+	public void setUsuarioService(UsuarioService usuarioService) {
+		this.usuarioService = usuarioService;
+	}
 
-    
-    final CssLayout menuContent = new CssLayout();
-
+    final CssLayout menuItemsLayout = new CssLayout();
+	final CssLayout menuContent = new CssLayout();
+	private String  usuario;
     public DashboardMenu() {
    
-    	
+
     	Responsive.makeResponsive(this);
         addStyleName("valo-menu");
         setId(ID);
@@ -77,7 +75,8 @@ public final class DashboardMenu extends CustomComponent {
         menuContent.addComponent(buildTitle());
         menuContent.addComponent(buildUserMenu());
         menuContent.addComponent(buildToggleButton());
-        menuContent.addComponent(buildMenuItems());
+        buildMenuItems();
+        menuContent.addComponent(menuItemsLayout);
         Responsive.makeResponsive(menuContent);
        
 
@@ -97,17 +96,28 @@ public final class DashboardMenu extends CustomComponent {
     }
 
     
-    public void setItemTexto(String emisora){
+    public void setItemTexto(String emisora, String usuario){
     	settingsItem.setText(emisora);
+    	this.usuario = usuario;
+    	if(usuario!=null)
+        if(usuario.equalsIgnoreCase("admin"))
+        	menuItemsLayout.addComponent(botonAdministracion);
     }
     
     private Component buildUserMenu() {
         final MenuBar settings = new MenuBar();
         settings.addStyleName("user-menu");
-       
 
         settingsItem = settings.addItem("", null, null);
        
+        
+        settingsItem.addItem("Cambiar Contraseña", new Command() {
+            @Override
+            public void menuSelected(final MenuItem selectedItem) {
+            	buildModalWindow();
+            }
+        });
+        
    
         settingsItem.addItem("Salir", new Command() {
             @Override
@@ -120,6 +130,8 @@ public final class DashboardMenu extends CustomComponent {
                
             }
         });
+        
+
         return settings;
     }
 
@@ -141,8 +153,7 @@ public final class DashboardMenu extends CustomComponent {
         return valoMenuToggleButton;
     }
 
-    private Component buildMenuItems() {
-        CssLayout menuItemsLayout = new CssLayout();
+    private void buildMenuItems() {
         menuItemsLayout.addStyleName("valo-menuitems");
         menuItemsLayout.setHeight(100.0f, Unit.PERCENTAGE);
        menuItemsLayout.setWidthUndefined();
@@ -154,6 +165,10 @@ public final class DashboardMenu extends CustomComponent {
         botonEstadisticasPaises.addClickListener(buttonClickListener);
         botonOyentesDia = new ValoMenuItemButton(DashboardViewType.OYENTES_DIA);
         botonOyentesDia.addClickListener(buttonClickListener);
+        botonAdministracion = new ValoMenuItemButton(DashboardViewType.ADMINISTRACION);
+        botonAdministracion.addClickListener(buttonClickListener);
+        botonEstadisticasMoviles = new ValoMenuItemButton(DashboardViewType.MOVIL);
+        botonEstadisticasMoviles.addClickListener(buttonClickListener);
    //     for (final DashboardViewType view : DashboardViewType.values()) {
      //       Component menuItemComponent = new ValoMenuItemButton(view);
         
@@ -162,8 +177,9 @@ public final class DashboardMenu extends CustomComponent {
         menuItemsLayout.addComponent(botonTiempoReal);
         menuItemsLayout.addComponent(botonEstadisticasPaises);
         menuItemsLayout.addComponent(botonOyentesDia);
+        menuItemsLayout.addComponent(botonEstadisticasMoviles);
       //  }
-        return menuItemsLayout;
+
 
     }
 
@@ -190,6 +206,7 @@ public final class DashboardMenu extends CustomComponent {
     	botonEstadisticasPaises.removeStyleName(STYLE_SELECTED);
         botonTiempoReal.removeStyleName(STYLE_SELECTED);
         botonOyentesDia.removeStyleName(STYLE_SELECTED);
+        botonEstadisticasMoviles.removeStyleName(STYLE_SELECTED);
     }
 
     public final class ValoMenuItemButton extends Button {
@@ -208,5 +225,74 @@ public final class DashboardMenu extends CustomComponent {
 
  
  
+    }
+    
+    private void buildModalWindow(){
+    
+    	final Window subWindow = new Window();
+    	subWindow.setModal(true);
+		subWindow.addStyleName(ValoTheme.WINDOW_TOP_TOOLBAR);
+	   		subWindow.setCaption("Introduzca la nueva contraseña");
+		subWindow.setResizable(false);
+		subWindow.setDraggable(false);
+		subWindow.setSizeUndefined();
+		
+		subWindow.center();
+		VerticalLayout mainLayout = new VerticalLayout();
+		mainLayout.addStyleName(ValoTheme.LAYOUT_CARD);
+		mainLayout.setSizeUndefined();
+		mainLayout.setSpacing(true);
+		mainLayout.setMargin(true);
+		 VerticalLayout vLayout = new VerticalLayout();
+		vLayout.setSizeUndefined();
+		vLayout.setSpacing(true);
+		vLayout.setMargin(true);
+		vLayout.addStyleName(ValoTheme.LAYOUT_CARD);
+		 HorizontalLayout fields = new HorizontalLayout();
+         fields.setSpacing(true);
+         fields.setMargin(true);
+         fields.addStyleName("fields");
+         CssLayout labels = new CssLayout();
+         labels.addStyleName("labels");
+
+         Label welcome = new Label("Introduzca la nueva contraseña");
+         welcome.setSizeUndefined();
+         welcome.addStyleName(ValoTheme.LABEL_H3);
+        
+         labels.addComponent(welcome);
+
+         final PasswordField password = new PasswordField();
+         password.setIcon(FontAwesome.LOCK);
+         password.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
+
+         final Button signin = new Button("Procesar");
+         signin.addStyleName(ValoTheme.BUTTON_PRIMARY);
+         signin.setClickShortcut(KeyCode.ENTER);
+         signin.setImmediate(true);
+         signin.focus();
+
+         fields.addComponents(password, signin);
+         fields.setComponentAlignment(signin, Alignment.BOTTOM_LEFT);
+        
+         vLayout.addComponent(fields);
+//         mainLayout.addComponent(vLayout);
+//         mainLayout.setComponentAlignment(vLayout, Alignment.MIDDLE_CENTER);
+         subWindow.setContent(vLayout);
+		getUI().addWindow(subWindow); 
+       signin.addClickListener(new ClickListener() {
+		
+		@Override
+		public void buttonClick(ClickEvent event) {
+			if(password.getValue() == null)
+				Notification.show("La nueva contraseña no puede ser vacía", Notification.Type.ERROR_MESSAGE);
+			else
+				{
+				
+				usuarioService.cambiarPassword(usuario, password.getValue());
+				Notification.show("Contraseña modificada exitosamente", Notification.Type.HUMANIZED_MESSAGE);
+				subWindow.close();
+				}
+				}
+	});
     }
 }

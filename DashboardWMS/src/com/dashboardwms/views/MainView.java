@@ -2,10 +2,6 @@ package com.dashboardwms.views;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.xml.parsers.ParserConfigurationException;
@@ -23,27 +19,25 @@ import com.dashboardwms.components.CountryStatisticsPanel;
 import com.dashboardwms.components.DailyStatisticsPanel;
 import com.dashboardwms.components.DashboardMenu;
 import com.dashboardwms.components.LiveDataLayout;
+import com.dashboardwms.components.MobileStatisticsPanel;
 import com.dashboardwms.domain.Aplicacion;
 import com.dashboardwms.domain.Servidor;
-import com.dashboardwms.geoip.Location;
 import com.dashboardwms.geoip.LookupService;
-import com.dashboardwms.service.ClienteService;
 import com.dashboardwms.service.AplicacionService;
+import com.dashboardwms.service.ClienteService;
+import com.dashboardwms.service.UsuarioService;
+import com.dashboardwms.service.XLSReadingService;
 import com.dashboardwms.service.XMLConnectionService;
 import com.dashboardwms.utilities.Utilidades;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.server.Page;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.VaadinSession;
-import com.vaadin.shared.Position;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.HorizontalSplitPanel;
-import com.vaadin.ui.Notification;
 
 /*
  * Dashboard MainView is a simple HorizontalLayout that wraps the menu on the
@@ -67,14 +61,21 @@ public class MainView extends HorizontalLayout implements View {
 	@Autowired
 	ClienteService clienteService;
 	
+	@Autowired
+	UsuarioService usuarioService;
+	
+	@Autowired
+	XLSReadingService xlsReadingService;
 
    private final DashboardMenu menu = new DashboardMenu();
    private final LiveDataLayout liveDataLayout = new LiveDataLayout();
    private final CountryStatisticsPanel countryStatisticsPanel = new CountryStatisticsPanel();
    DailyStatisticsPanel dailyStatisticsPanel = new DailyStatisticsPanel();
+   MobileStatisticsPanel mobileStatisticsPanel = new MobileStatisticsPanel();
 
    String emisora = (String) VaadinSession.getCurrent().getAttribute("emisora");
-    
+
+	String usuario  = (String) VaadinSession.getCurrent().getAttribute("usuario");  
     @PostConstruct
 	public void PostConstruct() {
     	
@@ -99,14 +100,20 @@ public class MainView extends HorizontalLayout implements View {
     	countryStatisticsPanel.setEmisora(emisora);
         setSizeFull();
         addStyleName("mainview");
-        menu.setItemTexto(emisora);
+        menu.setItemTexto(emisora, usuario);
+        menu.setUsuarioService(usuarioService);
         Responsive.makeResponsive(menu);
+        
+        mobileStatisticsPanel.setXLSReadingService(xlsReadingService);
+       
+        mobileStatisticsPanel.setEmisora(emisora);
+        
         
         menu.botonEstadisticasPaises.addClickListener(new ClickListener() {
 			
 			@Override
 			public void buttonClick(ClickEvent event) {
-
+				removeComponent(mobileStatisticsPanel);
 				removeComponent(dailyStatisticsPanel);
 				removeComponent(liveDataLayout);
 				countryStatisticsPanel.cboxPeriodo.setValue(Utilidades.ULTIMO_MES);
@@ -115,12 +122,34 @@ public class MainView extends HorizontalLayout implements View {
 			}
 		});
         
+        menu.botonEstadisticasMoviles.addClickListener(new ClickListener() {
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+				
+				removeComponent(dailyStatisticsPanel);
+				removeComponent(liveDataLayout);
+			removeComponent(countryStatisticsPanel);
+			try {
+				mobileStatisticsPanel.fillData();
+			} catch (InvalidResultSetAccessException | ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			addComponent(mobileStatisticsPanel);
+			
+			 setExpandRatio(mobileStatisticsPanel,  1.0f);
+			}
+		});
+        
         menu.botonOyentesDia.addClickListener(new ClickListener() {
 			
 			@Override
 			public void buttonClick(ClickEvent event) {
 				
-			
+
+				removeComponent(mobileStatisticsPanel);
 			removeComponent(countryStatisticsPanel);
 			removeComponent(liveDataLayout);
 			try {
@@ -157,6 +186,8 @@ public class MainView extends HorizontalLayout implements View {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+
+					removeComponent(mobileStatisticsPanel);
 					removeComponent(dailyStatisticsPanel);
 					removeComponent(countryStatisticsPanel);
 					addComponent(liveDataLayout);

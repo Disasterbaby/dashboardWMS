@@ -76,7 +76,7 @@ public class DashboardwmsUI extends UI {
         public static final String LOGINVIEW = "";
         public static final String MAINVIEW = "form";
         public static final String ERRORVIEW = "error";
-
+        public static final String POSTLOGINVIEW = "listado";
        
        
         @Override
