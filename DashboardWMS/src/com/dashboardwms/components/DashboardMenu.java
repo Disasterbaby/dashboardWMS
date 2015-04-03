@@ -3,6 +3,7 @@ package com.dashboardwms.components;
 import java.util.Iterator;
 
 import com.dashboardwms.service.UsuarioService;
+import com.dashboardwms.service.XLSReadingService;
 import com.dashboardwms.views.DashboardViewType;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.FontAwesome;
@@ -31,7 +32,7 @@ import com.vaadin.ui.themes.ValoTheme;
  * A responsive menu component providing user information and the controls for
  * primary navigation between the views.
  */
-@SuppressWarnings({ "serial", "unchecked" })
+@SuppressWarnings("serial")
 public final class DashboardMenu extends CustomComponent {
 
     public static final String ID = "dashboard-menu";
@@ -41,13 +42,11 @@ public final class DashboardMenu extends CustomComponent {
     public ValoMenuItemButton botonOyentesDia;
     public ValoMenuItemButton botonAdministracion;
     public ValoMenuItemButton botonEstadisticasMoviles;
+    public ValoMenuItemButton botonHome;
     private static final String STYLE_SELECTED = "selected";
     private MenuItem settingsItem;
     private UsuarioService usuarioService;
- 
-	public void setUsuarioService(UsuarioService usuarioService) {
-		this.usuarioService = usuarioService;
-	}
+    
 
     final CssLayout menuItemsLayout = new CssLayout();
 	final CssLayout menuContent = new CssLayout();
@@ -58,7 +57,6 @@ public final class DashboardMenu extends CustomComponent {
     	Responsive.makeResponsive(this);
         addStyleName("valo-menu");
         setId(ID);
-         //  setHeight("100%");
         setSizeUndefined();
         setCompositionRoot(buildContent());
     }
@@ -96,12 +94,20 @@ public final class DashboardMenu extends CustomComponent {
     }
 
     
-    public void setItemTexto(String emisora, String usuario){
+    public void setVariables(String emisora, String usuario, XLSReadingService xlsReadingService, UsuarioService usuarioService){
     	settingsItem.setText(emisora);
     	this.usuario = usuario;
+    	this.usuarioService = usuarioService;
+    	if(emisora!=null){
+    		    	
+    	if(xlsReadingService.verificarAppMovil(emisora))
+            menuItemsLayout.addComponent(botonEstadisticasMoviles);
+    	}
     	if(usuario!=null)
         if(usuario.equalsIgnoreCase("admin"))
         	menuItemsLayout.addComponent(botonAdministracion);
+    	
+    	
     }
     
     private Component buildUserMenu() {
@@ -157,10 +163,12 @@ public final class DashboardMenu extends CustomComponent {
         menuItemsLayout.addStyleName("valo-menuitems");
         menuItemsLayout.setHeight(100.0f, Unit.PERCENTAGE);
        menuItemsLayout.setWidthUndefined();
-
+       
+       	botonHome = new ValoMenuItemButton(DashboardViewType.HOME);
+       	botonHome.addClickListener(buttonClickListener);
         botonEstadisticasPaises = new ValoMenuItemButton(DashboardViewType.ESTADISTICAS_PAISES);
         botonTiempoReal = new ValoMenuItemButton(DashboardViewType.TIEMPO_REAL);
-        botonTiempoReal.addStyleName(STYLE_SELECTED);
+        botonHome.addStyleName(STYLE_SELECTED);
         botonTiempoReal.addClickListener(buttonClickListener);
         botonEstadisticasPaises.addClickListener(buttonClickListener);
         botonOyentesDia = new ValoMenuItemButton(DashboardViewType.OYENTES_DIA);
@@ -169,17 +177,11 @@ public final class DashboardMenu extends CustomComponent {
         botonAdministracion.addClickListener(buttonClickListener);
         botonEstadisticasMoviles = new ValoMenuItemButton(DashboardViewType.MOVIL);
         botonEstadisticasMoviles.addClickListener(buttonClickListener);
-   //     for (final DashboardViewType view : DashboardViewType.values()) {
-     //       Component menuItemComponent = new ValoMenuItemButton(view);
-        
-           
-         //   menuItemsLayout.addComponent(menuItemComponent);
+        menuItemsLayout.addComponent(botonHome);
         menuItemsLayout.addComponent(botonTiempoReal);
         menuItemsLayout.addComponent(botonEstadisticasPaises);
         menuItemsLayout.addComponent(botonOyentesDia);
-        menuItemsLayout.addComponent(botonEstadisticasMoviles);
-      //  }
-
+   
 
     }
 
@@ -203,10 +205,12 @@ public final class DashboardMenu extends CustomComponent {
                  next.removeStyleName(STYLE_SELECTED);
              } 
          }
+    	 botonHome.removeStyleName(STYLE_SELECTED);
     	botonEstadisticasPaises.removeStyleName(STYLE_SELECTED);
         botonTiempoReal.removeStyleName(STYLE_SELECTED);
         botonOyentesDia.removeStyleName(STYLE_SELECTED);
         botonEstadisticasMoviles.removeStyleName(STYLE_SELECTED);
+        botonAdministracion.removeStyleName(STYLE_SELECTED);
     }
 
     public final class ValoMenuItemButton extends Button {
@@ -275,8 +279,6 @@ public final class DashboardMenu extends CustomComponent {
          fields.setComponentAlignment(signin, Alignment.BOTTOM_LEFT);
         
          vLayout.addComponent(fields);
-//         mainLayout.addComponent(vLayout);
-//         mainLayout.setComponentAlignment(vLayout, Alignment.MIDDLE_CENTER);
          subWindow.setContent(vLayout);
 		getUI().addWindow(subWindow); 
        signin.addClickListener(new ClickListener() {

@@ -466,7 +466,7 @@ public class MobileStatisticsPanel extends Panel {
 		
 		if (r instanceof XYLineAndShapeRenderer) {
 			XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) r;
-			renderer.setPaint(Color.BLUE);
+			renderer.setPaint(Color.GREEN);
 			renderer.setBaseShapesVisible(true);
 			renderer.setBaseShapesFilled(true);
 			}
@@ -520,7 +520,7 @@ public class MobileStatisticsPanel extends Panel {
 		
 		if (r instanceof XYLineAndShapeRenderer) {
 			XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) r;
-			renderer.setPaint(Color.BLUE);
+			renderer.setPaint(Color.MAGENTA);
 			renderer.setBaseShapesVisible(true);
 			renderer.setBaseShapesFilled(true);
 			}

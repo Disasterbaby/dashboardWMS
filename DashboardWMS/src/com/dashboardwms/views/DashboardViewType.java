@@ -4,8 +4,8 @@ import com.vaadin.navigator.View;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
 
-public enum DashboardViewType {
-    TIEMPO_REAL("Tiempo Real", FontAwesome.HOME, true), ESTADISTICAS_PAISES(
+public enum DashboardViewType { HOME("Inicio",FontAwesome.HOME, true),
+    TIEMPO_REAL("Tiempo Real", FontAwesome.CLOCK_O, true), ESTADISTICAS_PAISES(
             "Estadísticas Países",  FontAwesome.GLOBE, false), OYENTES_DIA(
             "Oyentes por Día", FontAwesome.BAR_CHART_O, false), ADMINISTRACION(
             "Administración",  FontAwesome.DATABASE, true), MOVIL(

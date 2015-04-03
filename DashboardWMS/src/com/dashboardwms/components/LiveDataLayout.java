@@ -27,7 +27,6 @@ import com.vaadin.ui.themes.ValoTheme;
 public class LiveDataLayout extends VerticalLayout {
 	public LookupService cl;
     private final Table table = new Table();
-    public Servidor servidor;
     private AplicacionService aplicacionService;
     private Label horasTransmitidas = new Label("horas transmitidas");
     private Label numeroConexiones = new Label();
