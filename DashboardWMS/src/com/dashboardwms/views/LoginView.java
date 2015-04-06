@@ -117,6 +117,7 @@ public class LoginView extends VerticalLayout implements View  {
                  String usuario = username.getValue();
                  String passwordValue = password.getValue();
                 String emisora = usuarioService.verificarCredenciales(usuario, passwordValue);
+                String appMovil = usuarioService.getAppMovil(emisora);
 
              if(emisora == null)
              {	 Notification.show("Intente de nuevo", "Nombre de Usuario o Contraseña incorrectos", Notification.Type.ERROR_MESSAGE);
@@ -124,6 +125,7 @@ public class LoginView extends VerticalLayout implements View  {
              }else if(emisora.equalsIgnoreCase("todas")){
             	 VaadinSession.getCurrent().setAttribute("emisora", emisora);
             	 VaadinSession.getCurrent().setAttribute("usuario", usuario);
+
             	   getUI().getNavigator()
    				.navigateTo(DashboardwmsUI.POSTLOGINVIEW);
             	 
@@ -131,6 +133,7 @@ public class LoginView extends VerticalLayout implements View  {
             	 Notification.show("Bienvenido", Notification.Type.HUMANIZED_MESSAGE);
             	 VaadinSession.getCurrent().setAttribute("emisora", emisora);
             	 VaadinSession.getCurrent().setAttribute("usuario", usuario);
+            	 VaadinSession.getCurrent().setAttribute("appMovil", appMovil);
                getUI().getNavigator()
 				.navigateTo(DashboardwmsUI.MAINVIEW);
              }

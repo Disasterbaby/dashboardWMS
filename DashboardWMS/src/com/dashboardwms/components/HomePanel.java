@@ -56,7 +56,7 @@ public class HomePanel extends Panel {
 	private final Table tablaInformacionTiempoReal = new Table();
     private LookupService cl;
     private final Table tablaUsuariosPaises = new Table();
-
+    private String appMovil;
 	private String emisora;
 	
 	private Double totalSesiones = 0.0;
@@ -72,7 +72,9 @@ public class HomePanel extends Panel {
 		this.xmlConnectionService = xmlConnectionService;
 	}
 
-	
+	public void setAppMovil(String appMovil){
+		this.appMovil = appMovil;
+	}
 
 	public void setEmisora(String emisora) {
 		this.emisora = emisora;
@@ -178,18 +180,26 @@ public class HomePanel extends Panel {
 	private void fillTableMovil() {
 
 		LinkedHashMap<Date, Double> listaMinutos = new LinkedHashMap<>();
-
-		listaMinutos = xlsReadingService.getStreamingMinutes(emisora, today, today);
 		
 
 		LinkedHashMap<Date, Integer> listaSesiones = new LinkedHashMap<>();
+		
 
-		listaSesiones = xlsReadingService.getStreamingSessions(emisora, today, today);
-		
-		
 		LinkedHashMap<Date, Integer> listaRegistros = new LinkedHashMap<>();
+		
+		if(appMovil!=null)
+		{
 
-		listaRegistros = xlsReadingService.getCustomRegistrations(emisora, today, today);
+		listaMinutos = xlsReadingService.getStreamingMinutes(appMovil, today, today);
+		
+
+
+		listaSesiones = xlsReadingService.getStreamingSessions(appMovil, today, today);
+		
+		
+
+		listaRegistros = xlsReadingService.getCustomRegistrations(appMovil, today, today);
+		}
 		
 		Iterator it = listaMinutos.entrySet().iterator();
 		while (it.hasNext()) {
@@ -444,17 +454,19 @@ public class HomePanel extends Panel {
 Integer dispositivosMoviles=0;
 Integer escritorio=0;
 		List<Cliente> listaClientes = new ArrayList<Cliente>();
-    	
+    	if(servidor.getListaAplicaciones()!=null)
     			for (Aplicacion aplicacion : servidor.getListaAplicaciones()) {
 					if(aplicacion.getNombre().equalsIgnoreCase(emisora)){
 
 						listaClientes = aplicacion.getListaClientes();
+						if(aplicacion.getTiempoCorriendo()!=null)
 						horas = (int) (aplicacion.getTiempoCorriendo()/3600);
 						break;
 					}
 				}
    		Integer usuariosConectados = 0;
 		tablaInformacionTiempoReal.removeAllItems();
+		if(listaClientes!=null)
 		if(!listaClientes.isEmpty())
 		{	
 			usuariosConectados = listaClientes.size();

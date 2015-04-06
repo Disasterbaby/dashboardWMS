@@ -46,15 +46,17 @@ public static final String TODAS_EMISORAS = "Todas";
 
  public static final String STYLE_VISIBLE = "valo-menu-visible";
  
- public static final String RUTA_XLS = "C:/Users/Virgilio Melo/Desktop/Pantallas estadisticas/";
+// public static final String RUTA_XLS = "C:/Users/Virgilio Melo/Desktop/Pantallas estadisticas/";
  
- public static final String RUTA_STREAMING_MINUTES = RUTA_XLS + "Streaming Minutes.xls";
+
+ public static final String RUTA_XLS = "/home/plugradio/plugstreaming/plugstds/";
  
- public static final String RUTA_STREAMING_SESSIONS = RUTA_XLS + "Streaming Sessions.xls";
+ public static final String RUTA_STREAMING_MINUTES = RUTA_XLS + "StreamingMinutes.xls";
+ 
+ public static final String RUTA_STREAMING_SESSIONS = RUTA_XLS + "StreamingSessions.xls";
  
  public static final String RUTA_CUSTOM_REGISTRATIONS = RUTA_XLS + "CustomRegistrations.xls";
  
-// public static final String RUTA_XLS = "/home/plugradio/plugstreaming/plugstds/";
  
  
 

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.dashboardwms.dao.UsuarioDAO;
 import com.dashboardwms.domain.Usuario;
+import com.dashboardwms.exceptions.UsuarioDuplicadoException;
 
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
@@ -25,6 +26,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 		
 		
 	}
+	
+	
+	
 
 	@Override
 	public void cambiarPassword(String usuario, String password) {
@@ -36,15 +40,60 @@ public class UsuarioServiceImpl implements UsuarioService {
 	}
 
 	@Override
-	public void crearUsuario(String nombre, String password, String aplicacion, String aplicacionMovil) {
-		usuarioDao.insertarUsuario(nombre, password, aplicacion, aplicacionMovil);
-		
+	public void crearUsuario(String nombre, String password, String aplicacion, String aplicacionMovil) throws UsuarioDuplicadoException {
+
+		byte[] encodedBytes = Base64.encodeBase64(password.getBytes());
+		String encodedPassword = new String(encodedBytes);
+		if(getListaNombreUsuarioExistentes().contains(nombre))
+		 throw new UsuarioDuplicadoException("El nombre de usuario ya existe");
+		else if (getListaEmisorasUsadas().contains(aplicacion))
+			throw new UsuarioDuplicadoException("La emisora ya se encuentra asignada a otro usuario");
+		else
+			usuarioDao.insertarUsuario(nombre, encodedPassword, aplicacion, aplicacionMovil);
 	}
 
 	@Override
 	public List<Usuario> getListaUsuarios() {
 		
 		return usuarioDao.getListaUsuarios();
+	}
+
+
+
+
+	@Override
+	public String getAppMovil(String emisora) {
+		// TODO Auto-generated method stub
+		return usuarioDao.getAppMovilUsuario(emisora);
+	}
+
+
+
+
+	@Override
+	public List<String> getListaNombreUsuarioExistentes() {
+		// TODO Auto-generated method stub
+		return usuarioDao.getListaNombresUsuarios();
+	}
+
+
+
+
+	@Override
+	public List<String> getListaEmisorasUsadas() {
+		
+		return usuarioDao.getListaEmisorasAsignadas();
+	}
+
+
+
+
+	@Override
+	public void modificarUsuario(Usuario usuario) {
+		byte[] encodedBytes = Base64.encodeBase64(usuario.getPassword().getBytes());
+		String encodedPassword = new String(encodedBytes);
+		usuarioDao.modificarUsuario(usuario.getAplicacion(), encodedPassword, usuario.getAplicacionMovil(), usuario.getNombre());
+		
 	}
 
 }

@@ -70,7 +70,7 @@ public class MobileStatisticsPanel extends Panel {
 	private Label captionGraficoMinutos = new Label();
 	private Label captionGraficoRegistros = new Label();
 	private Label captionInfoPeriodo = new Label();
-	private String emisora;
+	private String appMovil;
 	Calendar calendar = Calendar.getInstance();
 	
 	private Double totalSesiones = 0.0;
@@ -80,8 +80,8 @@ public class MobileStatisticsPanel extends Panel {
 	private Double topeSesiones = 0.0;
 	private Double topeRegistros = 0.0;
 
-	public void setEmisora(String emisora) {
-		this.emisora = emisora;
+	public void setAppMovil(String appMovil) {
+		this.appMovil = appMovil;
 	}
 
 	public void setXLSReadingService(XLSReadingService xlsReadingService){
@@ -185,7 +185,7 @@ public class MobileStatisticsPanel extends Panel {
 			throws InvalidResultSetAccessException, ParseException {
 		LinkedHashMap<Date, Double> listaMinutos = new LinkedHashMap<>();
 
-		listaMinutos = xlsReadingService.getStreamingMinutes(emisora, fechaInicio, fechaFin);
+		listaMinutos = xlsReadingService.getStreamingMinutes(appMovil, fechaInicio, fechaFin);
 		
 		XYDataset datasetMinutos = datasetMinutos(listaMinutos);
 		Component chartMinutos = wrapperChartMinutos(datasetMinutos);
@@ -239,7 +239,7 @@ public class MobileStatisticsPanel extends Panel {
 			throws InvalidResultSetAccessException, ParseException {
 		LinkedHashMap<Date, Integer> listaSesiones = new LinkedHashMap<>();
 
-		listaSesiones = xlsReadingService.getStreamingSessions(emisora, fechaInicio, fechaFin);
+		listaSesiones = xlsReadingService.getStreamingSessions(appMovil, fechaInicio, fechaFin);
 
 		XYDataset datasetSesiones = datasetSesiones(listaSesiones);
 		Component chartSesiones = wrapperChartSesiones(datasetSesiones);
@@ -293,7 +293,7 @@ public class MobileStatisticsPanel extends Panel {
 			throws InvalidResultSetAccessException, ParseException {
 		LinkedHashMap<Date, Integer> listaRegistros = new LinkedHashMap<>();
 
-		listaRegistros = xlsReadingService.getCustomRegistrations(emisora, fechaInicio, fechaFin);
+		listaRegistros = xlsReadingService.getCustomRegistrations(appMovil, fechaInicio, fechaFin);
 
 		XYDataset datasetRegistros = datasetRegistros(listaRegistros);
 		Component chartRegistros = wrapperChartRegistros(datasetRegistros);

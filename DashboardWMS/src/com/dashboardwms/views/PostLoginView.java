@@ -14,6 +14,7 @@ import ru.xpoft.vaadin.VaadinView;
 import com.dashboardwms.DashboardwmsUI;
 import com.dashboardwms.components.HeaderPanel;
 import com.dashboardwms.service.AplicacionService;
+import com.dashboardwms.service.UsuarioService;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.navigator.View;
@@ -41,6 +42,9 @@ public class PostLoginView extends VerticalLayout implements View  {
 	@Autowired
 	AplicacionService aplicacionService;
 
+	@Autowired
+	UsuarioService usuarioService;
+	
 	final List<String> listaAplicaciones = new ArrayList<String>();
 
     final ComboBox listaEmisoras = new ComboBox();
@@ -118,7 +122,9 @@ public class PostLoginView extends VerticalLayout implements View  {
 
             	if(listaEmisoras.getValue()!= null)
             	{	String emisora = (String)listaEmisoras.getValue();
+            	String appMovil = usuarioService.getAppMovil(emisora);
                 VaadinSession.getCurrent().setAttribute("emisora", emisora);
+            	 VaadinSession.getCurrent().setAttribute("appMovil", appMovil);
                 getUI().getNavigator()
 				.navigateTo(DashboardwmsUI.MAINVIEW);
             	}

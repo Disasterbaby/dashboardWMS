@@ -94,14 +94,15 @@ public final class DashboardMenu extends CustomComponent {
     }
 
     
-    public void setVariables(String emisora, String usuario, XLSReadingService xlsReadingService, UsuarioService usuarioService){
+    public void setVariables(String emisora, String appMovil, String usuario, XLSReadingService xlsReadingService, UsuarioService usuarioService){
     	settingsItem.setText(emisora);
     	this.usuario = usuario;
     	this.usuarioService = usuarioService;
     	if(emisora!=null){
-    		    	
-    	if(xlsReadingService.verificarAppMovil(emisora))
+    	if(appMovil!=null){	    	
+    	if(xlsReadingService.verificarAppMovil(appMovil))
             menuItemsLayout.addComponent(botonEstadisticasMoviles);
+    	}
     	}
     	if(usuario!=null)
         if(usuario.equalsIgnoreCase("admin"))

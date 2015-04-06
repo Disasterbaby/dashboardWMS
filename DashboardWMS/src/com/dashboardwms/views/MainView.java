@@ -80,6 +80,9 @@ public class MainView extends HorizontalLayout implements View {
    String emisora = (String) VaadinSession.getCurrent().getAttribute("emisora");
 
 	String usuario  = (String) VaadinSession.getCurrent().getAttribute("usuario");  
+	
+	String appMovil  = (String)  VaadinSession.getCurrent().getAttribute("appMovil");
+
     @PostConstruct
 	public void PostConstruct() {
     	
@@ -99,6 +102,7 @@ public class MainView extends HorizontalLayout implements View {
 		liveDataLayout.cl = cl;
 		homePanel.setClienteService(clienteService);
 		homePanel.setEmisora(emisora);
+		homePanel.setAppMovil(appMovil);
 		homePanel.setXLSReadingService(xlsReadingService);
 		homePanel.setLookupService(cl);
 		homePanel.setXMLConnectionService(xmlConnectionService);
@@ -109,19 +113,20 @@ public class MainView extends HorizontalLayout implements View {
     	dailyStatisticsPanel.setEmisora(emisora);
     	countryStatisticsPanel.setEmisora(emisora);
     	administracionUsuariosPanel.setUsuarioService(usuarioService);
-    	administracionUsuariosPanel.setAplicacionService(aplicacionService);
     	administracionUsuariosPanel.setXLSReadingService(xlsReadingService);
+
+    	administracionUsuariosPanel.setAplicacionService(aplicacionService);
         setSizeFull();
         addStyleName("mainview");
 
-        menu.setVariables(emisora, usuario, xlsReadingService, usuarioService);
+        menu.setVariables(emisora, appMovil, usuario, xlsReadingService, usuarioService);
 
         
         Responsive.makeResponsive(menu);
         
         mobileStatisticsPanel.setXLSReadingService(xlsReadingService);
        
-        mobileStatisticsPanel.setEmisora(emisora);
+        mobileStatisticsPanel.setAppMovil(appMovil);
         
         menu.botonAdministracion.addClickListener(new ClickListener() {
 			

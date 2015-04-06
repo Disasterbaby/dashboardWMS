@@ -2,6 +2,8 @@ package com.dashboardwms.dao;
 
 
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -131,6 +134,122 @@ public class JdbcUsuarioDAO implements UsuarioDAO {
 			}
 		}
 		return listaUsuarios;
+	}
+
+
+
+	@Transactional(readOnly = true)
+	public String getAppMovilUsuario(String emisora) {
+		boolean successfullyExecuted = false;
+		int failedCount = 0;
+		String appMovil = null;
+		while (!successfullyExecuted) {
+			try {
+				appMovil = this.jdbcTemplate.queryForObject(
+							QUERY_GET_APP_MOVIL, new Object[] {emisora}, String.class);
+				successfullyExecuted = true;
+			} catch (UncategorizedSQLException e) {
+				System.out.println("reintentar");
+				if (failedCount < 10) {
+					failedCount++;
+					try {
+						java.lang.Thread.sleep(2 * 1000L); // Wait for 2 seconds
+					} catch (java.lang.Exception exception) {
+						System.out.println("Exception " + exception);
+					}
+				}
+			}
+			catch(EmptyResultDataAccessException e) {
+				return null;
+			}	
+		}
+		return appMovil;
+	}
+
+
+
+	@Transactional(readOnly = true)
+	public List<String> getListaNombresUsuarios() {
+		boolean successfullyExecuted = false;
+		int failedCount = 0;
+		List<String> listaNombres = new ArrayList<String>();	
+		while (!successfullyExecuted){
+		 try {
+			 listaNombres = this.jdbcTemplate.query(QUERY_GET_LISTA_NOMBRES_USUARIO, new RowMapper() {
+      public Object mapRow(ResultSet resultSet, int i) throws SQLException {
+        return resultSet.getString(1);
+      } });
+      successfullyExecuted = true;
+		 } catch (UncategorizedSQLException e) {
+			 System.out.println("reintentar");
+				if (failedCount < 10) {
+					failedCount++;
+					try {
+						java.lang.Thread.sleep(2 * 1000L); // Wait for 2 seconds
+					} catch (java.lang.Exception exception) {
+						System.out.println("Exception " + exception);
+					}
+				}
+			}
+		}
+	
+		return listaNombres;
+	}
+
+
+
+	@Transactional(readOnly = true)
+	public List<String> getListaEmisorasAsignadas() {
+
+		boolean successfullyExecuted = false;
+		int failedCount = 0;
+		List<String> listaEmisoras = new ArrayList<String>();	
+		while (!successfullyExecuted){
+		 try {
+			 listaEmisoras = this.jdbcTemplate.query(QUERY_GET_LISTA_EMISORAS_ASIGNADAS, new RowMapper() {
+      public Object mapRow(ResultSet resultSet, int i) throws SQLException {
+        return resultSet.getString(1);
+      } });
+      successfullyExecuted = true;
+		 } catch (UncategorizedSQLException e) {
+			 System.out.println("reintentar");
+				if (failedCount < 10) {
+					failedCount++;
+					try {
+						java.lang.Thread.sleep(2 * 1000L); // Wait for 2 seconds
+					} catch (java.lang.Exception exception) {
+						System.out.println("Exception " + exception);
+					}
+				}
+			}
+		}
+	
+		return listaEmisoras;
+	}
+
+
+	@Override
+	public void modificarUsuario(String aplicacion, String password,
+			String aplicacionMovil, String usuario) {
+		boolean successfullyExecuted = false;
+		int failedCount = 0;
+		while (!successfullyExecuted) {
+			try {
+				 this.jdbcTemplate.update(QUERY_UPDATE_USUARIO, aplicacion, password, aplicacionMovil, usuario);
+				successfullyExecuted = true;
+			} catch (UncategorizedSQLException e) {
+				System.out.println("reintentar");
+				if (failedCount < 10) {
+					failedCount++;
+					try {
+						java.lang.Thread.sleep(2 * 1000L); // Wait for 2 seconds
+					} catch (java.lang.Exception exception) {
+						System.out.println("Exception " + exception);
+					}
+				}
+			}
+		}	
+		
 	}
 
 }

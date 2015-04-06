@@ -40,9 +40,6 @@ public class XLSReadingServiceImpl implements XLSReadingService {
                  Cell cell = firstRowIterator.next();
                  String nombreAplicacionCelda = cell.getStringCellValue();
                  nombreAplicacionCelda =  nombreAplicacionCelda.trim();
-                 nombreAplicacionCelda = nombreAplicacionCelda.replace(".", "");
-                 nombreAplicacionCelda = nombreAplicacionCelda.replace(" ", "");
-                 nombreAplicacionCelda = nombreAplicacionCelda.replace("&", "");
               
                  if(nombreAplicacion.equalsIgnoreCase(nombreAplicacionCelda))
                  {
@@ -65,10 +62,7 @@ public class XLSReadingServiceImpl implements XLSReadingService {
 							.getNumericCellValue();
 					Integer periodoInt = periodoDouble.intValue();
 					String periodo = periodoInt.toString();
-					System.out.print("periodo " + periodo + " - ");
-					System.out.println("minutos " + minutos);
 					Date fecha = Utilidades.formatoFechaArchivos.parse(periodo);
-					System.out.println("fecha " + fecha);
 
 					if(fecha.before(fechaFin) && fecha.after(fechaInicio))
 	                 hashmap.put(fecha, minutos);
@@ -105,15 +99,11 @@ public class XLSReadingServiceImpl implements XLSReadingService {
                  Cell cell = firstRowIterator.next();
                  String nombreAplicacionCelda = cell.getStringCellValue();
                  nombreAplicacionCelda =  nombreAplicacionCelda.trim();
-                 nombreAplicacionCelda = nombreAplicacionCelda.replace(".", "");
-                 nombreAplicacionCelda = nombreAplicacionCelda.replace(" ", "");
-                 nombreAplicacionCelda = nombreAplicacionCelda.replace("&", "");
               
                  if(nombreAplicacion.equalsIgnoreCase(nombreAplicacionCelda))
                  {
-                	 System.out.println("bingo");
+                	
                 	 indice =  cell.getColumnIndex();
-                	 System.out.println(indice);
                 	 break;}
              }
 			 
@@ -131,10 +121,8 @@ public class XLSReadingServiceImpl implements XLSReadingService {
 							.getNumericCellValue();
 					Integer periodoInt = periodoDouble.intValue();
 					String periodo = periodoInt.toString();
-					System.out.print("periodo " + periodo + " - ");
-					System.out.println("sesiones " + sesiones);
 					Date fecha = Utilidades.formatoFechaArchivos.parse(periodo);
-					System.out.println("fecha " + fecha);
+				
 					if(fecha.before(fechaFin) && fecha.after(fechaInicio))
 	                 hashmap.put(fecha, sesiones);
 	          
@@ -170,15 +158,11 @@ public class XLSReadingServiceImpl implements XLSReadingService {
                  Cell cell = firstRowIterator.next();
                  String nombreAplicacionCelda = cell.getStringCellValue();
                  nombreAplicacionCelda =  nombreAplicacionCelda.trim();
-                 nombreAplicacionCelda = nombreAplicacionCelda.replace(".", "");
-                 nombreAplicacionCelda = nombreAplicacionCelda.replace(" ", "");
-                 nombreAplicacionCelda = nombreAplicacionCelda.replace("&", "");
               
                  if(nombreAplicacion.equalsIgnoreCase(nombreAplicacionCelda))
                  {
-                	 System.out.println("bingo");
+                	 
                 	 indice =  cell.getColumnIndex();
-                	 System.out.println(indice);
                 	 break;}
              }
 			 
@@ -196,11 +180,8 @@ public class XLSReadingServiceImpl implements XLSReadingService {
 							.getNumericCellValue();
 					Integer periodoInt = periodoDouble.intValue();
 					String periodo = periodoInt.toString();
-					System.out.print("periodo " + periodo + " - ");
-					System.out.println("registros " + registros);
 					Date fecha = Utilidades.formatoFechaArchivos.parse(periodo);
-					System.out.println("fecha " + fecha);
-
+					
 					if(fecha.before(fechaFin) && fecha.after(fechaInicio))
 	                 hashmap.put(fecha, registros);
 	          
@@ -232,10 +213,6 @@ public class XLSReadingServiceImpl implements XLSReadingService {
                  Cell cell = firstRowIterator.next();
                  String nombreAplicacionCelda = cell.getStringCellValue();
                  nombreAplicacionCelda =  nombreAplicacionCelda.trim();
-                 nombreAplicacionCelda = nombreAplicacionCelda.replace(".", "");
-                 nombreAplicacionCelda = nombreAplicacionCelda.replace(" ", "");
-                 nombreAplicacionCelda = nombreAplicacionCelda.replace("&", "");
-              
                  if(nombreAplicacion.equalsIgnoreCase(nombreAplicacionCelda))
                  {
                 	 return true;
@@ -262,6 +239,7 @@ public class XLSReadingServiceImpl implements XLSReadingService {
 			 Row firstRow = sheet.getRow(0);
 			
              Iterator<Cell> firstRowIterator = firstRow.cellIterator();
+             firstRowIterator.next();
              while (firstRowIterator.hasNext())
              {
             	 
