@@ -1,47 +1,52 @@
 package com.dashboardwms.components;
 
-import java.awt.Color;
+
 import java.awt.Font;
-import java.awt.Shape;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.CategoryLabelPositions;
-import org.jfree.chart.axis.DateAxis;
-import org.jfree.chart.axis.DateTickMarkPosition;
-import org.jfree.chart.axis.DateTickUnit;
-import org.jfree.chart.axis.DateTickUnitType;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.StandardBarPainter;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.time.Hour;
-import org.jfree.data.time.TimeSeries;
-import org.jfree.data.time.TimeSeriesCollection;
-import org.jfree.data.xy.XYDataset;
-import org.jfree.ui.RectangleInsets;
-import org.jfree.util.ShapeUtilities;
 import org.springframework.jdbc.InvalidResultSetAccessException;
 import org.vaadin.addon.JFreeChartWrapper;
 
 import com.dashboardwms.service.AplicacionService;
 import com.dashboardwms.service.ClienteService;
 import com.dashboardwms.utilities.Utilidades;
+import com.vaadin.addon.charts.Chart;
+import com.vaadin.addon.charts.model.Axis;
+import com.vaadin.addon.charts.model.AxisType;
+import com.vaadin.addon.charts.model.ChartType;
+import com.vaadin.addon.charts.model.Configuration;
+import com.vaadin.addon.charts.model.DataSeries;
+import com.vaadin.addon.charts.model.DataSeriesItem;
+import com.vaadin.addon.charts.model.HorizontalAlign;
+import com.vaadin.addon.charts.model.Labels;
+import com.vaadin.addon.charts.model.Legend;
+import com.vaadin.addon.charts.model.ListSeries;
+import com.vaadin.addon.charts.model.PlotOptionsColumn;
+import com.vaadin.addon.charts.model.PlotOptionsSpline;
+import com.vaadin.addon.charts.model.Title;
+import com.vaadin.addon.charts.model.Tooltip;
+import com.vaadin.addon.charts.model.XAxis;
+import com.vaadin.addon.charts.model.YAxis;
+import com.vaadin.addon.charts.model.style.Color;
+import com.vaadin.addon.charts.model.style.SolidColor;
+import com.vaadin.addon.charts.model.style.Style;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -246,12 +251,55 @@ public class DailyStatisticsPanel extends Panel {
 			throws InvalidResultSetAccessException, ParseException {
 		LinkedHashMap<String, Integer> lista = new LinkedHashMap<>();
 
+	
+		
+		
 		lista = clienteService.getCantidadDispositivosRangoFechas(emisora, fechaInicio, fechaFin);
+		Color[] colors = {SolidColor.GREEN, SolidColor.MAGENTA, SolidColor.CYAN};
+		 Chart chart = new Chart(ChartType.COLUMN);
+		 chart.setHeight("100%");
+		 chart.setWidth("100%");
+	        Configuration conf = chart.getConfiguration();
+	        conf.getxAxis().setType(AxisType.CATEGORY);
 
-		CategoryDataset datasetDispositivos = datasetDispositivos(lista);
-		Component chartDispositivos = wrapperChartDispositivos(datasetDispositivos);
-		Responsive.makeResponsive(chartDispositivos);
-		chartDispositivos.setSizeFull();
+	        conf.setTitle("");
+
+	        XAxis xAxis = new XAxis();
+	        DataSeries ls = new DataSeries();
+	        ls.setName("Tipo de Conexión");
+			Iterator it = lista.entrySet().iterator();
+			int i = 0;
+				while (it.hasNext()) {
+
+					Map.Entry pairs = (Map.Entry) it.next();
+					 DataSeriesItem item = new DataSeriesItem((String) pairs.getKey(),
+							  (Integer) pairs.getValue());
+				item.setColor(colors[i]);
+			            ls.add(item);
+					it.remove();
+					i++;
+				}
+	        conf.addSeries(ls);
+	        
+	        conf.addxAxis(xAxis);
+
+	        YAxis yAxis = new YAxis();
+	        yAxis.setMin(0);
+	        yAxis.setTitle(new Title(""));
+	        conf.addyAxis(yAxis);
+
+	     
+
+	        Tooltip tooltip = new Tooltip();
+	        tooltip.setFormatter("''+ this.y +'	'+'Conexiones'");
+	        conf.setTooltip(tooltip);
+
+	      
+
+	        chart.drawChart(conf);
+
+		Responsive.makeResponsive(chart);
+		chart.setSizeFull();
 		componentGraficoDispositivos.removeAllComponents();
 		componentGraficoDispositivos.setWidth("100%");
 		componentGraficoDispositivos.addStyleName("dashboard-panel-slot");
@@ -267,7 +315,7 @@ public class DailyStatisticsPanel extends Panel {
 		captionInfoDispositivos.addStyleName(ValoTheme.LABEL_H4);
 		captionInfoDispositivos.addStyleName(ValoTheme.LABEL_COLORED);
 		captionInfoDispositivos.addStyleName(ValoTheme.LABEL_NO_MARGIN);
-		chartDispositivos.setCaption(null);
+		chart.setCaption(null);
 
 		MenuBar tools = new MenuBar();
 		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
@@ -292,7 +340,7 @@ public class DailyStatisticsPanel extends Panel {
 		toolbar.setExpandRatio(captionInfoDispositivos, 1);
 		toolbar.setComponentAlignment(captionInfoDispositivos, Alignment.MIDDLE_LEFT);
 
-		card.addComponents(toolbar, chartDispositivos);
+		card.addComponents(toolbar, chart);
 		componentGraficoDispositivos.addComponent(card);
 	}
 		
@@ -302,11 +350,47 @@ public class DailyStatisticsPanel extends Panel {
 
 		listaAplicaciones = aplicacionService.getUsuariosConectadosPorHora(
 				emisora, fechaInicio, fechaFin);
+ Chart vaadinChartPeriodo = new Chart();
+		vaadinChartPeriodo.setHeight("100%");
+		vaadinChartPeriodo.setWidth("100%");
+        Configuration configuration = vaadinChartPeriodo.getConfiguration();
+        configuration.getChart().setType(ChartType.SPLINE);
 
-		XYDataset datasetPeriodo = datasetPeriodo(listaAplicaciones);
-		Component chartPeriodo = wrapperChartPeriodo(datasetPeriodo);
-		Responsive.makeResponsive(chartPeriodo);
-		chartPeriodo.setSizeFull();
+
+
+        configuration.getxAxis().setType(AxisType.DATETIME);
+       
+        				
+        Axis yAxis = configuration.getyAxis();
+        yAxis.setTitle(new Title(""));
+        yAxis.setMin(0);
+
+        
+        configuration.setTitle("");
+        configuration.getTooltip().setxDateFormat("%d-%m-%Y %H:%M");
+        DataSeries ls = new DataSeries();
+        ls.setPlotOptions(new PlotOptionsSpline());
+        ls.setName("Oyentes Conectados");
+        
+		Iterator it = listaAplicaciones.entrySet().iterator();
+		while (it.hasNext()) {
+
+			Map.Entry pairs = (Map.Entry) it.next();
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime((Date) pairs.getKey());
+			  DataSeriesItem item = new DataSeriesItem(calendar.getTimeInMillis(),
+					  (Integer) pairs.getValue());
+	            ls.add(item);
+			it.remove();
+		}
+        
+ 
+
+        configuration.addSeries(ls);
+
+        vaadinChartPeriodo.drawChart(configuration);
+        Responsive.makeResponsive(vaadinChartPeriodo);
+		vaadinChartPeriodo.setSizeFull();
 		componentGraficoPeriodo.removeAllComponents();
 		componentGraficoPeriodo.setWidth("100%");
 		componentGraficoPeriodo.addStyleName("dashboard-panel-slot");
@@ -322,7 +406,7 @@ public class DailyStatisticsPanel extends Panel {
 		captionInfoPeriodo.addStyleName(ValoTheme.LABEL_H4);
 		captionInfoPeriodo.addStyleName(ValoTheme.LABEL_COLORED);
 		captionInfoPeriodo.addStyleName(ValoTheme.LABEL_NO_MARGIN);
-		chartPeriodo.setCaption(null);
+		vaadinChartPeriodo.setCaption(null);
 
 		MenuBar tools = new MenuBar();
 		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
@@ -347,7 +431,7 @@ public class DailyStatisticsPanel extends Panel {
 		toolbar.setExpandRatio(captionInfoPeriodo, 1);
 		toolbar.setComponentAlignment(captionInfoPeriodo, Alignment.MIDDLE_LEFT);
 
-		card.addComponents(toolbar, chartPeriodo);
+		card.addComponents(toolbar, vaadinChartPeriodo);
 		componentGraficoPeriodo.addComponent(card);
 	}
 		
@@ -462,167 +546,11 @@ public class DailyStatisticsPanel extends Panel {
 		}
 	}
 
-	private static JFreeChartWrapper wrapperChartPeriodo(XYDataset dataset) {
 
-		JFreeChart createchart = chartPeriodo(dataset);
 
-		return new JFreeChartWrapper(createchart);
-	}
 
-	private static JFreeChartWrapper wrapperChartDispositivos(CategoryDataset  dataset) {
-
-		JFreeChart createchart = chartDispositivos(dataset);
-
-		return new JFreeChartWrapper(createchart);
-	}
 	
-    private static JFreeChart chartDispositivos(CategoryDataset dataset) {
-        
-        // create the chart...
-        final JFreeChart chart = ChartFactory.createBarChart(
-            "",         // chart title
-            "Cantidad",               // domain axis label
-            "Medio",                  // range axis label
-            dataset,                  // data
-            PlotOrientation.VERTICAL, // orientation
-            true,                     // include legend
-            true,                     // tooltips?
-            false                     // URLs?
-        );
-
-        // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
-
-        // set the background color for the chart...
-        chart.setBackgroundPaint(Color.WHITE);
-        
-        // get a reference to the plot for further customisation...
-        final CategoryPlot plot = chart.getCategoryPlot();
-        plot.setBackgroundPaint(Color.WHITE);
-        plot.setDomainGridlinePaint(Color.GRAY);
-        plot.setRangeGridlinePaint(Color.GRAY);
-		plot.getRangeAxis().setLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
-		plot.getRangeAxis().setTickLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
 	
-        // set the range axis to display integers only...
-        final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-
-        // disable bar outlines...
-        final BarRenderer renderer = (BarRenderer) plot.getRenderer();
-        renderer.setDrawBarOutline(true);
-        renderer.setMaximumBarWidth(0.25); 
-       
-         renderer.setItemMargin(0);
-       renderer.setBarPainter(new StandardBarPainter());
-       	renderer.setOutlinePaint(Color.BLACK);
-       	
-        final CategoryAxis domainAxis = plot.getDomainAxis();
-        
-        domainAxis.setLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
-        domainAxis.setTickLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
-      
-        // OPTIONAL CUSTOMISATION COMPLETED.
-        
-        return chart;
-        
-    }
-	
-	private static JFreeChart chartPeriodo(XYDataset dataset) {
-
-		JFreeChart chart = ChartFactory.createTimeSeriesChart(null, // title
-				"Fecha", // x-axis label
-				"Oyentes", // y-axis label
-				dataset, // data
-				false, // create legend?
-				true, // generate tooltips?
-				false // generate URLs?
-				);
-
-		chart.setBackgroundPaint(Color.white);
-		
-		XYPlot plot = (XYPlot) chart.getPlot();
-		plot.setBackgroundPaint(Color.WHITE);
-		plot.setDomainGridlinePaint(Color.GRAY);
-		plot.setRangeGridlinePaint(Color.GRAY);
-
-		plot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
-		plot.setDomainCrosshairVisible(true);
-		plot.setRangeCrosshairVisible(true);
-		XYItemRenderer r = plot.getRenderer();
-
-		Shape theShape = ShapeUtilities.createDiamond(1);
-		
-		r.setShape(theShape);
-		
-		if (r instanceof XYLineAndShapeRenderer) {
-			XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) r;
-			renderer.setPaint(Color.BLUE);
-			renderer.setBaseShapesVisible(true);
-			renderer.setBaseShapesFilled(true);
-			}
-
-		DateAxis axis = (DateAxis) plot.getDomainAxis();
-		plot.getRangeAxis().setLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
-		plot.getRangeAxis().setTickLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
-
-		axis.setLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
-		axis.setTickLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
-		if (tipoRango)
-			axis.setTickUnit(new DateTickUnit(DateTickUnitType.DAY, 1,
-					new SimpleDateFormat("dd-MM")));
-		else
-		{	axis.setLabel("Hora");
-			axis.setTickUnit(new DateTickUnit(DateTickUnitType.HOUR, 1,
-					new SimpleDateFormat("HH:mm")));}
-		
-		axis.setTickMarkPosition(DateTickMarkPosition.START);
-		axis.setAutoRange(true);
-
-		ValueAxis numberAxis = plot.getRangeAxis();
-		numberAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-
-		return chart;
-
-	}
-
-	private CategoryDataset datasetDispositivos(LinkedHashMap<String, Integer> lista){
-
-        final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        
-		Iterator it = lista.entrySet().iterator();
-		while (it.hasNext()) {
-
-			Map.Entry pairs = (Map.Entry) it.next();
-			dataset.addValue((Integer) pairs.getValue(), (String) pairs.getKey(), "");
-			it.remove();
-		}
-
-		
-
-		return dataset;
-	}
-	
-	private XYDataset datasetPeriodo(
-			LinkedHashMap<Date, Integer> listaAplicaciones) {
-
-		TimeSeries s1 = new TimeSeries("nombre", "domain", "range");
-
-		TimeSeriesCollection dataset = new TimeSeriesCollection();
-
-		Iterator it = listaAplicaciones.entrySet().iterator();
-		while (it.hasNext()) {
-
-			Map.Entry pairs = (Map.Entry) it.next();
-			s1.add(new Hour((Date) pairs.getKey()), (Integer) pairs.getValue());
-
-			it.remove();
-		}
-
-		dataset.addSeries(s1);
-
-		return dataset;
-
-	}
 
 	public ValueChangeListener cboxChangeListener = new ValueChangeListener() {
 		@Override
@@ -782,7 +710,6 @@ public class DailyStatisticsPanel extends Panel {
 
 			Map.Entry<String, Integer> pairs = (Map.Entry<String, Integer>) it.next();
 			tablaDispositivosPeriodo.addItem(pairs);
-			System.out.println(pairs.getKey());
 
 			Item row = tablaDispositivosPeriodo.getItem(pairs);
 			row.getItemProperty("Key").setValue(pairs.getKey());
@@ -794,6 +721,6 @@ public class DailyStatisticsPanel extends Panel {
 		
 	}
 	
-	
 
+		
 }

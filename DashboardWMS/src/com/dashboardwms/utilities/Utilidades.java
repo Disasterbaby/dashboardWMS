@@ -10,7 +10,7 @@ import java.util.List;
 import com.vaadin.server.VaadinService;
 
 public class Utilidades {
- public static final String XML_URL = "http://s1.serverht.net:8086/serverinfo";
+ public static final String XML_URL = "http://server.plugstreaming.com:8086/serverinfo";
  
  
 
@@ -46,10 +46,10 @@ public static final String TODAS_EMISORAS = "Todas";
 
  public static final String STYLE_VISIBLE = "valo-menu-visible";
  
-// public static final String RUTA_XLS = "C:/Users/Virgilio Melo/Desktop/Pantallas estadisticas/";
+ public static final String RUTA_XLS = "C:/Users/Virgilio Melo/Desktop/Pantallas estadisticas/";
  
 
- public static final String RUTA_XLS = "/home/plugradio/plugstreaming/plugstds/";
+ //public static final String RUTA_XLS = "//plugstreaming/plugstds/";
  
  public static final String RUTA_STREAMING_MINUTES = RUTA_XLS + "StreamingMinutes.xls";
  

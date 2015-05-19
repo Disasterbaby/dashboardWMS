@@ -106,7 +106,7 @@ public class MainView extends HorizontalLayout implements View {
 		homePanel.setXLSReadingService(xlsReadingService);
 		homePanel.setLookupService(cl);
 		homePanel.setXMLConnectionService(xmlConnectionService);
-	
+		homePanel.setAplicacionService(aplicacionService);
 		liveDataLayout.setAplicacionService(aplicacionService);
    	dailyStatisticsPanel.setAplicacionService(aplicacionService);
     	dailyStatisticsPanel.setClienteService(clienteService);

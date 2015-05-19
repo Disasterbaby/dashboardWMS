@@ -20,12 +20,14 @@
 
 package com.dashboardwms.geoip;
 
+import java.io.Serializable;
+
 /**
  * Represents a country.
  * 
  * @author Matt Tucker
  */
-public class Country {
+public class Country implements Serializable {
 
 	private String code;
 	private String name;

@@ -2,32 +2,45 @@ package com.dashboardwms.components;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.springframework.jdbc.InvalidResultSetAccessException;
 import org.xml.sax.SAXException;
 
-import com.dashboardwms.domain.Aplicacion;
-import com.dashboardwms.domain.Cliente;
-import com.dashboardwms.domain.Servidor;
 import com.dashboardwms.geoip.Location;
 import com.dashboardwms.geoip.LookupService;
 import com.dashboardwms.service.AplicacionService;
 import com.dashboardwms.service.ClienteService;
 import com.dashboardwms.service.XLSReadingService;
 import com.dashboardwms.service.XMLConnectionService;
-import com.vaadin.data.Item;
+import com.dashboardwms.utilities.Utilidades;
+import com.vaadin.addon.charts.Chart;
+import com.vaadin.addon.charts.model.Axis;
+import com.vaadin.addon.charts.model.AxisType;
+import com.vaadin.addon.charts.model.Background;
+import com.vaadin.addon.charts.model.ChartType;
+import com.vaadin.addon.charts.model.Configuration;
+import com.vaadin.addon.charts.model.DataSeries;
+import com.vaadin.addon.charts.model.DataSeriesItem;
+import com.vaadin.addon.charts.model.Labels;
+import com.vaadin.addon.charts.model.ListSeries;
+import com.vaadin.addon.charts.model.Pane;
+import com.vaadin.addon.charts.model.PlotOptionsSolidGauge;
+import com.vaadin.addon.charts.model.PlotOptionsSpline;
+import com.vaadin.addon.charts.model.Title;
+import com.vaadin.addon.charts.model.YAxis;
+import com.vaadin.addon.charts.model.YAxis.Stop;
+import com.vaadin.addon.charts.model.style.SolidColor;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Responsive;
-import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
@@ -37,9 +50,6 @@ import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.Table.Align;
-import com.vaadin.ui.Table.ColumnHeaderMode;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -50,15 +60,15 @@ public class HomePanel extends Panel {
 	private XLSReadingService xlsReadingService;
 	private ClienteService clienteService;
     private XMLConnectionService xmlConnectionService;
+
+	private AplicacionService aplicacionService;
 	private Date today = new Date();
-	private final Table tablaInformacionMovil = new Table();
-	private final Table tablaInformacionDia = new Table();
-	private final Table tablaInformacionTiempoReal = new Table();
     private LookupService cl;
-    private final Table tablaUsuariosPaises = new Table();
     private String appMovil;
 	private String emisora;
-	
+
+	private Label captionInfoPeriodo = new Label();
+	private CssLayout componentGraficoPeriodo = new CssLayout();
 	private Double totalSesiones = 0.0;
 	private Double totalRegistros = 0.0;
 	private Double totalMinutos = 0.0;
@@ -88,6 +98,12 @@ public class HomePanel extends Panel {
 		this.clienteService = clienteService;
 	}
 	
+
+
+	public void setAplicacionService(AplicacionService aplicacionService) {
+		this.aplicacionService = aplicacionService;
+	}
+	
 	public HomePanel() {
 		addStyleName(ValoTheme.PANEL_BORDERLESS);
 		setSizeFull();
@@ -97,11 +113,6 @@ public class HomePanel extends Panel {
 		root.addStyleName("dashboard-view");
 		setContent(root);
 		Responsive.makeResponsive(root);
-
-		Responsive.makeResponsive(tablaInformacionMovil);
-		Responsive.makeResponsive(tablaUsuariosPaises);
-		Responsive.makeResponsive(tablaInformacionDia);
-		Responsive.makeResponsive(tablaInformacionTiempoReal);
 		root.addComponent(buildHeader());
 
 		Component content = buildContent();
@@ -113,37 +124,83 @@ public class HomePanel extends Panel {
 
 	private Component buildHeader() {
 		HorizontalLayout header = new HorizontalLayout();
-		header.addStyleName("viewheader");
-		header.setSpacing(true);
+		
 		Responsive.makeResponsive(header);
-		Label title = new Label("Resumen Diario");
-		title.setSizeUndefined();
-		title.addStyleName(ValoTheme.LABEL_H1);
-		title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
-		header.addComponent(title);
-
+		Component componentUsuariosConectados = buildComponentUsuariosConectados();
+header.addComponent(componentUsuariosConectados);
 		return header;
 	}
 
+	private Component buildComponentUsuariosConectados(){
+		final Chart chart = new Chart();
+		final Configuration configuration = chart.getConfiguration();
+        configuration.getChart().setType(ChartType.SOLIDGAUGE);
 
+        configuration.getTitle().setText("Usuarios Conectados");
+
+        Pane pane = new Pane();
+        pane.setCenterXY("50%", "85%");
+        pane.setSize("140%");
+        pane.setStartAngle(-90);
+        pane.setEndAngle(90);
+        configuration.addPane(pane);
+
+        configuration.getTooltip().setEnabled(false);
+
+        Background bkg = new Background();
+        bkg.setInnerRadius("60%");
+        bkg.setOuterRadius("100%");
+        bkg.setShape("arc");
+        bkg.setBorderWidth(0);
+        pane.setBackground(bkg);
+
+
+        YAxis yaxis = configuration.getyAxis();
+        yaxis.setLineWidth(0);
+        yaxis.setTickInterval(200);
+        yaxis.setTickWidth(0);
+        yaxis.setMin(0);
+        yaxis.setMax(200);
+        yaxis.setTitle("");
+        yaxis.getTitle().setY(-70);
+        yaxis.getLabels().setY(16);
+        Stop stop1 = new Stop(0.1f, SolidColor.GREEN);
+        Stop stop2 = new Stop(0.5f, SolidColor.YELLOW);
+        Stop stop3 = new Stop(0.9f, SolidColor.BLUE);
+        yaxis.setStops(stop1, stop2, stop3);
+
+        PlotOptionsSolidGauge plotOptions = new PlotOptionsSolidGauge();
+        plotOptions.getTooltip().setValueSuffix(" Usuarios Conectados");
+        Labels labels = new Labels();
+        labels.setY(5);
+        labels.setBorderWidth(0);
+        labels.setUseHTML(true);
+        labels.setFormat("{y}" + "                       Usuarios Conectados");
+        plotOptions.setDataLabels(labels);
+        configuration.setPlotOptions(plotOptions);
+
+        final ListSeries series = new ListSeries("UsuariosConectados", 80);
+        configuration.setSeries(series);
+
+      
+        chart.drawChart(configuration);
+		return chart;
+		
+	}
+	
 	private Component buildContent() {
 		dashboardPanels = new CssLayout();
 		dashboardPanels.addStyleName("dashboard-panels");
 		Responsive.makeResponsive(dashboardPanels);
 
+		String captionPeriodo = "Cantidad de Oyentes " + Utilidades.LISTA_PERIODOS.get(0);
+		String captionDispositivos = "Tipos de Conexión " + Utilidades.LISTA_PERIODOS.get(0);
+	
+		captionInfoPeriodo.setValue(captionPeriodo);
+		Responsive.makeResponsive(componentGraficoPeriodo);
+		
+		dashboardPanels.addComponent(componentGraficoPeriodo);
 
-		Component componentTablaTiempoReal = buildComponentTablaTiempoReal();
-		dashboardPanels.addComponent(componentTablaTiempoReal);
-		
-		Component componentTablaInfoDia = buildComponentTablaInfoDia();
-		dashboardPanels.addComponent(componentTablaInfoDia);
-		
-		Component componentInfoMovil = buildComponentTablaInfoMovil();
-		dashboardPanels.addComponent(componentInfoMovil);
-		
-		Component componentInfoPaises = buildComponentTablaInfoPaises();
-		dashboardPanels.addComponent(componentInfoPaises);
-		
 		
 		return dashboardPanels;
 	}
@@ -169,171 +226,15 @@ public class HomePanel extends Panel {
 
 	public void fillData() throws InvalidResultSetAccessException,
 			ParseException, ParserConfigurationException, SAXException, IOException {
-		
-		fillTableMovil();
-		fillTableDia(today, today);
-		fillTablaUsuariosPaises();
-		fillTablaTiempoReal();
+		fillContentWrapperGraficoPeriodo(today, today);
+//		fillTableMovil();
+//		fillTableDia(today, today);
+//		fillTablaUsuariosPaises();
+//		fillTablaTiempoReal();
 		
 	}
 
-	private void fillTableMovil() {
 
-		LinkedHashMap<Date, Double> listaMinutos = new LinkedHashMap<>();
-		
-
-		LinkedHashMap<Date, Integer> listaSesiones = new LinkedHashMap<>();
-		
-
-		LinkedHashMap<Date, Integer> listaRegistros = new LinkedHashMap<>();
-		
-		if(appMovil!=null)
-		{
-
-		listaMinutos = xlsReadingService.getStreamingMinutes(appMovil, today, today);
-		
-
-
-		listaSesiones = xlsReadingService.getStreamingSessions(appMovil, today, today);
-		
-		
-
-		listaRegistros = xlsReadingService.getCustomRegistrations(appMovil, today, today);
-		}
-		
-		Iterator it = listaMinutos.entrySet().iterator();
-		while (it.hasNext()) {
-
-			Map.Entry pairs = (Map.Entry) it.next();
-			Double minutos = (Double) pairs.getValue();
-			
-			totalMinutos = totalMinutos + minutos;
-			if(minutos > topeMinutos)
-				topeMinutos = minutos;
-			it.remove();
-		}
-		
-		Iterator it2 = listaSesiones.entrySet().iterator();
-		while (it2.hasNext()) {
-
-			Map.Entry pairs = (Map.Entry) it2.next();
-			Integer sesiones = (Integer) pairs.getValue();
-			
-			totalSesiones = totalSesiones + sesiones;
-			if(sesiones > topeSesiones)
-				topeSesiones = sesiones.doubleValue();
-			it2.remove();
-		}
-		
-		Iterator it3 = listaRegistros.entrySet().iterator();
-		while (it3.hasNext()) {
-
-			Map.Entry pairs = (Map.Entry) it3.next();
-
-			Integer registros = (Integer) pairs.getValue();
-			totalRegistros = totalRegistros + registros;
-			if(registros > topeRegistros)
-				topeRegistros = registros.doubleValue();
-			it3.remove();
-		}
-		
-		tablaInformacionMovil.removeAllItems();				
-		
-		tablaInformacionMovil.addItem("TotalSesiones");
-
-		tablaInformacionMovil.addItem("TopeSesiones");
-		tablaInformacionMovil.addItem("TotalMinutos");
-
-		tablaInformacionMovil.addItem("TopeMinutos");
-		tablaInformacionMovil.addItem("TotalRegistros");
-		tablaInformacionMovil.addItem("TopeRegistros");
-			
-			Item row = tablaInformacionMovil.getItem("TotalSesiones");
-			row.getItemProperty("Key").setValue("Total de Sesiones");
-			row.getItemProperty("Value").setValue(totalSesiones);
-
-			Item row1 = tablaInformacionMovil.getItem("TotalMinutos");
-			row1.getItemProperty("Key").setValue("Total de Minutos");
-			row1.getItemProperty("Value").setValue(totalMinutos);
-
-			Item row2 = tablaInformacionMovil.getItem("TotalRegistros");
-			row2.getItemProperty("Key").setValue("Total de Registros");
-			row2.getItemProperty("Value").setValue(totalRegistros);
-
-			Item row3 = tablaInformacionMovil.getItem("TopeSesiones");
-			row3.getItemProperty("Key").setValue("Tope de Sesiones");
-			row3.getItemProperty("Value").setValue(topeSesiones);
-
-			Item row4 = tablaInformacionMovil.getItem("TopeMinutos");
-			row4.getItemProperty("Key").setValue("Tope de Minutos");
-			row4.getItemProperty("Value").setValue(topeMinutos);
-
-			Item row5 = tablaInformacionMovil.getItem("TopeRegistros");
-			row5.getItemProperty("Key").setValue("Tope de Registros");
-			row5.getItemProperty("Value").setValue(topeRegistros);
-
-			
-		
-
-	}
-	
-
-	private Component buildComponentTablaInfoMovil() {
-		buildTableInfoMovil();
-		Component contentWrapper = createContentWrapper(tablaInformacionMovil);
-
-		contentWrapper.addStyleName("top10-revenue");
-		Responsive.makeResponsive(contentWrapper);
-		return contentWrapper;
-	}
-	
-	private Component buildComponentTablaTiempoReal() {
-		buildTableTiempoReal();
-		Component contentWrapper = createContentWrapper(tablaInformacionTiempoReal);
-
-		contentWrapper.addStyleName("top10-revenue");
-		Responsive.makeResponsive(contentWrapper);
-		return contentWrapper;
-	}
-	
-	private Component buildComponentTablaInfoPaises() {
-		buildTableUsuariosPaises();
-		Component contentWrapper = createContentWrapper(tablaUsuariosPaises);
-
-		contentWrapper.addStyleName("top10-revenue");
-		Responsive.makeResponsive(contentWrapper);
-		return contentWrapper;
-	}
-	
-	private void buildTableInfoMovil() {
-
-		tablaInformacionMovil.setSizeFull();
-		tablaInformacionMovil.addStyleName(ValoTheme.TABLE_BORDERLESS);
-		tablaInformacionMovil.addStyleName(ValoTheme.TABLE_NO_STRIPES);
-		tablaInformacionMovil.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
-		tablaInformacionMovil.addStyleName(ValoTheme.TABLE_SMALL);
-		tablaInformacionMovil.setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
-		tablaInformacionMovil.addContainerProperty("Key", String.class, null);
-		tablaInformacionMovil.addContainerProperty("Value", Double.class,
-				null);
-		tablaInformacionMovil.setColumnAlignment("Value", Align.RIGHT);
-		tablaInformacionMovil.setCaption("Aplicación Móvil");
-	}
-	
-	private void buildTableTiempoReal() {
-
-		tablaInformacionTiempoReal.setSizeFull();
-		tablaInformacionTiempoReal.addStyleName(ValoTheme.TABLE_BORDERLESS);
-		tablaInformacionTiempoReal.addStyleName(ValoTheme.TABLE_NO_STRIPES);
-		tablaInformacionTiempoReal.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
-		tablaInformacionTiempoReal.addStyleName(ValoTheme.TABLE_SMALL);
-		tablaInformacionTiempoReal.setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
-		tablaInformacionTiempoReal.addContainerProperty("Key", String.class, null);
-		tablaInformacionTiempoReal.addContainerProperty("Value", String.class,
-				null);
-		tablaInformacionTiempoReal.setColumnAlignment("Value", Align.RIGHT);
-		tablaInformacionTiempoReal.setCaption("Tiempo Real");
-	}
 	
 	private Component createContentWrapper(final Component content) {
 		final CssLayout slot = new CssLayout();
@@ -383,160 +284,107 @@ public class HomePanel extends Panel {
 		return slot;
 	}
 
-	private Component buildComponentTablaInfoDia() {
-		buildTableInfoDia();
-		Component contentWrapper = createContentWrapper(tablaInformacionDia);
-
-		contentWrapper.addStyleName("top10-revenue");
-		Responsive.makeResponsive(contentWrapper);
-		return contentWrapper;
-	}
 
 
-	private void buildTableInfoDia() {
 
-		tablaInformacionDia.setSizeFull();
-		tablaInformacionDia.addStyleName(ValoTheme.TABLE_BORDERLESS);
-		tablaInformacionDia.addStyleName(ValoTheme.TABLE_NO_STRIPES);
-		tablaInformacionDia.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
-		tablaInformacionDia.addStyleName(ValoTheme.TABLE_SMALL);
-		tablaInformacionDia.setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
-		tablaInformacionDia.addContainerProperty("Key", String.class, null);
-		tablaInformacionDia.addContainerProperty("Value", Double.class,
-				null);
-		tablaInformacionDia.setColumnAlignment("Value", Align.RIGHT);
-		tablaInformacionDia.setCaption("Oyentes");
-	}
-	
-    private void buildTableUsuariosPaises(){
-    	tablaUsuariosPaises.setSizeFull();
-    	tablaUsuariosPaises.addStyleName(ValoTheme.TABLE_BORDERLESS);
-    	tablaUsuariosPaises.addStyleName(ValoTheme.TABLE_NO_STRIPES);
-    	tablaUsuariosPaises.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
-    	tablaUsuariosPaises.addStyleName(ValoTheme.TABLE_SMALL);
-    
-    	tablaUsuariosPaises.setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
-    	
-    	
-    	tablaUsuariosPaises.addContainerProperty("País", String.class, null);
-    	tablaUsuariosPaises.addContainerProperty("Sesiones",  Integer.class, null);
-    	tablaUsuariosPaises.setRowHeaderMode(Table.RowHeaderMode.ICON_ONLY);
-  
-    	tablaUsuariosPaises.setColumnWidth(null, 40);
-    	 tablaUsuariosPaises.setColumnAlignment("Sesiones", Align.RIGHT);
-    	 tablaUsuariosPaises.setSortContainerPropertyId("Sesiones");
-    	 tablaUsuariosPaises.setSortAscending(false);
-    	 tablaUsuariosPaises.setCaption("Sesiones Por País");
-    	
-    }
-    
-    
-    private void fillTablaUsuariosPaises(){
+	private void fillContentWrapperGraficoPeriodo(Date fechaInicio, Date fechaFin)
+			throws InvalidResultSetAccessException, ParseException {
+		LinkedHashMap<Date, Integer> listaAplicaciones = new LinkedHashMap<>();
 
-    	HashSet<Location> listaPaises = clienteService.getClientesPorPaisFechas(emisora, today, today, cl);
-    	tablaUsuariosPaises.removeAllItems();
-    	if(listaPaises != null)
-        	for (Location pais : listaPaises) {
-        		tablaUsuariosPaises.addItem(pais);
-    			Item row = tablaUsuariosPaises.getItem(pais);
-        		row.getItemProperty("País").setValue(pais.countryName);
-    			row.getItemProperty("Sesiones").setValue(pais.getCantidadUsuarios());
-    			tablaUsuariosPaises.setItemIcon(pais, new ThemeResource("../flags/" + pais.countryCode.toLowerCase() + ".png"));
-    			
-    		}
-
-    	tablaUsuariosPaises.sort();
-    }
-	
-    private void fillTablaTiempoReal() throws ParserConfigurationException, SAXException, IOException{
-    	Servidor servidor = xmlConnectionService.getLiveData();
-    	Integer horas = 0;
-Integer dispositivosMoviles=0;
-Integer escritorio=0;
-		List<Cliente> listaClientes = new ArrayList<Cliente>();
-    	if(servidor.getListaAplicaciones()!=null)
-    			for (Aplicacion aplicacion : servidor.getListaAplicaciones()) {
-					if(aplicacion.getNombre().equalsIgnoreCase(emisora)){
-
-						listaClientes = aplicacion.getListaClientes();
-						if(aplicacion.getTiempoCorriendo()!=null)
-						horas = (int) (aplicacion.getTiempoCorriendo()/3600);
-						break;
-					}
-				}
-   		Integer usuariosConectados = 0;
-		tablaInformacionTiempoReal.removeAllItems();
-		if(listaClientes!=null)
-		if(!listaClientes.isEmpty())
-		{	
-			usuariosConectados = listaClientes.size();
-	
-			
-			tablaInformacionTiempoReal.addItem("Usuarios");
-
-			Item row = tablaInformacionTiempoReal.getItem("Usuarios");
-			row.getItemProperty("Key").setValue("Usuarios Conectados");
-			row.getItemProperty("Value").setValue(usuariosConectados.toString());
-			
-
-			tablaInformacionTiempoReal.addItem("Horas");
-
-			Item row2 = tablaInformacionTiempoReal.getItem("Horas");
-			row2.getItemProperty("Key").setValue("Horas Transmitidas");
-			row2.getItemProperty("Value").setValue(horas.toString());
-			
-			
-			for (Cliente cliente : listaClientes) {
-				if(cliente.getDispositivo().equalsIgnoreCase("Escritorio"))
-					escritorio++;
-				else 
-					dispositivosMoviles++;
-		
-				}
-			
-			tablaInformacionTiempoReal.addItem("Escritorio");
-			
-
-			tablaInformacionTiempoReal.addItem("Movil");
-
-			Item row3 = tablaInformacionTiempoReal.getItem("Escritorio");
-			row3.getItemProperty("Key").setValue("Conexiones Escritorio");
-			row3.getItemProperty("Value").setValue(escritorio.toString());
-			
-			Item row4 = tablaInformacionTiempoReal.getItem("Movil");
-			row4.getItemProperty("Key").setValue("Conexiones Disp. Móviles");
-			row4.getItemProperty("Value").setValue(dispositivosMoviles.toString());
-			
-		}
-
-
-    }
-	
-    
-    
-	private void fillTableDia(Date fechaInicio, Date fechaFin) {
-		tablaInformacionDia.removeAllItems();				
-		LinkedHashMap<String, Double> info = clienteService.getInfoRangoFechas(
+		listaAplicaciones = aplicacionService.getUsuariosConectadosPorHora(
 				emisora, fechaInicio, fechaFin);
-		Iterator it = info.entrySet().iterator();
+ Chart vaadinChartPeriodo = new Chart();
+		vaadinChartPeriodo.setHeight("100%");
+		vaadinChartPeriodo.setWidth("100%");
+        Configuration configuration = vaadinChartPeriodo.getConfiguration();
+        configuration.getChart().setType(ChartType.SPLINE);
+
+
+
+        configuration.getxAxis().setType(AxisType.DATETIME);
+       
+        				
+        Axis yAxis = configuration.getyAxis();
+        yAxis.setTitle(new Title(""));
+        yAxis.setMin(0);
+
+        
+        configuration.setTitle("");
+        configuration.getTooltip().setxDateFormat("%d-%m-%Y %H:%M");
+        DataSeries ls = new DataSeries();
+        ls.setPlotOptions(new PlotOptionsSpline());
+        ls.setName("Oyentes Conectados");
+        
+		Iterator it = listaAplicaciones.entrySet().iterator();
 		while (it.hasNext()) {
 
 			Map.Entry pairs = (Map.Entry) it.next();
-			tablaInformacionDia.addItem(pairs);
-			System.out.println(pairs.getKey());
-
-			Item row = tablaInformacionDia.getItem(pairs);
-			row.getItemProperty("Key").setValue(pairs.getKey());
-			row.getItemProperty("Value").setValue(pairs.getValue());
-
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime((Date) pairs.getKey());
+			  DataSeriesItem item = new DataSeriesItem(calendar.getTimeInMillis(),
+					  (Integer) pairs.getValue());
+	            ls.add(item);
 			it.remove();
 		}
+        
+ 
 
+        configuration.addSeries(ls);
+
+        vaadinChartPeriodo.drawChart(configuration);
+        Responsive.makeResponsive(vaadinChartPeriodo);
+		vaadinChartPeriodo.setSizeFull();
+		componentGraficoPeriodo.removeAllComponents();
+		componentGraficoPeriodo.setWidth("100%");
+		componentGraficoPeriodo.addStyleName("dashboard-panel-slot");
+
+		CssLayout card = new CssLayout();
+		card.setWidth("100%");
+		card.addStyleName(ValoTheme.LAYOUT_CARD);
+
+		HorizontalLayout toolbar = new HorizontalLayout();
+		toolbar.addStyleName("dashboard-panel-toolbar");
+		toolbar.setWidth("100%");
+
+		captionInfoPeriodo.addStyleName(ValoTheme.LABEL_H4);
+		captionInfoPeriodo.addStyleName(ValoTheme.LABEL_COLORED);
+		captionInfoPeriodo.addStyleName(ValoTheme.LABEL_NO_MARGIN);
+		vaadinChartPeriodo.setCaption(null);
+
+		MenuBar tools = new MenuBar();
+		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+
+		MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
+
+			@Override
+			public void menuSelected(final MenuItem selectedItem) {
+				if (!componentGraficoPeriodo.getStyleName().contains("max")) {
+					selectedItem.setIcon(FontAwesome.COMPRESS);
+					toggleMaximized(componentGraficoPeriodo, true);
+				} else {
+					componentGraficoPeriodo.removeStyleName("max");
+					selectedItem.setIcon(FontAwesome.EXPAND);
+					toggleMaximized(componentGraficoPeriodo, false);
+				}
+			}
+		});
+		max.setStyleName("icon-only");
+
+		toolbar.addComponents(captionInfoPeriodo, tools);
+		toolbar.setExpandRatio(captionInfoPeriodo, 1);
+		toolbar.setComponentAlignment(captionInfoPeriodo, Alignment.MIDDLE_LEFT);
+
+		card.addComponents(toolbar, vaadinChartPeriodo);
+		componentGraficoPeriodo.addComponent(card);
 	}
+    
+
 	
 
     public void setLookupService(LookupService cl){
     	this.cl = cl;
     }
+    
+  
 }
 

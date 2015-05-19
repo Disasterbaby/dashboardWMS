@@ -33,6 +33,12 @@ id="WebApp_ID" version="2.5">
     	<param-name>beanName</param-name>
         <param-value>DashboardwmsUI</param-value>
     </init-param>
+    <init-param>
+<description>DashboardwmsWidgetset</description>
+<param-name>widgetset</param-name>
+<param-value>com.dashboardwms.widgetset.DashboardwmsWidgetset</param-value>
+</init-param>
+    
   </servlet>
   <servlet-mapping>
     <servlet-name>Vaadin Application Servlet</servlet-name>

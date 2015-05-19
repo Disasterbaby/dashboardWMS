@@ -5,7 +5,6 @@ import java.awt.Font;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -16,7 +15,6 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.labels.StandardPieToolTipGenerator;
 import org.jfree.chart.plot.PiePlot3D;
-import org.jfree.chart.plot.Plot;
 import org.jfree.data.general.DatasetUtilities;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
@@ -26,6 +24,17 @@ import com.dashboardwms.geoip.Location;
 import com.dashboardwms.geoip.LookupService;
 import com.dashboardwms.service.ClienteService;
 import com.dashboardwms.utilities.Utilidades;
+import com.vaadin.addon.charts.Chart;
+import com.vaadin.addon.charts.PointClickEvent;
+import com.vaadin.addon.charts.PointClickListener;
+import com.vaadin.addon.charts.model.ChartType;
+import com.vaadin.addon.charts.model.Configuration;
+import com.vaadin.addon.charts.model.Cursor;
+import com.vaadin.addon.charts.model.DataSeries;
+import com.vaadin.addon.charts.model.DataSeriesItem;
+import com.vaadin.addon.charts.model.Labels;
+import com.vaadin.addon.charts.model.PlotOptionsPie;
+import com.vaadin.addon.charts.model.Tooltip;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -42,6 +51,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.Table;
@@ -246,15 +256,47 @@ public class CountryStatisticsPanel extends Panel {
 
  
     
-    private void fillContentWrapperGraficoMinutos(HashSet<Location> listaPaises){
-      	PieDataset datasetMinutosEscuchados = dataSetCantidadMinutos(listaPaises);
-    	PieDataset datasetConsolidadoMinutos = DatasetUtilities.createConsolidatedPieDataset(datasetMinutosEscuchados, "Otros", 0.02, 4);
-    	Component chartCantidadMinutos = wrapperChartPaises(datasetConsolidadoMinutos);
+   private void fillContentWrapperGraficoMinutos(HashSet<Location> listaPaises){
+	   
+	   Chart chart = new Chart(ChartType.PIE);
+	   
+       Configuration conf = chart.getConfiguration();
+
+       conf.setTitle("");
+
+       PlotOptionsPie plotOptions = new PlotOptionsPie();
+       plotOptions.setCursor(Cursor.POINTER);
+      
+       Labels dataLabels = new Labels();
+       dataLabels.setEnabled(false);
+       dataLabels.setEnabled(true);
+       dataLabels
+               .setFormatter("this.point.name");
+       plotOptions.setDataLabels(dataLabels);
+       conf.setPlotOptions(plotOptions);
+       Tooltip tooltip = new Tooltip();
+       tooltip.setValueDecimals(2);
+       tooltip.setFormatter("''+ this.point.name +': '+ Highcharts.numberFormat(this.percentage, 2) +' %'");
+       conf.setTooltip(tooltip);
+
+       final DataSeries series = new DataSeries();
+       
+       for (Location location : listaPaises) {
+    	   series.add(new DataSeriesItem(location.countryName, location.getMinutosEscuchados()));
+  	
+  			
+  		}
+       
+       conf.setSeries(series);
+
+   
+       chart.drawChart(conf);
+	   
 HorizontalLayout hLayout = new HorizontalLayout();
 hLayout.setSizeFull();
-    	Responsive.makeResponsive(chartCantidadMinutos);
-    	chartCantidadMinutos.setCaption("Minutos Conectados");
-    	chartCantidadMinutos.setSizeFull();
+    	Responsive.makeResponsive(chart);
+    	chart.setCaption("Minutos Conectados");
+    	chart.setSizeFull();
     	componentGraficoMinutos.removeAllComponents();
     	componentGraficoMinutos.setWidth("100%");
     	componentGraficoMinutos.addStyleName("dashboard-pais");
@@ -266,11 +308,11 @@ hLayout.setSizeFull();
         toolbar.addStyleName("dashboard-panel-toolbar");
         toolbar.setWidth("100%");
 
-        Label caption = new Label(chartCantidadMinutos.getCaption());
+        Label caption = new Label(chart.getCaption());
         caption.addStyleName(ValoTheme.LABEL_H4);
         caption.addStyleName(ValoTheme.LABEL_COLORED);
         caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
-        chartCantidadMinutos.setCaption(null);
+        chart.setCaption(null);
 
         MenuBar tools = new MenuBar();
         tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
@@ -298,8 +340,9 @@ hLayout.setSizeFull();
         toolbar.addComponents(caption, tools);
         toolbar.setExpandRatio(caption, 1);
         toolbar.setComponentAlignment(caption, Alignment.MIDDLE_LEFT);
-        hLayout.addComponent(chartCantidadMinutos);
+        hLayout.addComponent(chart);
         hLayout.addComponent(tablaMinutosTotales);
+        hLayout.setComponentAlignment(tablaMinutosTotales, Alignment.MIDDLE_CENTER);
         hLayout.setSpacing(true);
         card.addComponents(toolbar, hLayout);
         componentGraficoMinutos.addComponent(card);
@@ -309,14 +352,43 @@ hLayout.setSizeFull();
     
     
     private void fillContentWrapperGraficoUsuarios(HashSet<Location> listaPaises){
-    	PieDataset datasetCantidadPais = dataSetNumeroUsuarios(listaPaises);
-    	PieDataset datasetConsolidadoPais = DatasetUtilities.createConsolidatedPieDataset(datasetCantidadPais, "Otros", 0.03, 4);
     	HorizontalLayout hLayout = new HorizontalLayout();
-    	hLayout.setSizeFull();
-    	Component chartCantidadUsuarios = wrapperChartPaises(datasetConsolidadoPais);
-    	Responsive.makeResponsive(chartCantidadUsuarios);
-    	chartCantidadUsuarios.setCaption("Sesiones");
-    	chartCantidadUsuarios.setSizeFull();
+    	hLayout.setSizeFull();   Chart chart = new Chart(ChartType.PIE);
+ 	   
+        Configuration conf = chart.getConfiguration();
+
+        conf.setTitle("");
+
+        PlotOptionsPie plotOptions = new PlotOptionsPie();
+        plotOptions.setCursor(Cursor.POINTER);
+       
+        Labels dataLabels = new Labels();
+        dataLabels.setEnabled(false);
+        dataLabels.setEnabled(true);
+        dataLabels
+                .setFormatter("this.point.name");
+        plotOptions.setDataLabels(dataLabels);
+        conf.setPlotOptions(plotOptions);
+        Tooltip tooltip = new Tooltip();
+        tooltip.setValueDecimals(2);
+        tooltip.setFormatter("''+ this.point.name +': '+ Highcharts.numberFormat(this.percentage, 2) +' %'");
+        conf.setTooltip(tooltip);
+
+        final DataSeries series = new DataSeries();
+        
+        for (Location location : listaPaises) {
+     	   series.add(new DataSeriesItem(location.countryName, location.getCantidadUsuarios()));
+   	
+   			
+   		}
+        
+        conf.setSeries(series);
+
+    
+        chart.drawChart(conf);
+    	Responsive.makeResponsive(chart);
+    	chart.setCaption("Sesiones");
+    	chart.setSizeFull();
     	componentGraficoUsuarios.removeAllComponents();
     	componentGraficoUsuarios.setWidth("100%");
     	componentGraficoUsuarios.addStyleName("dashboard-pais");
@@ -331,11 +403,11 @@ hLayout.setSizeFull();
         toolbar.addStyleName("dashboard-panel-toolbar");
         toolbar.setWidth("100%");
 
-        Label caption = new Label(chartCantidadUsuarios.getCaption());
+        Label caption = new Label(chart.getCaption());
         caption.addStyleName(ValoTheme.LABEL_H4);
         caption.addStyleName(ValoTheme.LABEL_COLORED);
         caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
-        chartCantidadUsuarios.setCaption(null);
+        chart.setCaption(null);
 
         MenuBar tools = new MenuBar();
         tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
@@ -365,7 +437,7 @@ hLayout.setSizeFull();
         toolbar.addComponents(caption, tools);
         toolbar.setExpandRatio(caption, 1);
         toolbar.setComponentAlignment(caption, Alignment.MIDDLE_LEFT);
-        hLayout.addComponent(chartCantidadUsuarios);
+        hLayout.addComponent(chart);
         hLayout.addComponent(tablaUsuariosConectados);
         hLayout.setSpacing(true);
         hLayout.addStyleName(ValoTheme.LAYOUT_HORIZONTAL_WRAPPING);

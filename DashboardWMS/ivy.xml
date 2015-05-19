@@ -68,6 +68,9 @@
 
 		<!-- vaadin chart -->
 		<dependency org="com.vaadin.addon" name="vaadin-charts" rev="2.0.0" />
+		
+		<dependency org="org.apache.commons" name="commons-lang3" rev="3.0"/>
+		
 
 	</dependencies>
 </ivy-module>

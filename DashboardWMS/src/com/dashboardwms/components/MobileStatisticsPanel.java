@@ -33,6 +33,15 @@ import org.vaadin.addon.JFreeChartWrapper;
 
 import com.dashboardwms.service.XLSReadingService;
 import com.dashboardwms.utilities.Utilidades;
+import com.vaadin.addon.charts.Chart;
+import com.vaadin.addon.charts.model.Axis;
+import com.vaadin.addon.charts.model.AxisType;
+import com.vaadin.addon.charts.model.ChartType;
+import com.vaadin.addon.charts.model.Configuration;
+import com.vaadin.addon.charts.model.DataSeries;
+import com.vaadin.addon.charts.model.DataSeriesItem;
+import com.vaadin.addon.charts.model.PlotOptionsSpline;
+import com.vaadin.addon.charts.model.Title;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -187,10 +196,53 @@ public class MobileStatisticsPanel extends Panel {
 
 		listaMinutos = xlsReadingService.getStreamingMinutes(appMovil, fechaInicio, fechaFin);
 		
-		XYDataset datasetMinutos = datasetMinutos(listaMinutos);
-		Component chartMinutos = wrapperChartMinutos(datasetMinutos);
-		Responsive.makeResponsive(chartMinutos);
-		chartMinutos.setSizeFull();
+		 Chart vaadinChartMinutos = new Chart();
+		 vaadinChartMinutos.setHeight("100%");
+		 vaadinChartMinutos.setWidth("100%");
+	        Configuration configuration = vaadinChartMinutos.getConfiguration();
+	        configuration.getChart().setType(ChartType.SPLINE);
+
+
+
+	        configuration.getxAxis().setType(AxisType.DATETIME);
+	       
+	        				
+	        Axis yAxis = configuration.getyAxis();
+	        yAxis.setTitle(new Title(""));
+	        yAxis.setMin(0);
+
+	        
+	        configuration.setTitle("");
+	        configuration.getTooltip().setxDateFormat("%d-%m-%Y");
+	        DataSeries ls = new DataSeries();
+	        ls.setPlotOptions(new PlotOptionsSpline());
+	        ls.setName("Minutos Transmitidos");
+	        
+			Iterator it = listaMinutos.entrySet().iterator();
+			while (it.hasNext()) {
+
+				Map.Entry pairs = (Map.Entry) it.next();
+				Calendar calendar = Calendar.getInstance();
+				calendar.setTime((Date) pairs.getKey());
+
+	            Double minutos = (Double) pairs.getValue();
+				  DataSeriesItem item = new DataSeriesItem(calendar.getTimeInMillis(),
+						  minutos);
+		            ls.add(item);
+					totalMinutos = totalMinutos + minutos;
+					if(minutos > topeMinutos)
+						topeMinutos = minutos;
+		            
+				it.remove();
+			}
+	        
+	 
+
+	        configuration.addSeries(ls);
+
+	        vaadinChartMinutos.drawChart(configuration);
+	        Responsive.makeResponsive(vaadinChartMinutos);
+	        vaadinChartMinutos.setSizeFull();
 		componentGraficoMinutos.removeAllComponents();
 		componentGraficoMinutos.setWidth("100%");
 		componentGraficoMinutos.addStyleName("dashboard-panel-slot");
@@ -206,7 +258,7 @@ public class MobileStatisticsPanel extends Panel {
 		captionGraficoMinutos.addStyleName(ValoTheme.LABEL_H4);
 		captionGraficoMinutos.addStyleName(ValoTheme.LABEL_COLORED);
 		captionGraficoMinutos.addStyleName(ValoTheme.LABEL_NO_MARGIN);
-		chartMinutos.setCaption(null);
+		vaadinChartMinutos.setCaption(null);
 
 		MenuBar tools = new MenuBar();
 		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
@@ -231,7 +283,7 @@ public class MobileStatisticsPanel extends Panel {
 		toolbar.setExpandRatio(captionGraficoMinutos, 1);
 		toolbar.setComponentAlignment(captionGraficoMinutos, Alignment.MIDDLE_LEFT);
 
-		card.addComponents(toolbar, chartMinutos);
+		card.addComponents(toolbar, vaadinChartMinutos);
 		componentGraficoMinutos.addComponent(card);
 	}
 		
@@ -241,10 +293,52 @@ public class MobileStatisticsPanel extends Panel {
 
 		listaSesiones = xlsReadingService.getStreamingSessions(appMovil, fechaInicio, fechaFin);
 
-		XYDataset datasetSesiones = datasetSesiones(listaSesiones);
-		Component chartSesiones = wrapperChartSesiones(datasetSesiones);
-		Responsive.makeResponsive(chartSesiones);
-		chartSesiones.setSizeFull();
+		 Chart vaadinChartSesiones = new Chart();
+		 vaadinChartSesiones.setHeight("100%");
+		 vaadinChartSesiones.setWidth("100%");
+	        Configuration configuration = vaadinChartSesiones.getConfiguration();
+	        configuration.getChart().setType(ChartType.SPLINE);
+
+
+
+	        configuration.getxAxis().setType(AxisType.DATETIME);
+	        				
+	        Axis yAxis = configuration.getyAxis();
+	        yAxis.setTitle(new Title(""));
+	        yAxis.setMin(0);
+
+	        
+	        configuration.setTitle("");
+	        configuration.getTooltip().setxDateFormat("%d-%m-%Y");
+	        DataSeries ls = new DataSeries();
+	        ls.setPlotOptions(new PlotOptionsSpline());
+	        ls.setName("Sesiones");
+	        
+			Iterator it = listaSesiones.entrySet().iterator();
+			while (it.hasNext()) {
+
+				Map.Entry pairs = (Map.Entry) it.next();
+				Calendar calendar = Calendar.getInstance();
+				calendar.setTime((Date) pairs.getKey());
+
+				Integer sesiones = (Integer) pairs.getValue();
+				  DataSeriesItem item = new DataSeriesItem(calendar.getTimeInMillis(),
+						  sesiones);
+		            ls.add(item);
+		        	totalSesiones = totalSesiones + sesiones;
+					if(sesiones > topeSesiones)
+						topeSesiones = sesiones.doubleValue();
+					it.remove();
+
+			}
+	        
+	 
+
+	        configuration.addSeries(ls);
+
+	        vaadinChartSesiones.drawChart(configuration);
+	        Responsive.makeResponsive(vaadinChartSesiones);
+	        vaadinChartSesiones.setSizeFull();
 		componentGraficoSesiones.removeAllComponents();
 		componentGraficoSesiones.setWidth("100%");
 		componentGraficoSesiones.addStyleName("dashboard-panel-slot");
@@ -260,7 +354,7 @@ public class MobileStatisticsPanel extends Panel {
 		captionGraficoSesiones.addStyleName(ValoTheme.LABEL_H4);
 		captionGraficoSesiones.addStyleName(ValoTheme.LABEL_COLORED);
 		captionGraficoSesiones.addStyleName(ValoTheme.LABEL_NO_MARGIN);
-		chartSesiones.setCaption(null);
+		vaadinChartSesiones.setCaption(null);
 
 		MenuBar tools = new MenuBar();
 		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
@@ -285,7 +379,7 @@ public class MobileStatisticsPanel extends Panel {
 		toolbar.setExpandRatio(captionGraficoSesiones, 1);
 		toolbar.setComponentAlignment(captionGraficoSesiones, Alignment.MIDDLE_LEFT);
 
-		card.addComponents(toolbar, chartSesiones);
+		card.addComponents(toolbar, vaadinChartSesiones);
 		componentGraficoSesiones.addComponent(card);
 	}
 		
@@ -295,10 +389,51 @@ public class MobileStatisticsPanel extends Panel {
 
 		listaRegistros = xlsReadingService.getCustomRegistrations(appMovil, fechaInicio, fechaFin);
 
-		XYDataset datasetRegistros = datasetRegistros(listaRegistros);
-		Component chartRegistros = wrapperChartRegistros(datasetRegistros);
-		Responsive.makeResponsive(chartRegistros);
-		chartRegistros.setSizeFull();
+		 Chart vaadinChartRegistros = new Chart();
+		 vaadinChartRegistros.setHeight("100%");
+		 vaadinChartRegistros.setWidth("100%");
+	        Configuration configuration = vaadinChartRegistros.getConfiguration();
+	        configuration.getChart().setType(ChartType.SPLINE);
+
+
+
+	        configuration.getxAxis().setType(AxisType.DATETIME);
+	       
+	        				
+	        Axis yAxis = configuration.getyAxis();
+	        yAxis.setTitle(new Title(""));
+	        yAxis.setMin(0);
+
+	        
+	        configuration.setTitle("");
+	        configuration.getTooltip().setxDateFormat("%d-%m-%Y");
+	        DataSeries ls = new DataSeries();
+	        ls.setPlotOptions(new PlotOptionsSpline());
+	        ls.setName("Registros");
+	        
+			Iterator it = listaRegistros.entrySet().iterator();
+			while (it.hasNext()) {
+
+				Map.Entry pairs = (Map.Entry) it.next();
+				Calendar calendar = Calendar.getInstance();
+				calendar.setTime((Date) pairs.getKey());
+
+				Integer registros = (Integer) pairs.getValue();
+				  DataSeriesItem item = new DataSeriesItem(calendar.getTimeInMillis(),
+						  registros);
+		            ls.add(item);
+		            totalRegistros = totalRegistros + registros;
+					if(registros > topeRegistros)
+						topeRegistros = registros.doubleValue();
+				it.remove();
+			}
+	        
+		
+	        configuration.addSeries(ls);
+
+	        vaadinChartRegistros.drawChart(configuration);
+	        Responsive.makeResponsive(vaadinChartRegistros);
+	        vaadinChartRegistros.setSizeFull();
 		componentGraficoRegistros.removeAllComponents();
 		componentGraficoRegistros.setWidth("100%");
 		componentGraficoRegistros.addStyleName("dashboard-panel-slot");
@@ -314,7 +449,7 @@ public class MobileStatisticsPanel extends Panel {
 		captionGraficoRegistros.addStyleName(ValoTheme.LABEL_H4);
 		captionGraficoRegistros.addStyleName(ValoTheme.LABEL_COLORED);
 		captionGraficoRegistros.addStyleName(ValoTheme.LABEL_NO_MARGIN);
-		chartRegistros.setCaption(null);
+		vaadinChartRegistros.setCaption(null);
 
 		MenuBar tools = new MenuBar();
 		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
@@ -339,7 +474,7 @@ public class MobileStatisticsPanel extends Panel {
 		toolbar.setExpandRatio(captionGraficoRegistros, 1);
 		toolbar.setComponentAlignment(captionGraficoRegistros, Alignment.MIDDLE_LEFT);
 
-		card.addComponents(toolbar, chartRegistros);
+		card.addComponents(toolbar, vaadinChartRegistros);
 		componentGraficoRegistros.addComponent(card);
 	}
 		
@@ -362,268 +497,8 @@ public class MobileStatisticsPanel extends Panel {
 		}
 	}
 
-	private static JFreeChartWrapper wrapperChartSesiones(XYDataset dataset) {
-
-		JFreeChart createchart = chartSesiones(dataset);
-
-		return new JFreeChartWrapper(createchart);
-	}
-
-	private static JFreeChartWrapper wrapperChartMinutos(XYDataset  dataset) {
-
-		JFreeChart createchart = chartMinutos(dataset);
-
-		return new JFreeChartWrapper(createchart);
-	}
 	
-	private static JFreeChartWrapper wrapperChartRegistros(XYDataset  dataset) {
-
-		JFreeChart createchart = chartRegistros(dataset);
-
-		return new JFreeChartWrapper(createchart);
-	}
 	
-	private static JFreeChart chartMinutos(XYDataset dataset) {
-
-		JFreeChart chart = ChartFactory.createTimeSeriesChart(null, // title
-				"Fecha", // x-axis label
-				"Minutos Transmitidos", // y-axis label
-				dataset, // data
-				false, // create legend?
-				true, // generate tooltips?
-				false // generate URLs?
-				);
-
-		chart.setBackgroundPaint(Color.white);
-		
-		XYPlot plot = (XYPlot) chart.getPlot();
-		plot.setBackgroundPaint(Color.WHITE);
-		plot.setDomainGridlinePaint(Color.GRAY);
-		plot.setRangeGridlinePaint(Color.GRAY);
-
-		plot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
-		plot.setDomainCrosshairVisible(true);
-		plot.setRangeCrosshairVisible(true);
-		XYItemRenderer r = plot.getRenderer();
-
-		Shape theShape = ShapeUtilities.createDiamond(1);
-		
-		r.setShape(theShape);
-		
-		if (r instanceof XYLineAndShapeRenderer) {
-			XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) r;
-			renderer.setPaint(Color.BLUE);
-			renderer.setBaseShapesVisible(true);
-			renderer.setBaseShapesFilled(true);
-			}
-
-		DateAxis axis = (DateAxis) plot.getDomainAxis();
-		plot.getRangeAxis().setLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
-		plot.getRangeAxis().setTickLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
-
-		axis.setLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
-		axis.setTickLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
-		
-			axis.setTickUnit(new DateTickUnit(DateTickUnitType.DAY, 1,
-					new SimpleDateFormat("dd-MM")));
-	
-		axis.setTickMarkPosition(DateTickMarkPosition.START);
-		axis.setAutoRange(true);
-
-		ValueAxis numberAxis = plot.getRangeAxis();
-		numberAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-
-		return chart;
-
-	}
-
-	private static JFreeChart chartSesiones(XYDataset dataset) {
-
-		JFreeChart chart = ChartFactory.createTimeSeriesChart(null, // title
-				"Fecha", // x-axis label
-				"Sesiones", // y-axis label
-				dataset, // data
-				false, // create legend?
-				true, // generate tooltips?
-				false // generate URLs?
-				);
-
-		chart.setBackgroundPaint(Color.white);
-		
-		XYPlot plot = (XYPlot) chart.getPlot();
-		plot.setBackgroundPaint(Color.WHITE);
-		plot.setDomainGridlinePaint(Color.GRAY);
-		plot.setRangeGridlinePaint(Color.GRAY);
-
-		plot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
-		plot.setDomainCrosshairVisible(true);
-		plot.setRangeCrosshairVisible(true);
-		XYItemRenderer r = plot.getRenderer();
-
-		Shape theShape = ShapeUtilities.createDiamond(1);
-		
-		r.setShape(theShape);
-		
-		if (r instanceof XYLineAndShapeRenderer) {
-			XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) r;
-			renderer.setPaint(Color.GREEN);
-			renderer.setBaseShapesVisible(true);
-			renderer.setBaseShapesFilled(true);
-			}
-
-		DateAxis axis = (DateAxis) plot.getDomainAxis();
-		plot.getRangeAxis().setLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
-		plot.getRangeAxis().setTickLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
-
-		axis.setLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
-		axis.setTickLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
-		
-			axis.setTickUnit(new DateTickUnit(DateTickUnitType.DAY, 1,
-					new SimpleDateFormat("dd-MM")));
-	
-		axis.setTickMarkPosition(DateTickMarkPosition.START);
-		axis.setAutoRange(true);
-
-		ValueAxis numberAxis = plot.getRangeAxis();
-		numberAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-
-		return chart;
-
-	}
-
-	private static JFreeChart chartRegistros(XYDataset dataset) {
-
-		JFreeChart chart = ChartFactory.createTimeSeriesChart(null, // title
-				"Fecha", // x-axis label
-				"Registros", // y-axis label
-				dataset, // data
-				false, // create legend?
-				true, // generate tooltips?
-				false // generate URLs?
-				);
-
-		chart.setBackgroundPaint(Color.white);
-		
-		XYPlot plot = (XYPlot) chart.getPlot();
-		plot.setBackgroundPaint(Color.WHITE);
-		plot.setDomainGridlinePaint(Color.GRAY);
-		plot.setRangeGridlinePaint(Color.GRAY);
-
-		plot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
-		plot.setDomainCrosshairVisible(true);
-		plot.setRangeCrosshairVisible(true);
-		XYItemRenderer r = plot.getRenderer();
-
-		Shape theShape = ShapeUtilities.createDiamond(1);
-		
-		r.setShape(theShape);
-		
-		if (r instanceof XYLineAndShapeRenderer) {
-			XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) r;
-			renderer.setPaint(Color.MAGENTA);
-			renderer.setBaseShapesVisible(true);
-			renderer.setBaseShapesFilled(true);
-			}
-
-		DateAxis axis = (DateAxis) plot.getDomainAxis();
-		plot.getRangeAxis().setLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
-		plot.getRangeAxis().setTickLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
-
-		axis.setLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
-		axis.setTickLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 8));
-		
-			axis.setTickUnit(new DateTickUnit(DateTickUnitType.DAY, 1,
-					new SimpleDateFormat("dd-MM")));
-	
-		axis.setTickMarkPosition(DateTickMarkPosition.START);
-		axis.setAutoRange(true);
-
-		ValueAxis numberAxis = plot.getRangeAxis();
-		numberAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-
-		return chart;
-
-	}
-		
-	private XYDataset datasetMinutos(
-			LinkedHashMap<Date, Double> listaSesiones) {
-
-		TimeSeries s1 = new TimeSeries("nombre", "domain", "range");
-
-		TimeSeriesCollection dataset = new TimeSeriesCollection();
-
-		Iterator it = listaSesiones.entrySet().iterator();
-		while (it.hasNext()) {
-
-			Map.Entry pairs = (Map.Entry) it.next();
-			Double minutos = (Double) pairs.getValue();
-			
-			s1.add(new Day((Date) pairs.getKey()), minutos);
-			totalMinutos = totalMinutos + minutos;
-			if(minutos > topeMinutos)
-				topeMinutos = minutos;
-			it.remove();
-		}
-
-		dataset.addSeries(s1);
-
-		return dataset;
-
-	}
-		
-	private XYDataset datasetSesiones(
-			LinkedHashMap<Date, Integer> listaSesiones) {
-
-		TimeSeries s1 = new TimeSeries("nombre", "domain", "range");
-
-		TimeSeriesCollection dataset = new TimeSeriesCollection();
-
-		Iterator it = listaSesiones.entrySet().iterator();
-		while (it.hasNext()) {
-
-			Map.Entry pairs = (Map.Entry) it.next();
-			Integer sesiones = (Integer) pairs.getValue();
-			s1.add(new Day((Date) pairs.getKey()), sesiones);
-			
-			totalSesiones = totalSesiones + sesiones;
-			if(sesiones > topeSesiones)
-				topeSesiones = sesiones.doubleValue();
-			it.remove();
-		}
-
-		dataset.addSeries(s1);
-
-		return dataset;
-
-	}
-	
-	private XYDataset datasetRegistros(
-			LinkedHashMap<Date, Integer> listaRegistros) {
-
-		TimeSeries s1 = new TimeSeries("nombre", "domain", "range");
-
-		TimeSeriesCollection dataset = new TimeSeriesCollection();
-
-		Iterator it = listaRegistros.entrySet().iterator();
-		while (it.hasNext()) {
-
-			Map.Entry pairs = (Map.Entry) it.next();
-
-			Integer registros = (Integer) pairs.getValue();
-			s1.add(new Day((Date) pairs.getKey()), registros);
-			totalRegistros = totalRegistros + registros;
-			if(registros > topeRegistros)
-				topeRegistros = registros.doubleValue();
-			it.remove();
-		}
-
-		dataset.addSeries(s1);
-
-		return dataset;
-
-	}
-	
-
 	public ValueChangeListener cboxChangeListener = new ValueChangeListener() {
 		@Override
 		public void valueChange(ValueChangeEvent event) {

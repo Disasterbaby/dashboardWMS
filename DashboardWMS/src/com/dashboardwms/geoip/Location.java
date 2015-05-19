@@ -20,10 +20,11 @@
 
 package com.dashboardwms.geoip;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class Location {
+public class Location implements Serializable {
 	public String countryCode;
 	public String countryName;
 	public String region;

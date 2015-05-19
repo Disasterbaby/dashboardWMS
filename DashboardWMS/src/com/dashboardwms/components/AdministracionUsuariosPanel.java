@@ -136,13 +136,17 @@ public class AdministracionUsuariosPanel extends VerticalLayout {
 		@Override
 		public void buttonClick(ClickEvent event) {
 			String caption = btnAgregar.getCaption();
-			username.setReadOnly(false);
-			  username.setValue("");
-		         password.setValue("");
-		         cboxApsMoviles.setValue(null);
-		         cboxEmisoras.setValue(null);
+			
+			
 			if(caption.equalsIgnoreCase("Agregar Usuario"))
-			{	removeComponent(table);
+			{	
+
+		         username.setReadOnly(false);
+				  username.setValue("");
+			         password.setValue("");
+			         cboxApsMoviles.setValue(null);
+			         cboxEmisoras.setValue(null);
+				removeComponent(table);
 			   addComponent(mainLayout);
 		         setExpandRatio(mainLayout, 1);
 					btnAgregar.setCaption("Listado Usuarios");
@@ -305,10 +309,8 @@ public class AdministracionUsuariosPanel extends VerticalLayout {
 			        	 usuarioService.modificarUsuario(usuario);
 			        	 Notification.show("Usuario modificado exitosamente");
 			         }
-			         username.setValue("");
-			         password.setValue("");
-			         cboxApsMoviles.setValue(null);
-			         cboxEmisoras.setValue(null);
+			   
+			     
 			         fillTable();
 				} catch (UsuarioDuplicadoException e) {
 					System.out.println(e.getMessage());
