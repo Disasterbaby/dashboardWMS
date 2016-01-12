@@ -3,7 +3,9 @@ package com.dashboardwms.dao.mapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.springframework.jdbc.core.RowMapper;
 
@@ -33,7 +35,7 @@ public class ClienteMapper implements RowMapper<Cliente> {
 			cliente.setTimestamp(Utilidades.DATE_FORMAT.parse(rs.getString("timestamp")));
 			System.out.println("timestamp" + cliente.getTimestamp());
 		} catch (Exception e) {
-			cliente.setTimestamp(new Date());
+			cliente.setTimestamp(Calendar.getInstance(TimeZone.getTimeZone("America/Caracas")).getTime());
 			e.printStackTrace();
 		}
 		

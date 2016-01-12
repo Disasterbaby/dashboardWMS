@@ -1,29 +1,14 @@
 package com.dashboardwms.components;
 
-
-import java.awt.Font;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.chart.renderer.category.StandardBarPainter;
-import org.jfree.data.category.CategoryDataset;
-import org.jfree.data.category.DefaultCategoryDataset;
 import org.springframework.jdbc.InvalidResultSetAccessException;
-import org.vaadin.addon.JFreeChartWrapper;
-
 import com.dashboardwms.service.AplicacionService;
 import com.dashboardwms.service.ClienteService;
 import com.dashboardwms.utilities.Utilidades;
@@ -34,11 +19,6 @@ import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.Configuration;
 import com.vaadin.addon.charts.model.DataSeries;
 import com.vaadin.addon.charts.model.DataSeriesItem;
-import com.vaadin.addon.charts.model.HorizontalAlign;
-import com.vaadin.addon.charts.model.Labels;
-import com.vaadin.addon.charts.model.Legend;
-import com.vaadin.addon.charts.model.ListSeries;
-import com.vaadin.addon.charts.model.PlotOptionsColumn;
 import com.vaadin.addon.charts.model.PlotOptionsSpline;
 import com.vaadin.addon.charts.model.Title;
 import com.vaadin.addon.charts.model.Tooltip;
@@ -46,7 +26,6 @@ import com.vaadin.addon.charts.model.XAxis;
 import com.vaadin.addon.charts.model.YAxis;
 import com.vaadin.addon.charts.model.style.Color;
 import com.vaadin.addon.charts.model.style.SolidColor;
-import com.vaadin.addon.charts.model.style.Style;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -74,12 +53,13 @@ public class DailyStatisticsPanel extends Panel {
 
 	private CssLayout dashboardPanels;
 	private final VerticalLayout root;
-	public PopupDateField dfFecha = new PopupDateField();
+	public PopupDateField dfFechaInicial = new PopupDateField();
+	public PopupDateField dfFechaFinal = new PopupDateField();
 	private CssLayout componentGraficoPeriodo = new CssLayout();
 	private CssLayout componentGraficoDispositivos = new CssLayout();
 	private AplicacionService aplicacionService;
 	private ClienteService clienteService;
-	private Date today = new Date();
+	private Date today = Calendar.getInstance(TimeZone.getTimeZone("America/Caracas")).getTime();
 	public ComboBox cboxPeriodo = new ComboBox();
 	private final Table tablaInformacionPeriodo = new Table();
 	private final Table tablaDispositivosPeriodo = new Table();
@@ -88,6 +68,7 @@ public class DailyStatisticsPanel extends Panel {
 	private Label captionInfoPeriodo = new Label();
 	private Label captionInfoDispositivos = new Label();
 	private String emisora;
+
 	private static Boolean tipoRango = true;
 	Calendar calendar = Calendar.getInstance();
 
@@ -114,7 +95,8 @@ public class DailyStatisticsPanel extends Panel {
 		Responsive.makeResponsive(componentGraficoPeriodo);
 		Responsive.makeResponsive(componentGraficoDispositivos);
 		Responsive.makeResponsive(cboxPeriodo);
-		Responsive.makeResponsive(dfFecha);
+		Responsive.makeResponsive(dfFechaInicial);
+		Responsive.makeResponsive(dfFechaFinal);
 
 		root.addComponent(buildHeader());
 
@@ -145,9 +127,10 @@ public class DailyStatisticsPanel extends Panel {
 		title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 		header.addComponent(title);
 	     Label lbVer = new Label("Ver: ");
-	        HorizontalLayout tools = new HorizontalLayout(lbVer, cboxPeriodo, dfFecha);
+	        HorizontalLayout tools = new HorizontalLayout(lbVer, cboxPeriodo, dfFechaInicial, dfFechaFinal);
 	        tools.setComponentAlignment(lbVer, Alignment.MIDDLE_CENTER);
-		dfFecha.setVisible(false);
+		dfFechaInicial.setVisible(false);
+		dfFechaFinal.setVisible(false);
 		Responsive.makeResponsive(tools);
 		tools.setSpacing(true);
 		tools.addStyleName("toolbar");
@@ -157,14 +140,21 @@ public class DailyStatisticsPanel extends Panel {
 	}
 
 	private void buildFilter() {
-		dfFecha.setValue(today);
-		dfFecha.setDateFormat("dd-MM-yyyy");
-		dfFecha.setImmediate(true);
-		dfFecha.setRangeEnd(today);
-		dfFecha.setRangeStart(calendar.getTime());
+		dfFechaInicial.setValue(today);
+		dfFechaInicial.setDateFormat("dd-MM-yyyy");
+		dfFechaInicial.setImmediate(true);
+		dfFechaInicial.setRangeEnd(today);
+		dfFechaInicial.setRangeStart(calendar.getTime());
+		dfFechaInicial.addValueChangeListener(dfChangeListener);
+		dfFechaInicial.setTextFieldEnabled(false);
 
-		dfFecha.addValueChangeListener(dfChangeListener);
-		dfFecha.setTextFieldEnabled(false);
+		dfFechaFinal.setValue(today);
+		dfFechaFinal.setDateFormat("dd-MM-yyyy");
+		dfFechaFinal.setImmediate(true);
+		dfFechaFinal.setRangeEnd(today);
+		dfFechaFinal.setRangeStart(calendar.getTime());
+		dfFechaFinal.addValueChangeListener(dfChangeListener);
+		dfFechaFinal.setTextFieldEnabled(false);
 
 		cboxPeriodo.setImmediate(true);
 		cboxPeriodo.setNullSelectionAllowed(false);
@@ -250,10 +240,6 @@ public class DailyStatisticsPanel extends Panel {
 	private void fillContentWrapperGraficoDispositivos(Date fechaInicio, Date fechaFin)
 			throws InvalidResultSetAccessException, ParseException {
 		LinkedHashMap<String, Integer> lista = new LinkedHashMap<>();
-
-	
-		
-		
 		lista = clienteService.getCantidadDispositivosRangoFechas(emisora, fechaInicio, fechaFin);
 		Color[] colors = {SolidColor.GREEN, SolidColor.MAGENTA, SolidColor.CYAN};
 		 Chart chart = new Chart(ChartType.COLUMN);
@@ -261,7 +247,7 @@ public class DailyStatisticsPanel extends Panel {
 		 chart.setWidth("100%");
 	        Configuration conf = chart.getConfiguration();
 	        conf.getxAxis().setType(AxisType.CATEGORY);
-
+	        chart.getConfiguration().setExporting(true);
 	        conf.setTitle("");
 
 	        XAxis xAxis = new XAxis();
@@ -356,18 +342,17 @@ public class DailyStatisticsPanel extends Panel {
         Configuration configuration = vaadinChartPeriodo.getConfiguration();
         configuration.getChart().setType(ChartType.SPLINE);
 
+        configuration.setExporting(true);
 
-
-        configuration.getxAxis().setType(AxisType.DATETIME);
+      configuration.getxAxis().setType(AxisType.DATETIME);
        
-        				
         Axis yAxis = configuration.getyAxis();
         yAxis.setTitle(new Title(""));
         yAxis.setMin(0);
 
         
         configuration.setTitle("");
-        configuration.getTooltip().setxDateFormat("%d-%m-%Y %H:%M");
+        configuration.getTooltip().setxDateFormat("%d-%m-%Y %I:%M %P");;
         DataSeries ls = new DataSeries();
         ls.setPlotOptions(new PlotOptionsSpline());
         ls.setName("Oyentes Conectados");
@@ -378,7 +363,7 @@ public class DailyStatisticsPanel extends Panel {
 			Map.Entry pairs = (Map.Entry) it.next();
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime((Date) pairs.getKey());
-			  DataSeriesItem item = new DataSeriesItem(calendar.getTimeInMillis(),
+			  DataSeriesItem item = new DataSeriesItem(calendar.getTime(),
 					  (Integer) pairs.getValue());
 	            ls.add(item);
 			it.remove();
@@ -569,20 +554,22 @@ public class DailyStatisticsPanel extends Panel {
 
 		@Override
 		public void valueChange(ValueChangeEvent event) {
-			Date fecha = dfFecha.getValue();
-			String periodo = Utilidades.DATE_FORMAT_LOCAL.format(fecha);
-			String captionGrafico = "Cantidad de Oyentes " + periodo;
-			String captionTabla = "Estadísticas " + periodo;
-			String captionDispositivos = "Tipos de Conexión " + periodo;
+			Date fechaInicial = dfFechaInicial.getValue();
+			Date fechaFinal = dfFechaFinal.getValue();
+			String periodoInicial = Utilidades.DATE_FORMAT_LOCAL.format(fechaInicial);
+			String periodoFinal = Utilidades.DATE_FORMAT_LOCAL.format(fechaFinal);
+			String captionGrafico = "Cantidad de Oyentes " + periodoInicial + " al " + periodoFinal;
+			String captionTabla = "Estadísticas " + periodoInicial + " al " + periodoFinal;
+			String captionDispositivos = "Tipos de Conexión " + periodoInicial + " al " + periodoFinal;
 			captionInfoPeriodo.setValue(captionGrafico);
 			captionTablaDispositivos.setValue(captionDispositivos);
 			captionTablaPeriodo.setValue(captionTabla);
 			captionInfoDispositivos.setValue(captionDispositivos);
-			fillTablePeriodo(fecha, fecha);
-			fillTableDispositivos(fecha, fecha);
+			fillTablePeriodo(fechaInicial, fechaFinal);
+			fillTableDispositivos(fechaInicial, fechaFinal);
 			try {
-				fillContentWrapperGraficoPeriodo(fecha, fecha);
-				fillContentWrapperGraficoDispositivos(fecha, fecha);
+				fillContentWrapperGraficoPeriodo(fechaInicial, fechaFinal);
+				fillContentWrapperGraficoDispositivos(fechaInicial, fechaFinal);
 			} catch (InvalidResultSetAccessException | ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -599,10 +586,13 @@ public class DailyStatisticsPanel extends Panel {
 		String captionTabla = "Estadísticas " + periodo;
 
 		String captionDispositivos = "Tipos de Conexión " + periodo;
-		dfFecha.setVisible(false);
-		dfFecha.setDescription(null);
+		dfFechaInicial.setVisible(false);
+		dfFechaInicial.setDescription(null);
+		dfFechaInicial.removeValueChangeListener(dfChangeListener);
 
-		dfFecha.removeValueChangeListener(dfChangeListener);
+		dfFechaFinal.setVisible(false);
+		dfFechaFinal.setDescription(null);
+		dfFechaFinal.removeValueChangeListener(dfChangeListener);
 		Date fechaFin = today;
 		tipoRango = true;
 		Calendar fechaInicio = Calendar.getInstance();
@@ -668,12 +658,16 @@ public class DailyStatisticsPanel extends Panel {
 		}
 		
 			case Utilidades.CUSTOM_DATE: {
-				tipoRango = false;
-				dfFecha.setVisible(true);
-				dfFecha.focus();
-				dfFecha.setDescription("Seleccionar Fecha");
+				dfFechaInicial.setVisible(true);
+				dfFechaInicial.focus();
+				dfFechaInicial.setDescription("Seleccionar Fecha");
+				dfFechaInicial.addValueChangeListener(dfChangeListener);
+				
 
-				dfFecha.addValueChangeListener(dfChangeListener);
+				dfFechaFinal.setVisible(true);
+				dfFechaFinal.focus();
+				dfFechaFinal.setDescription("Seleccionar Fecha");
+				dfFechaFinal.addValueChangeListener(dfChangeListener);
 				break;
 			}
 

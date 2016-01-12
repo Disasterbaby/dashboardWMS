@@ -20,11 +20,14 @@ public interface AplicacionDAO {
 
 	public String QUERY_PICO_USUARIOS_BY_RANGE = "SELECT ifnull(max(conexiones_actuales),0)from aplicacion WHERE nombre = ? AND strftime('%Y-%m-%d', timestamp) BETWEEN ? AND ?;";
 	
-	public String QUERY_DATE_RANGE_BY_HOUR = "select strftime('%Y-%m-%d %H:00:00', timestamp) hora, max(conexiones_actuales) total from aplicacion where nombre = ? AND strftime('%Y-%m-%d', timestamp) BETWEEN ? AND ? group by strftime('%Y-%m-%d %H:00:00', timestamp);";
+	public String QUERY_DATE_RANGE_BY_HOUR = "select strftime('%Y-%m-%d %H:%M:%S', timestamp) hora, max(conexiones_actuales) total from aplicacion where nombre = ? AND strftime('%Y-%m-%d', timestamp) BETWEEN ? AND ? group by strftime('%Y-%m-%d %H:%M:%S', timestamp);";
 
 	
-	
+	public String QUERY_SPECIFIC_HOUR = "select strftime('%Y-%m-%d %H:%M:%S', timestamp) hora, max(conexiones_actuales) total from aplicacion where nombre = ? AND strftime('%Y-%m-%d %H:%M:%S', timestamp) BETWEEN ? AND ? group by strftime('%Y-%m-%d %H:%M:%S', timestamp);";
 
+	
+	public SqlRowSet getUsuariosConectadosHoraEspecifica(String nombre, String fechaInicio, String fechaFin);
+	
 	public SqlRowSet getUsuariosConectadosPorHora(String nombre, String fechaInicio, String fechaFin);
 	public Integer getPicoConexiones (String nombre, String fechaInicio, String fechaFin);
 	public List<Aplicacion> getHistorialAplicacion (String nombreAplicacion);

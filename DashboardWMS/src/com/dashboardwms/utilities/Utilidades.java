@@ -4,8 +4,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import com.vaadin.server.VaadinService;
 
@@ -23,9 +25,10 @@ public static final String TODAS_EMISORAS = "Todas";
  public static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
  
  
- public static final Date TODAY = new Date();
+ public static final Date TODAY = Calendar.getInstance(TimeZone.getTimeZone("America/Caracas")).getTime();
  
  public static final DateFormat DATE_QUERY = new SimpleDateFormat("yyyy-MM-dd");
+ 
  
  public static final DateFormat DATE_FORMAT_LOCAL = new SimpleDateFormat("dd-MM-yyyy");
  
@@ -37,7 +40,7 @@ public static final String TODAS_EMISORAS = "Todas";
  
  public static final String ULTIMO_MES = "Últimos 30 Días";
  
- public static final String CUSTOM_DATE = "Día Específico";
+ public static final String CUSTOM_DATE = "Período Específico";
  
  public static final List<String> LISTA_PERIODOS = Arrays.asList(HOY, ULTIMA_SEMANA, ULTIMA_QUINCENA, ULTIMO_MES, CUSTOM_DATE);
 
@@ -46,17 +49,18 @@ public static final String TODAS_EMISORAS = "Todas";
 
  public static final String STYLE_VISIBLE = "valo-menu-visible";
  
- public static final String RUTA_XLS = "C:/Users/Virgilio Melo/Desktop/Pantallas estadisticas/";
+public static final String RUTA_XLS = "C:/Users/Virgilio Melo/Desktop/Pantallas estadisticas/archivos/aplicaciones/";
  
 
- //public static final String RUTA_XLS = "//plugstreaming/plugstds/";
+ //public static final String RUTA_XLS = "/home/plugradio/plugstreaming/plugstds/aplicaciones/";
+
+ public static final String RUTA_STREAMING_MINUTES = "/StreamingMinutes.xls";
  
- public static final String RUTA_STREAMING_MINUTES = RUTA_XLS + "StreamingMinutes.xls";
+ public static final String RUTA_STREAMING_SESSIONS = "/StreamingSessions.xls";
  
- public static final String RUTA_STREAMING_SESSIONS = RUTA_XLS + "StreamingSessions.xls";
+ public static final String RUTA_CUSTOM_REGISTRATIONS = "/CustomRegistrations.xls";
  
- public static final String RUTA_CUSTOM_REGISTRATIONS = RUTA_XLS + "CustomRegistrations.xls";
- 
+ public static final String RUTA_REGISTRATIONS_DEVICE = "/RegistrationsByDevice.xls";
  
  
 

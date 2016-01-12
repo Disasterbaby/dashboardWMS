@@ -126,17 +126,22 @@ public class ClienteServiceImpl implements ClienteService {
 		
 
 		for (Cliente cliente : listaClientesPais) {
+			try{
 			Location location = cl.getLocation(cliente.getIpAddress());
 			Location pais = new Location(location.countryCode,
 					location.countryName);
 			cliente.setLocation(pais);
-				hsClientesPais.add(pais);
+				hsClientesPais.add(pais);}
+			catch(Exception e){
+				System.out.println(e.getMessage());
+			}
 		}
 
 		for (Location location : hsClientesPais) {
 			double minutos = 0;
 			int total = 0;
 			for (Cliente cliente : listaClientesPais) {
+				if(cliente.getLocation()!=null)
 				if (cliente.getLocation().equals(location)) {
 					total = total + 1;
 					minutos = minutos + cliente.getTimeRunning();

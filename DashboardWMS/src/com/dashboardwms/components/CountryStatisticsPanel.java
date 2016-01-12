@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -72,9 +73,10 @@ public class CountryStatisticsPanel extends Panel {
 	    private LookupService cl;
 		public ComboBox cboxPeriodo = new ComboBox();
 
-		private Date today = new Date();
+		private Date today = Calendar.getInstance(TimeZone.getTimeZone("America/Caracas")).getTime();
 		Calendar calendar = Calendar.getInstance();
-		public PopupDateField dfFecha = new PopupDateField();
+		public PopupDateField dfFechaInicial = new PopupDateField();
+		public PopupDateField dfFechaFinal = new PopupDateField();
 	    
 		private String emisora;
 
@@ -99,8 +101,9 @@ public class CountryStatisticsPanel extends Panel {
         Responsive.makeResponsive(tablaUsuariosConectados);
 
 		Responsive.makeResponsive(cboxPeriodo);
-		Responsive.makeResponsive(dfFecha);
+		Responsive.makeResponsive(dfFechaInicial);
 
+		Responsive.makeResponsive(dfFechaFinal);
         Responsive.makeResponsive(componentGraficoUsuarios);
         Responsive.makeResponsive(componentGraficoMinutos);
         root.addComponent(buildHeader());
@@ -126,9 +129,10 @@ public class CountryStatisticsPanel extends Panel {
         title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
         header.addComponent(title);
         Label lbVer = new Label("Ver: ");
-        HorizontalLayout tools = new HorizontalLayout(lbVer, cboxPeriodo, dfFecha);
+        HorizontalLayout tools = new HorizontalLayout(lbVer, cboxPeriodo, dfFechaInicial, dfFechaFinal);
         tools.setComponentAlignment(lbVer, Alignment.MIDDLE_CENTER);
-        dfFecha.setVisible(false);
+        dfFechaInicial.setVisible(false);
+        dfFechaFinal.setVisible(false);
         tools.setSpacing(true);
         tools.addStyleName("toolbar");
         header.addComponent(tools);
@@ -138,14 +142,20 @@ public class CountryStatisticsPanel extends Panel {
 
     
     private void buildFilter() {
-    	dfFecha.setValue(today);
-		dfFecha.setDateFormat("dd-MM-yyyy");
-		dfFecha.setImmediate(true);
-		dfFecha.setRangeEnd(today);
-		dfFecha.setRangeStart(calendar.getTime());
-
-		dfFecha.addValueChangeListener(dfChangeListener);
-		dfFecha.setTextFieldEnabled(false);
+    	dfFechaInicial.setValue(today);
+    	dfFechaInicial.setDateFormat("dd-MM-yyyy");
+    	dfFechaInicial.setImmediate(true);
+    	dfFechaInicial.setRangeEnd(today);
+    	dfFechaInicial.setRangeStart(calendar.getTime());
+    	dfFechaInicial.addValueChangeListener(dfChangeListener);
+    	dfFechaInicial.setTextFieldEnabled(false);
+    	dfFechaFinal.setValue(today);
+    	dfFechaFinal.setDateFormat("dd-MM-yyyy");
+    	dfFechaFinal.setImmediate(true);
+    	dfFechaFinal.setRangeEnd(today);
+    	dfFechaFinal.setRangeStart(calendar.getTime());
+    	dfFechaFinal.addValueChangeListener(dfChangeListener);
+    	dfFechaFinal.setTextFieldEnabled(false);
 
 		cboxPeriodo.setImmediate(true);
 		cboxPeriodo.setNullSelectionAllowed(false);
@@ -169,10 +179,13 @@ public class CountryStatisticsPanel extends Panel {
 		public void valueChange(ValueChangeEvent event) {
 			String periodo = (String) cboxPeriodo.getValue();
 			Date fechaFin = today;
-			dfFecha.setVisible(false);
-			dfFecha.setDescription(null);
+			dfFechaInicial.setVisible(false);
+			dfFechaInicial.setDescription(null);
+			dfFechaInicial.removeValueChangeListener(dfChangeListener);
 
-			dfFecha.removeValueChangeListener(dfChangeListener);
+			dfFechaFinal.setVisible(false);
+			dfFechaFinal.setDescription(null);
+			dfFechaFinal.removeValueChangeListener(dfChangeListener);
 			Calendar fechaInicio = Calendar.getInstance();
 			fechaInicio.setTime(fechaFin);
 			switch (periodo) {
@@ -207,11 +220,17 @@ public class CountryStatisticsPanel extends Panel {
 			}
 				
 			case Utilidades.CUSTOM_DATE:{
-				dfFecha.setVisible(true);
-				dfFecha.focus();
-				dfFecha.setDescription("Seleccionar Fecha");
+				dfFechaInicial.setVisible(true);
+				dfFechaInicial.focus();
+				dfFechaInicial.setDescription("Seleccionar Fecha");
+				dfFechaInicial.addValueChangeListener(dfChangeListener);
+				
 
-				dfFecha.addValueChangeListener(dfChangeListener);
+				dfFechaFinal.setVisible(true);
+				dfFechaFinal.focus();
+				dfFechaFinal.setDescription("Seleccionar Fecha");
+				dfFechaFinal.addValueChangeListener(dfChangeListener);
+				
 				break;
 			}
 			}
@@ -227,9 +246,10 @@ public class CountryStatisticsPanel extends Panel {
 
 		@Override
 		public void valueChange(ValueChangeEvent event) {
-			Date fecha = dfFecha.getValue();
+			Date fechaInicial = dfFechaInicial.getValue();
+			Date fechaFinal = dfFechaFinal.getValue();
 
-			fillData(clienteService.getClientesPorPaisFechas(emisora, fecha, fecha, cl));
+			fillData(clienteService.getClientesPorPaisFechas(emisora, fechaInicial, fechaFinal, cl));
 
 
 		}
@@ -259,7 +279,7 @@ public class CountryStatisticsPanel extends Panel {
    private void fillContentWrapperGraficoMinutos(HashSet<Location> listaPaises){
 	   
 	   Chart chart = new Chart(ChartType.PIE);
-	   
+	   chart.getConfiguration().setExporting(true);
        Configuration conf = chart.getConfiguration();
 
        conf.setTitle("");
@@ -357,6 +377,7 @@ hLayout.setSizeFull();
  	   
         Configuration conf = chart.getConfiguration();
 
+ 	   chart.getConfiguration().setExporting(true);
         conf.setTitle("");
 
         PlotOptionsPie plotOptions = new PlotOptionsPie();

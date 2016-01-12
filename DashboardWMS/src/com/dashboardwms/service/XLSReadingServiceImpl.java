@@ -16,7 +16,9 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.springframework.stereotype.Service;
 
+import com.dashboardwms.exceptions.RutaInvalidaException;
 import com.dashboardwms.utilities.Utilidades;
+import com.vaadin.ui.Notification;
 
 @Service
 public class XLSReadingServiceImpl implements XLSReadingService {
@@ -25,29 +27,13 @@ public class XLSReadingServiceImpl implements XLSReadingService {
 	public LinkedHashMap<Date, Double> getStreamingMinutes(
 			String nombreAplicacion, Date fechaInicio, Date fechaFin) {
 		LinkedHashMap<Date, Double>  hashmap= new LinkedHashMap<>() ;
-		
+		String ruta = Utilidades.RUTA_XLS + nombreAplicacion.replaceAll("\\s","") + Utilidades.RUTA_STREAMING_MINUTES;
         try {
-			FileInputStream file = new FileInputStream(new File(Utilidades.RUTA_STREAMING_MINUTES));
+			FileInputStream file = new FileInputStream(new File(ruta));
 			HSSFWorkbook wb = new HSSFWorkbook(file);
 			HSSFSheet sheet = wb.getSheetAt(0);
 			 Iterator<Row> rowIterator = sheet.iterator();
-			 Row firstRow = sheet.getRow(0);
-			 int indice = 0;
-             Iterator<Cell> firstRowIterator = firstRow.cellIterator();
-             while (firstRowIterator.hasNext())
-             {
-            	 
-                 Cell cell = firstRowIterator.next();
-                 String nombreAplicacionCelda = cell.getStringCellValue();
-                 nombreAplicacionCelda =  nombreAplicacionCelda.trim();
-              
-                 if(nombreAplicacion.equalsIgnoreCase(nombreAplicacionCelda))
-                 {
-                	 System.out.println("bingo");
-                	 indice =  cell.getColumnIndex();
-                	 System.out.println(indice);
-                	 break;}
-             }
+		
 			 
              rowIterator.next();
 			 
@@ -55,15 +41,15 @@ public class XLSReadingServiceImpl implements XLSReadingService {
 	            {
 	                Row row = rowIterator.next();
 	                //For each row, iterate through all the columns
-	                Cell cell = row.getCell(indice);
-                	Double minutos = cell.getNumericCellValue();
+	             
                 	
                 	Double periodoDouble = row.getCell(0)
 							.getNumericCellValue();
 					Integer periodoInt = periodoDouble.intValue();
 					String periodo = periodoInt.toString();
 					Date fecha = Utilidades.formatoFechaArchivos.parse(periodo);
-
+					   Cell cell = row.getCell(1);
+	                	Double minutos = cell.getNumericCellValue();
 					if(fecha.before(fechaFin) && fecha.after(fechaInicio))
 	                 hashmap.put(fecha, minutos);
 	          
@@ -84,45 +70,30 @@ public class XLSReadingServiceImpl implements XLSReadingService {
 			String nombreAplicacion, Date fechaInicio, Date fechaFin) {
 
 		LinkedHashMap<Date, Integer>  hashmap= new LinkedHashMap<>() ;
-		
+		String ruta = Utilidades.RUTA_XLS + nombreAplicacion.replaceAll("\\s","") + Utilidades.RUTA_STREAMING_SESSIONS;
+
         try {
-			FileInputStream file = new FileInputStream(new File(Utilidades.RUTA_STREAMING_SESSIONS));
+			FileInputStream file = new FileInputStream(new File(ruta));
 			HSSFWorkbook wb = new HSSFWorkbook(file);
 			HSSFSheet sheet = wb.getSheetAt(0);
 			 Iterator<Row> rowIterator = sheet.iterator();
-			 Row firstRow = sheet.getRow(0);
-			 int indice = 0;
-             Iterator<Cell> firstRowIterator = firstRow.cellIterator();
-             while (firstRowIterator.hasNext())
-             {
-            	 
-                 Cell cell = firstRowIterator.next();
-                 String nombreAplicacionCelda = cell.getStringCellValue();
-                 nombreAplicacionCelda =  nombreAplicacionCelda.trim();
-              
-                 if(nombreAplicacion.equalsIgnoreCase(nombreAplicacionCelda))
-                 {
-                	
-                	 indice =  cell.getColumnIndex();
-                	 break;}
-             }
-			 
+		
              rowIterator.next();
 			 
 	           while (rowIterator.hasNext())
 	            {
 	                Row row = rowIterator.next();
 	                //For each row, iterate through all the columns
-	                Cell cell = row.getCell(indice);
-                	Double sesionesDouble = cell.getNumericCellValue();
-                	Integer sesiones = sesionesDouble.intValue();
+	              
                 	
                 	Double periodoDouble = row.getCell(0)
 							.getNumericCellValue();
 					Integer periodoInt = periodoDouble.intValue();
 					String periodo = periodoInt.toString();
 					Date fecha = Utilidades.formatoFechaArchivos.parse(periodo);
-				
+					  Cell cell = row.getCell(1);
+	                	Double sesionesDouble = cell.getNumericCellValue();
+	                	Integer sesiones = sesionesDouble.intValue();
 					if(fecha.before(fechaFin) && fecha.after(fechaInicio))
 	                 hashmap.put(fecha, sesiones);
 	          
@@ -143,28 +114,13 @@ public class XLSReadingServiceImpl implements XLSReadingService {
 			String nombreAplicacion, Date fechaInicio, Date fechaFin) {
 
 		LinkedHashMap<Date, Integer>  hashmap= new LinkedHashMap<>() ;
-		
+
+		String ruta = Utilidades.RUTA_XLS + nombreAplicacion.replaceAll("\\s","") + Utilidades.RUTA_CUSTOM_REGISTRATIONS;
         try {
-			FileInputStream file = new FileInputStream(new File(Utilidades.RUTA_CUSTOM_REGISTRATIONS));
+			FileInputStream file = new FileInputStream(new File(ruta));
 			HSSFWorkbook wb = new HSSFWorkbook(file);
 			HSSFSheet sheet = wb.getSheetAt(0);
 			 Iterator<Row> rowIterator = sheet.iterator();
-			 Row firstRow = sheet.getRow(0);
-			 int indice = 0;
-             Iterator<Cell> firstRowIterator = firstRow.cellIterator();
-             while (firstRowIterator.hasNext())
-             {
-            	 
-                 Cell cell = firstRowIterator.next();
-                 String nombreAplicacionCelda = cell.getStringCellValue();
-                 nombreAplicacionCelda =  nombreAplicacionCelda.trim();
-              
-                 if(nombreAplicacion.equalsIgnoreCase(nombreAplicacionCelda))
-                 {
-                	 
-                	 indice =  cell.getColumnIndex();
-                	 break;}
-             }
 			 
              rowIterator.next();
 			 
@@ -172,9 +128,7 @@ public class XLSReadingServiceImpl implements XLSReadingService {
 	            {
 	                Row row = rowIterator.next();
 	                //For each row, iterate through all the columns
-	                Cell cell = row.getCell(indice);
-                	Double registrosDouble = cell.getNumericCellValue();
-                	Integer registros = registrosDouble.intValue();
+	                
                 	
                 	Double periodoDouble = row.getCell(0)
 							.getNumericCellValue();
@@ -182,7 +136,10 @@ public class XLSReadingServiceImpl implements XLSReadingService {
 					String periodo = periodoInt.toString();
 					Date fecha = Utilidades.formatoFechaArchivos.parse(periodo);
 					
-					if(fecha.before(fechaFin) && fecha.after(fechaInicio))
+					Cell cell = row.getCell(1);
+                	Double registrosDouble = cell.getNumericCellValue();
+                	Integer registros = registrosDouble.intValue();
+									if(fecha.before(fechaFin) && fecha.after(fechaInicio))
 	                 hashmap.put(fecha, registros);
 	          
 	            }
@@ -200,62 +157,78 @@ public class XLSReadingServiceImpl implements XLSReadingService {
 
 	@Override
 	public Boolean verificarAppMovil(String nombreAplicacion) {
-        try {
-			FileInputStream file = new FileInputStream(new File(Utilidades.RUTA_STREAMING_MINUTES));
-			HSSFWorkbook wb = new HSSFWorkbook(file);
-			HSSFSheet sheet = wb.getSheetAt(0);
-			 Row firstRow = sheet.getRow(0);
-			
-             Iterator<Cell> firstRowIterator = firstRow.cellIterator();
-             while (firstRowIterator.hasNext())
-             {
-            	 
-                 Cell cell = firstRowIterator.next();
-                 String nombreAplicacionCelda = cell.getStringCellValue();
-                 nombreAplicacionCelda =  nombreAplicacionCelda.trim();
-                 if(nombreAplicacion.equalsIgnoreCase(nombreAplicacionCelda))
-                 {
-                	 return true;
-                	}
-             }
-			 
-   
-	            file.close();
-        } catch (IOException e) {
-			System.out.println("archivo no encontrado");
-			e.printStackTrace();
-			return false;
-        }
+	File directory = new File(Utilidades.RUTA_XLS);
+		
+
+		File[] fList = directory.listFiles();
+
+		
+	    for (File file : fList) {
+	         if (file.isDirectory()) {
+	        	 String nombreCarpeta = file.getName();
+	        	 if(nombreAplicacion.replaceAll("\\s","").equalsIgnoreCase(nombreCarpeta.replaceAll("\\s","")))
+	        		 return true;
+	          
+	        }
+	    }
+
 		return false;
 	}
 
 	@Override
-	public List<String> getListaAplicacionesMoviles() {
+	public List<String> getListaAplicacionesMoviles() throws RutaInvalidaException{
 		List<String> listaAplicaciones = new ArrayList<String>();
-		try {
-			FileInputStream file = new FileInputStream(new File(Utilidades.RUTA_STREAMING_MINUTES));
+
+		File directory = new File(Utilidades.RUTA_XLS);
+		
+
+		File[] fList = directory.listFiles();
+
+		if(fList==null)
+			throw new RutaInvalidaException("No Consigue nada en el directorio " + directory);
+	    for (File file : fList) {
+	         if (file.isDirectory()) {
+	        	 
+	        	 listaAplicaciones.add(file.getName());
+	          
+	        }
+	    }
+
+
+		return listaAplicaciones;
+	}
+
+	@Override
+	public LinkedHashMap<String, Integer> getRegistrationsByDevice(String nombreAplicacion) {
+		LinkedHashMap<String, Integer>  hashmap= new LinkedHashMap<>() ;
+
+		String ruta = Utilidades.RUTA_XLS + nombreAplicacion.replaceAll("\\s","") + Utilidades.RUTA_REGISTRATIONS_DEVICE;
+        try {
+			FileInputStream file = new FileInputStream(new File(ruta));
 			HSSFWorkbook wb = new HSSFWorkbook(file);
 			HSSFSheet sheet = wb.getSheetAt(0);
-			 Row firstRow = sheet.getRow(0);
-			
-             Iterator<Cell> firstRowIterator = firstRow.cellIterator();
-             firstRowIterator.next();
-             while (firstRowIterator.hasNext())
-             {
-            	 
-                 Cell cell = firstRowIterator.next();
-                 String nombreAplicacionCelda = cell.getStringCellValue();
-                 listaAplicaciones.add(nombreAplicacionCelda);
-                           }
-			 
-   
+			 Iterator<Row> rowIterator = sheet.iterator();
+			 rowIterator.next();
+              while (rowIterator.hasNext())
+	            {
+	                Row row = rowIterator.next();
+	                //For each row, iterate through all the columns
+	                Cell cell = row.getCell(0);
+                	String tipoDevice = cell.getStringCellValue();
+                	Cell cellCantidad = row.getCell(1);
+                	Double cantidadDouble = cellCantidad.getNumericCellValue();
+                	Integer cantidad = cantidadDouble.intValue();
+                	
+					
+	                 hashmap.put(tipoDevice, cantidad);
+	          
+	            }
 	            file.close();
         } catch (IOException e) {
 			System.out.println("archivo no encontrado");
 			e.printStackTrace();
-			return null;
-        }
-		return listaAplicaciones;
+		}
+		return hashmap;
 	}
 
 }

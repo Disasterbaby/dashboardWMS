@@ -98,4 +98,18 @@ AplicacionDAO aplicacionDao;
 		return hashmap;
 	}
 
+	@Override
+	public LinkedHashMap<Date, Integer> getUsuariosHoraEspecifica(
+			String nombre, Date fechaInicio, Date fechaFin)
+			throws InvalidResultSetAccessException, ParseException {
+		LinkedHashMap<Date, Integer>  hashmap= new LinkedHashMap<>() ;
+		String fechaInicioString = Utilidades.DATE_FORMAT.format(fechaInicio);
+		String fechaFinString = Utilidades.DATE_FORMAT.format(fechaFin);
+		SqlRowSet rowset = aplicacionDao.getUsuariosConectadosHoraEspecifica(nombre, fechaInicioString, fechaFinString);
+		 while (rowset.next()) {
+			 hashmap.put(Utilidades.DATE_FORMAT.parse(rowset.getString("hora")),rowset.getInt("total"));
+			  }
+		return hashmap;
+	}
+
 }

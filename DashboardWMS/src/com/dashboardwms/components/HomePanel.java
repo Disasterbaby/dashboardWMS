@@ -2,43 +2,37 @@ package com.dashboardwms.components;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.TimeZone;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.springframework.jdbc.InvalidResultSetAccessException;
 import org.xml.sax.SAXException;
 
-import com.dashboardwms.geoip.Location;
+import com.dashboardwms.domain.Aplicacion;
+import com.dashboardwms.domain.Cliente;
 import com.dashboardwms.geoip.LookupService;
 import com.dashboardwms.service.AplicacionService;
 import com.dashboardwms.service.ClienteService;
 import com.dashboardwms.service.XLSReadingService;
 import com.dashboardwms.service.XMLConnectionService;
-import com.dashboardwms.utilities.Utilidades;
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.Axis;
 import com.vaadin.addon.charts.model.AxisType;
-import com.vaadin.addon.charts.model.Background;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.Configuration;
 import com.vaadin.addon.charts.model.DataSeries;
 import com.vaadin.addon.charts.model.DataSeriesItem;
-import com.vaadin.addon.charts.model.Labels;
-import com.vaadin.addon.charts.model.ListSeries;
-import com.vaadin.addon.charts.model.Pane;
-import com.vaadin.addon.charts.model.PlotOptionsSolidGauge;
 import com.vaadin.addon.charts.model.PlotOptionsSpline;
 import com.vaadin.addon.charts.model.Title;
-import com.vaadin.addon.charts.model.YAxis;
-import com.vaadin.addon.charts.model.YAxis.Stop;
-import com.vaadin.addon.charts.model.style.SolidColor;
+import com.vaadin.addon.charts.util.SVGGenerator;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Responsive;
 import com.vaadin.ui.Alignment;
@@ -57,48 +51,39 @@ public class HomePanel extends Panel {
 
 	private CssLayout dashboardPanels;
 	private final VerticalLayout root;
-	private XLSReadingService xlsReadingService;
-	private ClienteService clienteService;
-    private XMLConnectionService xmlConnectionService;
-
+    private Aplicacion aplicacion;
 	private AplicacionService aplicacionService;
-	private Date today = new Date();
-    private LookupService cl;
-    private String appMovil;
+	private Date today = Calendar.getInstance(TimeZone.getTimeZone("America/Caracas")).getTime();
+    
 	private String emisora;
 
-	private Label captionInfoPeriodo = new Label();
-	private CssLayout componentGraficoPeriodo = new CssLayout();
-	private Double totalSesiones = 0.0;
-	private Double totalRegistros = 0.0;
-	private Double totalMinutos = 0.0;
-	private Double topeMinutos = 0.0;
-	private Double topeSesiones = 0.0;
-	private Double topeRegistros = 0.0;
+	private CssLayout componentGraficoDia = new CssLayout();
+
+	private CssLayout componentGraficoUltimaSemana = new CssLayout();
+
+	private CssLayout componentGraficoUltimaHora = new CssLayout();
+
+	private CssLayout componentGrafico30Dias = new CssLayout();
+	
 	
 	
 
-	public void setXMLConnectionService(XMLConnectionService xmlConnectionService){
-		this.xmlConnectionService = xmlConnectionService;
-	}
+	Label valorUsuariosConectados = new Label();	
+	Label valorTopeDiaActual = new Label();
+	Label valorTopeDiaAnterior = new Label();
+	Label valorTope30Dias = new Label();
 
-	public void setAppMovil(String appMovil){
-		this.appMovil = appMovil;
-	}
+
+
 
 	public void setEmisora(String emisora) {
 		this.emisora = emisora;
 	}
 
-	public void setXLSReadingService(XLSReadingService xlsReadingService){
-		this.xlsReadingService = xlsReadingService;
-	}
 	
-	public void setClienteService(ClienteService clienteService){
-		this.clienteService = clienteService;
+	public void setAplicacion(Aplicacion aplicacion){
+		this.aplicacion = aplicacion;
 	}
-	
-
 
 	public void setAplicacionService(AplicacionService aplicacionService) {
 		this.aplicacionService = aplicacionService;
@@ -124,83 +109,104 @@ public class HomePanel extends Panel {
 
 	private Component buildHeader() {
 		HorizontalLayout header = new HorizontalLayout();
-		
+	
+		header.setSpacing(true);
+		header.setHeight("100px");
+		header.setWidth("100%");
 		Responsive.makeResponsive(header);
-		Component componentUsuariosConectados = buildComponentUsuariosConectados();
-header.addComponent(componentUsuariosConectados);
+		Component componentUsuariosConectados = construirPanelUsuarios();
+		Component componentTopeAnterior = construirPanelDiaAnterior();
+		Component componentTope = construirPanelTope();
+		Component componentTope30Dias = construirPanelTope30Dias();
+header.addComponents(componentUsuariosConectados, componentTope, componentTopeAnterior, componentTope30Dias);
 		return header;
 	}
 
-	private Component buildComponentUsuariosConectados(){
-		final Chart chart = new Chart();
-		final Configuration configuration = chart.getConfiguration();
-        configuration.getChart().setType(ChartType.SOLIDGAUGE);
-
-        configuration.getTitle().setText("Usuarios Conectados");
-
-        Pane pane = new Pane();
-        pane.setCenterXY("50%", "85%");
-        pane.setSize("140%");
-        pane.setStartAngle(-90);
-        pane.setEndAngle(90);
-        configuration.addPane(pane);
-
-        configuration.getTooltip().setEnabled(false);
-
-        Background bkg = new Background();
-        bkg.setInnerRadius("60%");
-        bkg.setOuterRadius("100%");
-        bkg.setShape("arc");
-        bkg.setBorderWidth(0);
-        pane.setBackground(bkg);
-
-
-        YAxis yaxis = configuration.getyAxis();
-        yaxis.setLineWidth(0);
-        yaxis.setTickInterval(200);
-        yaxis.setTickWidth(0);
-        yaxis.setMin(0);
-        yaxis.setMax(200);
-        yaxis.setTitle("");
-        yaxis.getTitle().setY(-70);
-        yaxis.getLabels().setY(16);
-        Stop stop1 = new Stop(0.1f, SolidColor.GREEN);
-        Stop stop2 = new Stop(0.5f, SolidColor.YELLOW);
-        Stop stop3 = new Stop(0.9f, SolidColor.BLUE);
-        yaxis.setStops(stop1, stop2, stop3);
-
-        PlotOptionsSolidGauge plotOptions = new PlotOptionsSolidGauge();
-        plotOptions.getTooltip().setValueSuffix(" Usuarios Conectados");
-        Labels labels = new Labels();
-        labels.setY(5);
-        labels.setBorderWidth(0);
-        labels.setUseHTML(true);
-        labels.setFormat("{y}" + "                       Usuarios Conectados");
-        plotOptions.setDataLabels(labels);
-        configuration.setPlotOptions(plotOptions);
-
-        final ListSeries series = new ListSeries("UsuariosConectados", 80);
-        configuration.setSeries(series);
-
-      
-        chart.drawChart(configuration);
-		return chart;
+	private Panel construirPanelUsuarios(){
+		Panel panel = new Panel();
+		panel.addStyleName(ValoTheme.PANEL_WELL);
+		HorizontalLayout contenido = new HorizontalLayout();
+		contenido.setSizeFull();
+		valorUsuariosConectados.addStyleName(ValoTheme.LABEL_BOLD);
+		valorUsuariosConectados.addStyleName(ValoTheme.LABEL_H2);
+		valorUsuariosConectados.addStyleName(ValoTheme.LABEL_COLORED);
+		valorUsuariosConectados.setSizeUndefined();
+		contenido.addComponent(valorUsuariosConectados);
+		contenido.setComponentAlignment(valorUsuariosConectados, Alignment.MIDDLE_CENTER);
+		panel.setCaption("Usuarios Conectados");
+		panel.setContent(contenido);
 		
+		return panel;
 	}
 	
+	private Panel construirPanelTope30Dias(){
+		Panel panel = new Panel();
+		panel.addStyleName(ValoTheme.PANEL_WELL);
+		HorizontalLayout contenido = new HorizontalLayout();
+		contenido.setSizeFull();
+		valorTope30Dias.addStyleName(ValoTheme.LABEL_BOLD);
+		valorTope30Dias.addStyleName(ValoTheme.LABEL_H2);
+		valorTope30Dias.addStyleName(ValoTheme.LABEL_COLORED);
+		valorTope30Dias.setSizeUndefined();
+		contenido.addComponent(valorTope30Dias);
+		contenido.setComponentAlignment(valorTope30Dias, Alignment.MIDDLE_CENTER);
+		panel.setCaption("Pico del Mes");
+		panel.setContent(contenido);
+		
+		return panel;
+	}
+	
+	private Panel construirPanelTope(){
+		Panel panel = new Panel();
+		panel.addStyleName(ValoTheme.PANEL_WELL);
+		HorizontalLayout contenido = new HorizontalLayout();
+		contenido.setSizeFull();
+		valorTopeDiaActual.addStyleName(ValoTheme.LABEL_BOLD);
+		valorTopeDiaActual.addStyleName(ValoTheme.LABEL_H2);
+		valorTopeDiaActual.addStyleName(ValoTheme.LABEL_COLORED);
+		valorTopeDiaActual.setSizeUndefined();
+		contenido.addComponent(valorTopeDiaActual);
+		contenido.setComponentAlignment(valorTopeDiaActual, Alignment.MIDDLE_CENTER);
+		panel.setCaption("Pico de Hoy");
+		panel.setContent(contenido);
+		
+		return panel;
+	}
+	
+	private Panel construirPanelDiaAnterior(){
+		Panel panel = new Panel();
+		panel.addStyleName(ValoTheme.PANEL_WELL);
+		HorizontalLayout contenido = new HorizontalLayout();
+		contenido.setSizeFull();
+		valorTopeDiaAnterior.addStyleName(ValoTheme.LABEL_BOLD);
+		valorTopeDiaAnterior.addStyleName(ValoTheme.LABEL_H2);
+		valorTopeDiaAnterior.addStyleName(ValoTheme.LABEL_COLORED);
+		valorTopeDiaAnterior.setSizeUndefined();
+		contenido.addComponent(valorTopeDiaAnterior);
+		contenido.setComponentAlignment(valorTopeDiaAnterior, Alignment.MIDDLE_CENTER);
+		panel.setCaption("Pico de Ayer");
+		panel.setContent(contenido);
+		
+		return panel;
+	}
 	private Component buildContent() {
 		dashboardPanels = new CssLayout();
 		dashboardPanels.addStyleName("dashboard-panels");
 		Responsive.makeResponsive(dashboardPanels);
 
-		String captionPeriodo = "Cantidad de Oyentes " + Utilidades.LISTA_PERIODOS.get(0);
-		String captionDispositivos = "Tipos de Conexión " + Utilidades.LISTA_PERIODOS.get(0);
-	
-		captionInfoPeriodo.setValue(captionPeriodo);
-		Responsive.makeResponsive(componentGraficoPeriodo);
-		
-		dashboardPanels.addComponent(componentGraficoPeriodo);
 
+		Responsive.makeResponsive(componentGraficoDia);
+		Responsive.makeResponsive(componentGrafico30Dias);
+		Responsive.makeResponsive(componentGraficoUltimaHora);
+
+		Responsive.makeResponsive(componentGraficoUltimaSemana);
+		
+
+		dashboardPanels.addComponent(componentGraficoUltimaHora);
+		dashboardPanels.addComponent(componentGraficoDia);
+
+		dashboardPanels.addComponent(componentGraficoUltimaSemana);
+		dashboardPanels.addComponent(componentGrafico30Dias);
 		
 		return dashboardPanels;
 	}
@@ -226,68 +232,44 @@ header.addComponent(componentUsuariosConectados);
 
 	public void fillData() throws InvalidResultSetAccessException,
 			ParseException, ParserConfigurationException, SAXException, IOException {
-		fillContentWrapperGraficoPeriodo(today, today);
-//		fillTableMovil();
-//		fillTableDia(today, today);
-//		fillTablaUsuariosPaises();
-//		fillTablaTiempoReal();
+		fillContentWrapperGraficoDia(today, today);
+		
+		
+		fillContentWrapperGraficoSemana();
+		fillContentWrapperGrafico30Dias();
+		fillContentWrapperGraficoUltimaHora();
+		fillPanels();
 		
 	}
 
 
 	
-	private Component createContentWrapper(final Component content) {
-		final CssLayout slot = new CssLayout();
-		slot.setWidth("100%");
-		slot.addStyleName("dashboard-panel-slot");
+private void fillPanels(){
 
-		CssLayout card = new CssLayout();
-		card.setWidth("100%");
-		card.addStyleName(ValoTheme.LAYOUT_CARD);
+	
 
-		HorizontalLayout toolbar = new HorizontalLayout();
-		toolbar.addStyleName("dashboard-panel-toolbar");
-		toolbar.setWidth("100%");
-		Label caption = new Label();
-		caption.addStyleName(ValoTheme.LABEL_H4);
-		caption.addStyleName(ValoTheme.LABEL_COLORED);
-		caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
-		caption.setValue(content.getCaption());
-		content.setCaption(null);
+		List<Cliente> listaClientes = new ArrayList<Cliente>();
+		if(aplicacion!=null)
+		listaClientes = aplicacion.getListaClientes();
 
-		MenuBar tools = new MenuBar();
-		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+		valorUsuariosConectados.setValue(listaClientes.size()+"");
 
-		MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
-
-			@Override
-			public void menuSelected(final MenuItem selectedItem) {
-				if (!slot.getStyleName().contains("max")) {
-					selectedItem.setIcon(FontAwesome.COMPRESS);
-					toggleMaximized(slot, true);
-				} else {
-					slot.removeStyleName("max");
-					selectedItem.setIcon(FontAwesome.EXPAND);
-					toggleMaximized(slot, false);
-				}
-			}
-		});
-		max.setStyleName("icon-only");
-
-		toolbar.addComponents(caption, tools);
-		toolbar.setExpandRatio(caption, 1);
-		toolbar.setComponentAlignment(caption,
-				Alignment.MIDDLE_LEFT);
-
-		card.addComponents(toolbar, content);
-		slot.addComponent(card);
-		return slot;
-	}
+	
+	valorTopeDiaActual.setValue(aplicacionService.getPicoUsuariosRangoFecha(emisora, today, today).toString());
+	Date fechaFin = today;
+	
+	Calendar fechaInicio = Calendar.getInstance();
+	fechaInicio.setTime(fechaFin);
+	fechaInicio.add(Calendar.DATE, -1);
+	valorTopeDiaAnterior.setValue(aplicacionService.getPicoUsuariosRangoFecha(emisora, fechaInicio.getTime(), fechaInicio.getTime()).toString());
+	fechaInicio.setTime(fechaFin);
+	fechaInicio.add(Calendar.DATE, -30);
+	valorTope30Dias.setValue(aplicacionService.getPicoUsuariosRangoFecha(emisora, fechaInicio.getTime(), fechaFin).toString());
+}
 
 
 
-
-	private void fillContentWrapperGraficoPeriodo(Date fechaInicio, Date fechaFin)
+	private void fillContentWrapperGraficoDia(Date fechaInicio, Date fechaFin)
 			throws InvalidResultSetAccessException, ParseException {
 		LinkedHashMap<Date, Integer> listaAplicaciones = new LinkedHashMap<>();
 
@@ -310,7 +292,7 @@ header.addComponent(componentUsuariosConectados);
 
         
         configuration.setTitle("");
-        configuration.getTooltip().setxDateFormat("%d-%m-%Y %H:%M");
+        configuration.getTooltip().setxDateFormat("%d-%m-%Y %I:%M %P");
         DataSeries ls = new DataSeries();
         ls.setPlotOptions(new PlotOptionsSpline());
         ls.setName("Oyentes Conectados");
@@ -321,7 +303,7 @@ header.addComponent(componentUsuariosConectados);
 			Map.Entry pairs = (Map.Entry) it.next();
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime((Date) pairs.getKey());
-			  DataSeriesItem item = new DataSeriesItem(calendar.getTimeInMillis(),
+			  DataSeriesItem item = new DataSeriesItem(calendar.getTime(),
 					  (Integer) pairs.getValue());
 	            ls.add(item);
 			it.remove();
@@ -334,9 +316,9 @@ header.addComponent(componentUsuariosConectados);
         vaadinChartPeriodo.drawChart(configuration);
         Responsive.makeResponsive(vaadinChartPeriodo);
 		vaadinChartPeriodo.setSizeFull();
-		componentGraficoPeriodo.removeAllComponents();
-		componentGraficoPeriodo.setWidth("100%");
-		componentGraficoPeriodo.addStyleName("dashboard-panel-slot");
+		componentGraficoDia.removeAllComponents();
+		componentGraficoDia.setWidth("100%");
+		componentGraficoDia.addStyleName("dashboard-panel-slot");
 
 		CssLayout card = new CssLayout();
 		card.setWidth("100%");
@@ -345,10 +327,10 @@ header.addComponent(componentUsuariosConectados);
 		HorizontalLayout toolbar = new HorizontalLayout();
 		toolbar.addStyleName("dashboard-panel-toolbar");
 		toolbar.setWidth("100%");
-
-		captionInfoPeriodo.addStyleName(ValoTheme.LABEL_H4);
-		captionInfoPeriodo.addStyleName(ValoTheme.LABEL_COLORED);
-		captionInfoPeriodo.addStyleName(ValoTheme.LABEL_NO_MARGIN);
+Label caption = new Label("Usuarios Conectados Hoy");
+caption.addStyleName(ValoTheme.LABEL_H4);
+caption.addStyleName(ValoTheme.LABEL_COLORED);
+caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 		vaadinChartPeriodo.setCaption(null);
 
 		MenuBar tools = new MenuBar();
@@ -358,33 +340,317 @@ header.addComponent(componentUsuariosConectados);
 
 			@Override
 			public void menuSelected(final MenuItem selectedItem) {
-				if (!componentGraficoPeriodo.getStyleName().contains("max")) {
+				if (!componentGraficoDia.getStyleName().contains("max")) {
 					selectedItem.setIcon(FontAwesome.COMPRESS);
-					toggleMaximized(componentGraficoPeriodo, true);
+					toggleMaximized(componentGraficoDia, true);
 				} else {
-					componentGraficoPeriodo.removeStyleName("max");
+					componentGraficoDia.removeStyleName("max");
 					selectedItem.setIcon(FontAwesome.EXPAND);
-					toggleMaximized(componentGraficoPeriodo, false);
+					toggleMaximized(componentGraficoDia, false);
 				}
 			}
 		});
 		max.setStyleName("icon-only");
 
-		toolbar.addComponents(captionInfoPeriodo, tools);
-		toolbar.setExpandRatio(captionInfoPeriodo, 1);
-		toolbar.setComponentAlignment(captionInfoPeriodo, Alignment.MIDDLE_LEFT);
+		toolbar.addComponents(caption, tools);
+		toolbar.setExpandRatio(caption, 1);
+		toolbar.setComponentAlignment(caption, Alignment.MIDDLE_LEFT);
 
 		card.addComponents(toolbar, vaadinChartPeriodo);
-		componentGraficoPeriodo.addComponent(card);
+		componentGraficoDia.addComponent(card);
 	}
     
 
+
+	private void fillContentWrapperGraficoSemana()
+			throws InvalidResultSetAccessException, ParseException {
+		LinkedHashMap<Date, Integer> listaAplicaciones = new LinkedHashMap<>();
+		Date fechaFin = today;
+		Calendar fechaInicio = Calendar.getInstance();
+		fechaInicio.setTime(fechaFin);
+
+		fechaInicio.add(Calendar.DATE, -7);
+		listaAplicaciones = aplicacionService.getUsuariosConectadosPorHora(
+				emisora, fechaInicio.getTime(), fechaFin);
+ Chart vaadinChartPeriodo = new Chart();
+ 
+		vaadinChartPeriodo.setHeight("100%");
+		vaadinChartPeriodo.setWidth("100%");
+        Configuration configuration = vaadinChartPeriodo.getConfiguration();
+        configuration.getChart().setType(ChartType.SPLINE);
+
+
+configuration.setExporting(true);
+        configuration.getxAxis().setType(AxisType.DATETIME);
+       
+        				
+        Axis yAxis = configuration.getyAxis();
+        yAxis.setTitle(new Title(""));
+        yAxis.setMin(0);
+
+        
+        configuration.setTitle("");
+        configuration.getTooltip().setxDateFormat("%d-%m-%Y %I:%M %P");
+        DataSeries ls = new DataSeries();
+        ls.setPlotOptions(new PlotOptionsSpline());
+        ls.setName("Oyentes");
+        
+		Iterator it = listaAplicaciones.entrySet().iterator();
+		while (it.hasNext()) {
+
+			Map.Entry pairs = (Map.Entry) it.next();
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime((Date) pairs.getKey());
+			  DataSeriesItem item = new DataSeriesItem(calendar.getTime(),
+					  (Integer) pairs.getValue());
+	            ls.add(item);
+			it.remove();
+		}
+        
+ 
+
+        configuration.addSeries(ls);
+
+        vaadinChartPeriodo.drawChart(configuration);
+        Responsive.makeResponsive(vaadinChartPeriodo);
+		vaadinChartPeriodo.setSizeFull();
+		componentGraficoUltimaSemana.removeAllComponents();
+		componentGraficoUltimaSemana.setWidth("100%");
+		componentGraficoUltimaSemana.addStyleName("dashboard-panel-slot");
+
+		CssLayout card = new CssLayout();
+		card.setWidth("100%");
+		card.addStyleName(ValoTheme.LAYOUT_CARD);
+
+		HorizontalLayout toolbar = new HorizontalLayout();
+		toolbar.addStyleName("dashboard-panel-toolbar");
+		toolbar.setWidth("100%");
+
+Label caption = new Label("Usuarios Conectados Últimos 7 Días");
+caption.addStyleName(ValoTheme.LABEL_H4);
+caption.addStyleName(ValoTheme.LABEL_COLORED);
+caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
+		vaadinChartPeriodo.setCaption(null);
+
+		MenuBar tools = new MenuBar();
+		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+
+		MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
+
+			@Override
+			public void menuSelected(final MenuItem selectedItem) {
+				if (!componentGraficoUltimaSemana.getStyleName().contains("max")) {
+					selectedItem.setIcon(FontAwesome.COMPRESS);
+					toggleMaximized(componentGraficoUltimaSemana, true);
+				} else {
+					componentGraficoUltimaSemana.removeStyleName("max");
+					selectedItem.setIcon(FontAwesome.EXPAND);
+					toggleMaximized(componentGraficoUltimaSemana, false);
+				}
+			}
+		});
+		max.setStyleName("icon-only");
+
+		toolbar.addComponents(caption, tools);
+		toolbar.setExpandRatio(caption, 1);
+		toolbar.setComponentAlignment(caption, Alignment.MIDDLE_LEFT);
+
+		card.addComponents(toolbar, vaadinChartPeriodo);
+		componentGraficoUltimaSemana.addComponent(card);
+	}
+    
+	private void fillContentWrapperGrafico30Dias()
+			throws InvalidResultSetAccessException, ParseException {
+		LinkedHashMap<Date, Integer> listaAplicaciones = new LinkedHashMap<>();
+		Date fechaFin = today;
+	
+		Calendar fechaInicio = Calendar.getInstance();
+		fechaInicio.setTime(fechaFin);
+		fechaInicio.add(Calendar.DATE, -30);
+		listaAplicaciones = aplicacionService.getUsuariosConectadosPorHora(
+				emisora, fechaInicio.getTime(), fechaFin);
+ Chart vaadinChartPeriodo = new Chart();
+		vaadinChartPeriodo.setHeight("100%");
+		vaadinChartPeriodo.setWidth("100%");
+        Configuration configuration = vaadinChartPeriodo.getConfiguration();
+        configuration.getChart().setType(ChartType.SPLINE);
+
+
+configuration.setExporting(true);
+        configuration.getxAxis().setType(AxisType.DATETIME);
+       
+        				
+        Axis yAxis = configuration.getyAxis();
+        yAxis.setTitle(new Title(""));
+        yAxis.setMin(0);
+
+        
+        configuration.setTitle("");
+        configuration.getTooltip().setxDateFormat("%d-%m-%Y %I:%M %P");
+        DataSeries ls = new DataSeries();
+        ls.setPlotOptions(new PlotOptionsSpline());
+        ls.setName("Oyentes");
+        
+		Iterator it = listaAplicaciones.entrySet().iterator();
+		while (it.hasNext()) {
+
+			Map.Entry pairs = (Map.Entry) it.next();
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime((Date) pairs.getKey());
+			  DataSeriesItem item = new DataSeriesItem(calendar.getTime(),
+					  (Integer) pairs.getValue());
+	            ls.add(item);
+			it.remove();
+		}
+        
+ 
+
+        configuration.addSeries(ls);
+
+        vaadinChartPeriodo.drawChart(configuration);
+        Responsive.makeResponsive(vaadinChartPeriodo);
+		vaadinChartPeriodo.setSizeFull();
+		componentGrafico30Dias.removeAllComponents();
+		componentGrafico30Dias.setWidth("100%");
+		componentGrafico30Dias.addStyleName("dashboard-panel-slot");
+
+		CssLayout card = new CssLayout();
+		card.setWidth("100%");
+		card.addStyleName(ValoTheme.LAYOUT_CARD);
+
+		HorizontalLayout toolbar = new HorizontalLayout();
+		toolbar.addStyleName("dashboard-panel-toolbar");
+		toolbar.setWidth("100%");
+Label caption = new Label("Usuarios Conectados Últimos 30 Días");
+caption.addStyleName(ValoTheme.LABEL_H4);
+caption.addStyleName(ValoTheme.LABEL_COLORED);
+caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
+		vaadinChartPeriodo.setCaption(null);
+
+		MenuBar tools = new MenuBar();
+		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+
+		MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
+
+			@Override
+			public void menuSelected(final MenuItem selectedItem) {
+				if (!componentGrafico30Dias.getStyleName().contains("max")) {
+					selectedItem.setIcon(FontAwesome.COMPRESS);
+					toggleMaximized(componentGrafico30Dias, true);
+				} else {
+					componentGrafico30Dias.removeStyleName("max");
+					selectedItem.setIcon(FontAwesome.EXPAND);
+					toggleMaximized(componentGrafico30Dias, false);
+				}
+			}
+		});
+		max.setStyleName("icon-only");
+
+		toolbar.addComponents(caption, tools);
+		toolbar.setExpandRatio(caption, 1);
+		toolbar.setComponentAlignment(caption, Alignment.MIDDLE_LEFT);
+
+		card.addComponents(toolbar, vaadinChartPeriodo);
+		componentGrafico30Dias.addComponent(card);
+	}
+	
+	
+	private void fillContentWrapperGraficoUltimaHora()
+			throws InvalidResultSetAccessException, ParseException {
+		LinkedHashMap<Date, Integer> listaAplicaciones = new LinkedHashMap<>();
+		Date fechaFin = today;
+		
+		Calendar fechaInicio = Calendar.getInstance();
+		fechaInicio.setTime(fechaFin);
+		fechaInicio.add(Calendar.HOUR, -1);
+		listaAplicaciones = aplicacionService.getUsuariosConectadosPorHora(
+				emisora, fechaInicio.getTime(), fechaFin);
+ Chart vaadinChartPeriodo = new Chart();
+		vaadinChartPeriodo.setHeight("100%");
+		vaadinChartPeriodo.setWidth("100%");
+        Configuration configuration = vaadinChartPeriodo.getConfiguration();
+        configuration.getChart().setType(ChartType.SPLINE);
+
+
+configuration.setExporting(true);
+        configuration.getxAxis().setType(AxisType.DATETIME);
+       
+        				
+        Axis yAxis = configuration.getyAxis();
+        yAxis.setTitle(new Title(""));
+        yAxis.setMin(0);
+
+        
+        configuration.setTitle("");
+        configuration.getTooltip().setxDateFormat("%d-%m-%Y %I:%M %P");
+        DataSeries ls = new DataSeries();
+        ls.setPlotOptions(new PlotOptionsSpline());
+        ls.setName("Oyentes");
+        
+		Iterator it = listaAplicaciones.entrySet().iterator();
+		while (it.hasNext()) {
+
+			Map.Entry pairs = (Map.Entry) it.next();
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime((Date) pairs.getKey());
+			  DataSeriesItem item = new DataSeriesItem(calendar.getTime(),
+					  (Integer) pairs.getValue());
+	            ls.add(item);
+			it.remove();
+		}
+        
+ 
+
+        configuration.addSeries(ls);
+
+        vaadinChartPeriodo.drawChart(configuration);
+        Responsive.makeResponsive(vaadinChartPeriodo);
+		vaadinChartPeriodo.setSizeFull();
+		componentGraficoUltimaHora.removeAllComponents();
+		componentGraficoUltimaHora.setWidth("100%");
+		componentGraficoUltimaHora.addStyleName("dashboard-panel-slot");
+
+		CssLayout card = new CssLayout();
+		card.setWidth("100%");
+		card.addStyleName(ValoTheme.LAYOUT_CARD);
+
+		HorizontalLayout toolbar = new HorizontalLayout();
+		toolbar.addStyleName("dashboard-panel-toolbar");
+		toolbar.setWidth("100%");
+Label caption = new Label("Oyentes Conectados Última Hora");
+caption.addStyleName(ValoTheme.LABEL_H4);
+caption.addStyleName(ValoTheme.LABEL_COLORED);
+caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
+		vaadinChartPeriodo.setCaption(null);
+
+		MenuBar tools = new MenuBar();
+		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+
+		MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
+
+			@Override
+			public void menuSelected(final MenuItem selectedItem) {
+				if (!componentGraficoUltimaHora.getStyleName().contains("max")) {
+					selectedItem.setIcon(FontAwesome.COMPRESS);
+					toggleMaximized(componentGrafico30Dias, true);
+				} else {
+					componentGraficoUltimaHora.removeStyleName("max");
+					selectedItem.setIcon(FontAwesome.EXPAND);
+					toggleMaximized(componentGrafico30Dias, false);
+				}
+			}
+		});
+		max.setStyleName("icon-only");
+
+		toolbar.addComponents(caption, tools);
+		toolbar.setExpandRatio(caption, 1);
+		toolbar.setComponentAlignment(caption, Alignment.MIDDLE_LEFT);
+
+		card.addComponents(toolbar, vaadinChartPeriodo);
+		componentGraficoUltimaHora.addComponent(card);
+	}
 	
 
-    public void setLookupService(LookupService cl){
-    	this.cl = cl;
-    }
-    
   
 }
 

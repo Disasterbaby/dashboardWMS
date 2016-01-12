@@ -33,21 +33,20 @@ public class JdbcUsuarioDAO implements UsuarioDAO {
 	public void setDataSource(DataSource dataSource) {
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 	}
-	
-
 	@Transactional(readOnly = true)
-	public String getNombreEmisora(String usuario, String password) {
+	public List<String> getListaEmisorasPorUsuario(String usuario) {
 		boolean successfullyExecuted = false;
 		int failedCount = 0;
-		String emisora = null;
-		while (!successfullyExecuted) {
-			try {
-				 emisora = this.jdbcTemplate.queryForObject(
-							QUERY_GET_EMISORA, new Object[] {usuario,
-									password}, String.class);
-				successfullyExecuted = true;
-			} catch (UncategorizedSQLException e) {
-				System.out.println("reintentar");
+		List<String> listaEmisoras = new ArrayList<String>();	
+		while (!successfullyExecuted){
+		 try {
+			 listaEmisoras = this.jdbcTemplate.query(QUERY_GET_LISTA_EMISORAS_POR_USUARIO, new Object[] {usuario}, new RowMapper() {
+      public Object mapRow(ResultSet resultSet, int i) throws SQLException {
+        return resultSet.getString(1);
+      } });
+      successfullyExecuted = true;
+		 } catch (UncategorizedSQLException e) {
+			 System.out.println("reintentar");
 				if (failedCount < 10) {
 					failedCount++;
 					try {
@@ -57,21 +56,52 @@ public class JdbcUsuarioDAO implements UsuarioDAO {
 					}
 				}
 			}
-			catch(EmptyResultDataAccessException e) {
-				return null;
-			}	
 		}
-		return emisora;
+	
+		return listaEmisoras;
 	}
 
+
+
+
+	@Transactional(readOnly = true)
+	public List<String> getListaEmisorasUsuario(String usuario, String password) {
+		boolean successfullyExecuted = false;
+		int failedCount = 0;
+		List<String> listaEmisoras = new ArrayList<String>();	
+		while (!successfullyExecuted){
+		 try {
+			 listaEmisoras = this.jdbcTemplate.query(QUERY_GET_LISTA_EMISORAS, new Object[] {usuario,
+						password}, new RowMapper() {
+      public Object mapRow(ResultSet resultSet, int i) throws SQLException {
+        return resultSet.getString(1);
+      } });
+      successfullyExecuted = true;
+		 } catch (UncategorizedSQLException e) {
+			 System.out.println("reintentar");
+				if (failedCount < 10) {
+					failedCount++;
+					try {
+						java.lang.Thread.sleep(2 * 1000L); // Wait for 2 seconds
+					} catch (java.lang.Exception exception) {
+						System.out.println("Exception " + exception);
+					}
+				}
+			}
+		}
+	
+		return listaEmisoras;
+	}
+
+
+
 	@Override
-	public void insertarUsuario(String usuario, String password,
-			String aplicacion, String aplicacionMovil) {
+	public void insertarUsuario(String usuario, String password, String vencimiento, String logo) {
 		boolean successfullyExecuted = false;
 		int failedCount = 0;
 		while (!successfullyExecuted) {
 			try {
-				 this.jdbcTemplate.update(QUERY_INSERT_USUARIO, usuario, password, aplicacion, aplicacionMovil);
+				 this.jdbcTemplate.update(QUERY_INSERT_USUARIO, usuario, password, vencimiento, logo);
 				successfullyExecuted = true;
 			} catch (UncategorizedSQLException e) {
 				System.out.println("reintentar");
@@ -122,7 +152,7 @@ public class JdbcUsuarioDAO implements UsuarioDAO {
 						QUERY_GET_LISTA_USUARIOS, new UsuarioMapper());
 				successfullyExecuted = true;
 			} catch (UncategorizedSQLException e) {
-				System.out.println("reintentar");
+				System.out.println("reintentar " + e.getMessage());
 				if (failedCount < 10) {
 					failedCount++;
 					try {
@@ -229,13 +259,13 @@ public class JdbcUsuarioDAO implements UsuarioDAO {
 
 
 	@Override
-	public void modificarUsuario(String aplicacion, String password,
-			String aplicacionMovil, String usuario) {
+	public void modificarUsuario( String password,
+			 String usuario, String vencimiento) {
 		boolean successfullyExecuted = false;
 		int failedCount = 0;
 		while (!successfullyExecuted) {
 			try {
-				 this.jdbcTemplate.update(QUERY_UPDATE_USUARIO, aplicacion, password, aplicacionMovil, usuario);
+				 this.jdbcTemplate.update(QUERY_UPDATE_USUARIO, password, vencimiento, usuario);
 				successfullyExecuted = true;
 			} catch (UncategorizedSQLException e) {
 				System.out.println("reintentar");
@@ -251,5 +281,160 @@ public class JdbcUsuarioDAO implements UsuarioDAO {
 		}	
 		
 	}
+
+
+
+
+	@Transactional(readOnly = true)
+	public String getFechaVencimiento(String emisora) {
+		boolean successfullyExecuted = false;
+		int failedCount = 0;
+		String fechaVencimiento = null;
+		while (!successfullyExecuted) {
+			try {
+				fechaVencimiento = this.jdbcTemplate.queryForObject(
+							QUERY_GET_FECHA_VENCIMIENTO, new Object[] {emisora}, String.class);
+				successfullyExecuted = true;
+			} catch (UncategorizedSQLException e) {
+				System.out.println("reintentar");
+				if (failedCount < 10) {
+					failedCount++;
+					try {
+						java.lang.Thread.sleep(2 * 1000L); // Wait for 2 seconds
+					} catch (java.lang.Exception exception) {
+						System.out.println("Exception " + exception);
+					}
+				}
+			}
+			catch(EmptyResultDataAccessException e) {
+				return null;
+			}	
+		}
+		return fechaVencimiento;
+	}
+
+
+	@Override
+	public void insertarLogo(String logo, String usuario) {
+		boolean successfullyExecuted = false;
+		int failedCount = 0;
+		while (!successfullyExecuted) {
+			try {
+				 this.jdbcTemplate.update(QUERY_INSERTAR_LOGO, logo, usuario);
+				successfullyExecuted = true;
+			} catch (UncategorizedSQLException e) {
+				System.out.println("reintentar");
+				if (failedCount < 10) {
+					failedCount++;
+					try {
+						java.lang.Thread.sleep(2 * 1000L); // Wait for 2 seconds
+					} catch (java.lang.Exception exception) {
+						System.out.println("Exception " + exception);
+					}
+				}
+			}
+		}	
+	}
+
+
+
+	@Transactional(readOnly = true)
+	public String getLogo(String usuario) {
+		boolean successfullyExecuted = false;
+		int failedCount = 0;
+		String logo = null;
+		while (!successfullyExecuted) {
+			try {
+				logo = this.jdbcTemplate.queryForObject(
+							QUERY_GET_LOGO, new Object[] {usuario}, String.class);
+				successfullyExecuted = true;
+			} catch (UncategorizedSQLException e) {
+				System.out.println("reintentar");
+				if (failedCount < 10) {
+					failedCount++;
+					try {
+						java.lang.Thread.sleep(2 * 1000L); // Wait for 2 seconds
+					} catch (java.lang.Exception exception) {
+						System.out.println("Exception " + exception);
+					}
+				}
+			}
+			catch(EmptyResultDataAccessException e) {
+				return null;
+			}	
+		}
+		return logo;
+	}
+	@Override
+	public void insertarEmisora(String usuario, String emisora, String aplicacionMovil) {
+		boolean successfullyExecuted = false;
+		int failedCount = 0;
+		while (!successfullyExecuted) {
+			try {
+				 this.jdbcTemplate.update(QUERY_INSERT_EMISORA, usuario, emisora, aplicacionMovil);
+				successfullyExecuted = true;
+			} catch (UncategorizedSQLException e) {
+				System.out.println("reintentar");
+				if (failedCount < 10) {
+					failedCount++;
+					try {
+						java.lang.Thread.sleep(2 * 1000L); // Wait for 2 seconds
+					} catch (java.lang.Exception exception) {
+						System.out.println("Exception " + exception);
+					}
+				}
+			}
+		}	
+	}
+	@Override
+	public void borrarEmisoras(String usuario) {
+		boolean successfullyExecuted = false;
+		int failedCount = 0;
+		while (!successfullyExecuted) {
+			try {
+				 this.jdbcTemplate.update(QUERY_REMOVE_EMISORAS, usuario);
+				successfullyExecuted = true;
+			} catch (UncategorizedSQLException e) {
+				System.out.println("reintentar");
+				if (failedCount < 10) {
+					failedCount++;
+					try {
+						java.lang.Thread.sleep(2 * 1000L); // Wait for 2 seconds
+					} catch (java.lang.Exception exception) {
+						System.out.println("Exception " + exception);
+					}
+				}
+			}
+		}	
+	}
+
+	@Transactional(readOnly = true)
+	public String getAppMovilPorNombreUsuario(String nombreUsuario) {
+		boolean successfullyExecuted = false;
+		int failedCount = 0;
+		String appMovil = null;
+		while (!successfullyExecuted) {
+			try {
+				appMovil = this.jdbcTemplate.queryForObject(
+							QUERY_GET_APP_MOVIL_BY_USER, new Object[] {nombreUsuario}, String.class);
+				successfullyExecuted = true;
+			} catch (UncategorizedSQLException e) {
+				System.out.println("reintentar");
+				if (failedCount < 10) {
+					failedCount++;
+					try {
+						java.lang.Thread.sleep(2 * 1000L); // Wait for 2 seconds
+					} catch (java.lang.Exception exception) {
+						System.out.println("Exception " + exception);
+					}
+				}
+			}
+			catch(EmptyResultDataAccessException e) {
+				return null;
+			}	
+		}
+		return appMovil;
+	}
+
 
 }

@@ -1,35 +1,16 @@
 package com.dashboardwms.components;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Shape;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.DateAxis;
-import org.jfree.chart.axis.DateTickMarkPosition;
-import org.jfree.chart.axis.DateTickUnit;
-import org.jfree.chart.axis.DateTickUnitType;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.time.Day;
-import org.jfree.data.time.TimeSeries;
-import org.jfree.data.time.TimeSeriesCollection;
-import org.jfree.data.xy.XYDataset;
-import org.jfree.ui.RectangleInsets;
-import org.jfree.util.ShapeUtilities;
 import org.springframework.jdbc.InvalidResultSetAccessException;
-import org.vaadin.addon.JFreeChartWrapper;
 
 import com.dashboardwms.service.XLSReadingService;
 import com.dashboardwms.utilities.Utilidades;
@@ -38,10 +19,14 @@ import com.vaadin.addon.charts.model.Axis;
 import com.vaadin.addon.charts.model.AxisType;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.Configuration;
+import com.vaadin.addon.charts.model.Cursor;
 import com.vaadin.addon.charts.model.DataSeries;
 import com.vaadin.addon.charts.model.DataSeriesItem;
+import com.vaadin.addon.charts.model.Labels;
+import com.vaadin.addon.charts.model.PlotOptionsPie;
 import com.vaadin.addon.charts.model.PlotOptionsSpline;
 import com.vaadin.addon.charts.model.Title;
+import com.vaadin.addon.charts.model.Tooltip;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -71,14 +56,19 @@ public class MobileStatisticsPanel extends Panel {
 	private CssLayout componentGraficoSesiones = new CssLayout();
 	private CssLayout componentGraficoMinutos = new CssLayout();
 	private CssLayout componentGraficoRegistros = new CssLayout();
+	private CssLayout componentGraficoRegistrations = new CssLayout();
+
+    private final Table tablaRegistrations = new Table();
 	private XLSReadingService xlsReadingService;
-	private Date today = new Date();
+	private Date today = Calendar.getInstance(TimeZone.getTimeZone("America/Caracas")).getTime();
 	public ComboBox cboxPeriodo = new ComboBox();
 	private final Table tablaInformacionPeriodo = new Table();
 	private Label captionGraficoSesiones = new Label();
 	private Label captionGraficoMinutos = new Label();
 	private Label captionGraficoRegistros = new Label();
 	private Label captionInfoPeriodo = new Label();
+
+	private Label captionGraficoRegistrations = new Label();
 	private String appMovil;
 	Calendar calendar = Calendar.getInstance();
 	
@@ -112,9 +102,12 @@ public class MobileStatisticsPanel extends Panel {
 		Responsive.makeResponsive(root);
 
 		Responsive.makeResponsive(tablaInformacionPeriodo);
+
+        Responsive.makeResponsive(tablaRegistrations);
 		Responsive.makeResponsive(componentGraficoSesiones);
 		Responsive.makeResponsive(componentGraficoMinutos);
 		Responsive.makeResponsive(componentGraficoRegistros);
+		Responsive.makeResponsive(componentGraficoRegistrations);
 		Responsive.makeResponsive(cboxPeriodo);
 
 		root.addComponent(buildHeader());
@@ -140,7 +133,7 @@ public class MobileStatisticsPanel extends Panel {
 	     Label lbVer = new Label("Ver: ");
 	        HorizontalLayout tools = new HorizontalLayout(lbVer, cboxPeriodo);
 	        tools.setComponentAlignment(lbVer, Alignment.MIDDLE_CENTER);
-		
+
 		Responsive.makeResponsive(tools);
 		tools.setSpacing(true);
 		tools.addStyleName("toolbar");
@@ -156,10 +149,12 @@ public class MobileStatisticsPanel extends Panel {
 		cboxPeriodo.setInvalidAllowed(false);
 		BeanItemContainer<String> listaPeriodosContainer = new BeanItemContainer<String>(
 				String.class);
-
-		listaPeriodosContainer.addAll(Utilidades.LISTA_PERIODOS);
-		listaPeriodosContainer.removeItem(Utilidades.HOY);
-		listaPeriodosContainer.removeItem(Utilidades.CUSTOM_DATE);
+		List<String> listaPeriodos = new ArrayList<String>();
+		listaPeriodos.addAll(Utilidades.LISTA_PERIODOS);
+		listaPeriodos.remove(0);
+		listaPeriodos.remove(3);
+		listaPeriodosContainer.addAll(listaPeriodos);
+		
 		cboxPeriodo.setContainerDataSource(listaPeriodosContainer);
 		cboxPeriodo.setTextInputAllowed(false);
 		cboxPeriodo.select(Utilidades.ULTIMA_SEMANA);
@@ -176,25 +171,141 @@ public class MobileStatisticsPanel extends Panel {
 		dashboardPanels.addComponent(componentGraficoMinutos);
 		
 		dashboardPanels.addComponent(componentGraficoRegistros);
-		
+		buildTableRegistrations(); 
+
 		Component componentInfoPeriodo = buildComponentTablaInfoPeriodo();
 		dashboardPanels.addComponent(componentInfoPeriodo);
+		
+		dashboardPanels.addComponent(componentGraficoRegistrations);
+		
 		String captionSesiones = "Sesiones " + Utilidades.LISTA_PERIODOS.get(0);
 		String captionRegistros = "Registros " + Utilidades.LISTA_PERIODOS.get(0);
 		String captionMinutos = "Minutos Trasnmitidos " + Utilidades.LISTA_PERIODOS.get(0);
+		String captionRegistrations = "Registros por Dispositivo";
 		captionGraficoSesiones.setValue(captionSesiones);
 		captionGraficoMinutos.setValue(captionMinutos);
 		captionGraficoRegistros.setValue(captionRegistros);
 		captionInfoPeriodo.setValue(captionMinutos);
-
+		captionGraficoRegistrations.setValue(captionRegistrations);
 		return dashboardPanels;
 	}
 
+	   private void fillContentWrapperGraficoRegistrations(){
+		   
+		
+		   LinkedHashMap<String, Integer> listaDispositivos = new LinkedHashMap<>();
+
+			listaDispositivos = xlsReadingService.getRegistrationsByDevice(appMovil);
+		   Chart chart = new Chart(ChartType.PIE);
+		   
+	       Configuration conf = chart.getConfiguration();
+	       conf.setExporting(true);
+	       conf.setTitle("");
+
+	       PlotOptionsPie plotOptions = new PlotOptionsPie();
+	       plotOptions.setCursor(Cursor.POINTER);
+	      
+	       Labels dataLabels = new Labels();
+	       dataLabels.setEnabled(false);
+	       dataLabels.setEnabled(true);
+	       dataLabels
+	               .setFormatter("this.point.name");
+	       plotOptions.setDataLabels(dataLabels);
+	       conf.setPlotOptions(plotOptions);
+	       Tooltip tooltip = new Tooltip();
+	       tooltip.setValueDecimals(2);
+	       tooltip.setFormatter("''+ this.point.name +': '+ Highcharts.numberFormat(this.percentage, 2) +' %'");
+	       conf.setTooltip(tooltip);
+
+	       final DataSeries series = new DataSeries();
+	       
+			Iterator it = listaDispositivos.entrySet().iterator();
+			while (it.hasNext()) {
+
+				Map.Entry pairs = (Map.Entry) it.next();
+				String dispositivo = (String) pairs.getKey();
+
+	            Integer cantidad = (Integer) pairs.getValue();
+	            System.out.println(dispositivo + " " + cantidad);
+	            series.add(new DataSeriesItem(dispositivo, cantidad));
+	    	  	
+				it.remove();
+			}
+	       
+	   
+	       
+	       conf.setSeries(series);
+
+	   
+	       chart.drawChart(conf);
+		   
+	HorizontalLayout hLayout = new HorizontalLayout();
+	hLayout.setSizeFull();
+	    	Responsive.makeResponsive(chart);
+	    	chart.setCaption("Registros por Dispositivo");
+	    	chart.setSizeFull();
+	    	componentGraficoRegistrations.removeAllComponents();
+	    	componentGraficoRegistrations.setWidth("100%");
+	    	componentGraficoRegistrations.addStyleName("dashboard-pais");
+	        CssLayout card = new CssLayout();
+	        card.setWidth("100%");
+	        card.addStyleName(ValoTheme.LAYOUT_CARD);
+
+	        HorizontalLayout toolbar = new HorizontalLayout();
+	        toolbar.addStyleName("dashboard-panel-toolbar");
+	        toolbar.setWidth("100%");
+
+	        Label caption = new Label(chart.getCaption());
+	        caption.addStyleName(ValoTheme.LABEL_H4);
+	        caption.addStyleName(ValoTheme.LABEL_COLORED);
+	        caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
+	        chart.setCaption(null);
+
+	        MenuBar tools = new MenuBar();
+	        tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+	       
+	        MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
+
+	            @Override
+	            public void menuSelected(final MenuItem selectedItem) {
+	                if (!componentGraficoRegistrations.getStyleName().contains("max")) {
+	                    selectedItem.setIcon(FontAwesome.COMPRESS);
+	                    toggleMaximized(componentGraficoRegistrations, true);
+	                } else {
+	                	componentGraficoRegistrations.removeStyleName("max");
+	                    selectedItem.setIcon(FontAwesome.EXPAND);
+	                    toggleMaximized(componentGraficoRegistrations, false);
+	                }
+	            }
+	        });
+	        max.setStyleName("icon-only");
+	   
+	    
+	    	tablaRegistrations.addStyleName("top10-revenue");
+	        Responsive.makeResponsive(tablaRegistrations);
+
+	        toolbar.addComponents(caption, tools);
+	        toolbar.setExpandRatio(caption, 1);
+	        toolbar.setComponentAlignment(caption, Alignment.MIDDLE_LEFT);
+	        hLayout.addComponent(chart);
+	        hLayout.addComponent(tablaRegistrations);
+	        hLayout.setComponentAlignment(tablaRegistrations, Alignment.MIDDLE_CENTER);
+	        hLayout.setSpacing(true);
+
+	        hLayout.addStyleName(ValoTheme.LAYOUT_HORIZONTAL_WRAPPING);
+	        card.addComponents(toolbar, hLayout);
+	        componentGraficoRegistrations.addComponent(card);
+	    }
+	    
+	    
+	
+	
 	private void fillContentWrapperGraficoMinutos(Date fechaInicio, Date fechaFin)
 			throws InvalidResultSetAccessException, ParseException {
 		LinkedHashMap<Date, Double> listaMinutos = new LinkedHashMap<>();
 
 		listaMinutos = xlsReadingService.getStreamingMinutes(appMovil, fechaInicio, fechaFin);
+		xlsReadingService.getRegistrationsByDevice(appMovil);
 		
 		 Chart vaadinChartMinutos = new Chart();
 		 vaadinChartMinutos.setHeight("100%");
@@ -202,7 +313,7 @@ public class MobileStatisticsPanel extends Panel {
 	        Configuration configuration = vaadinChartMinutos.getConfiguration();
 	        configuration.getChart().setType(ChartType.SPLINE);
 
-
+	        configuration.setExporting(true);
 
 	        configuration.getxAxis().setType(AxisType.DATETIME);
 	       
@@ -226,7 +337,7 @@ public class MobileStatisticsPanel extends Panel {
 				calendar.setTime((Date) pairs.getKey());
 
 	            Double minutos = (Double) pairs.getValue();
-				  DataSeriesItem item = new DataSeriesItem(calendar.getTimeInMillis(),
+				  DataSeriesItem item = new DataSeriesItem(calendar.getTime(),
 						  minutos);
 		            ls.add(item);
 					totalMinutos = totalMinutos + minutos;
@@ -300,7 +411,7 @@ public class MobileStatisticsPanel extends Panel {
 	        configuration.getChart().setType(ChartType.SPLINE);
 
 
-
+	        configuration.setExporting(true);
 	        configuration.getxAxis().setType(AxisType.DATETIME);
 	        				
 	        Axis yAxis = configuration.getyAxis();
@@ -322,7 +433,7 @@ public class MobileStatisticsPanel extends Panel {
 				calendar.setTime((Date) pairs.getKey());
 
 				Integer sesiones = (Integer) pairs.getValue();
-				  DataSeriesItem item = new DataSeriesItem(calendar.getTimeInMillis(),
+				  DataSeriesItem item = new DataSeriesItem(calendar.getTime(),
 						  sesiones);
 		            ls.add(item);
 		        	totalSesiones = totalSesiones + sesiones;
@@ -394,9 +505,7 @@ public class MobileStatisticsPanel extends Panel {
 		 vaadinChartRegistros.setWidth("100%");
 	        Configuration configuration = vaadinChartRegistros.getConfiguration();
 	        configuration.getChart().setType(ChartType.SPLINE);
-
-
-
+	         configuration.setExporting(true);
 	        configuration.getxAxis().setType(AxisType.DATETIME);
 	       
 	        				
@@ -419,7 +528,7 @@ public class MobileStatisticsPanel extends Panel {
 				calendar.setTime((Date) pairs.getKey());
 
 				Integer registros = (Integer) pairs.getValue();
-				  DataSeriesItem item = new DataSeriesItem(calendar.getTimeInMillis(),
+				  DataSeriesItem item = new DataSeriesItem(calendar.getTime(),
 						  registros);
 		            ls.add(item);
 		            totalRegistros = totalRegistros + registros;
@@ -525,6 +634,8 @@ public class MobileStatisticsPanel extends Panel {
 		Date fechaFin = today;
 		Calendar fechaInicio = Calendar.getInstance();
 		fechaInicio.setTime(fechaFin);
+		fillContentWrapperGraficoRegistrations();
+		fillTablaRegistrations();
 		switch (periodo) {
 
 
@@ -691,7 +802,58 @@ public class MobileStatisticsPanel extends Panel {
 		return slot;
 	}
 
-	
+    private void buildTableRegistrations(){
+    	tablaRegistrations.setSizeFull();
+    	tablaRegistrations.addStyleName(ValoTheme.TABLE_BORDERLESS);
+    	tablaRegistrations.addStyleName(ValoTheme.TABLE_NO_STRIPES);
+    	tablaRegistrations.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
+    	tablaRegistrations.addStyleName(ValoTheme.TABLE_SMALL);
+    
+    	tablaRegistrations.setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
+    	
+    	
+    	tablaRegistrations.addContainerProperty("Dispositivo", String.class, null);
+    	tablaRegistrations.addContainerProperty("Cantidad",  Integer.class, null);
+    	tablaRegistrations.setRowHeaderMode(Table.RowHeaderMode.ICON_ONLY);
+  
+    	tablaRegistrations.setColumnWidth(null, 40);
+    	tablaRegistrations.setColumnAlignment("Cantidad", Align.RIGHT);
+    	tablaRegistrations.setSortContainerPropertyId("Cantidad");
+    	tablaRegistrations.setSortAscending(false);
+    	
+    	
+    }
+    
+    private void fillTablaRegistrations(){
+    	tablaRegistrations.removeAllItems();
+
+		   LinkedHashMap<String, Integer> listaDispositivos = new LinkedHashMap<>();
+
+			listaDispositivos = xlsReadingService.getRegistrationsByDevice(appMovil);
+
+			Iterator it = listaDispositivos.entrySet().iterator();
+    		while (it.hasNext()) {
+
+				Map.Entry pairs = (Map.Entry) it.next();
+				String dispositivo = (String) pairs.getKey();
+
+	            Integer cantidad = (Integer) pairs.getValue();
+
+        		tablaRegistrations.addItem(dispositivo);
+
+    			Item row = tablaRegistrations.getItem(dispositivo);
+        		row.getItemProperty("Dispositivo").setValue(dispositivo);
+    			row.getItemProperty("Cantidad").setValue(cantidad);
+	    	  	
+				it.remove();
+			}
+    		
+        	
+    	tablaRegistrations.sort();
+    }
+    
+    
+
 
 }
 

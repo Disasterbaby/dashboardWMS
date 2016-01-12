@@ -30,4 +30,6 @@ public interface AplicacionService {
 	
 	public LinkedHashMap<Date, Integer> getUsuariosConectadosPorHora(String nombre, Date fechaInicio, Date fechaFin) throws InvalidResultSetAccessException, ParseException;
 
+	public LinkedHashMap<Date, Integer> getUsuariosHoraEspecifica(String nombre, Date fechaInicio, Date fechaFin) throws InvalidResultSetAccessException, ParseException;
+
 }

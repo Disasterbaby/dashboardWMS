@@ -1,11 +1,18 @@
 package com.dashboardwms.components;
 
+import java.io.File;
 import java.util.Iterator;
+import java.util.List;
 
+import com.dashboardwms.DashboardwmsUI;
+import com.dashboardwms.exceptions.PerdidaCredencialesException;
+import com.dashboardwms.service.AplicacionService;
+import com.dashboardwms.service.ImageUploader;
 import com.dashboardwms.service.UsuarioService;
 import com.dashboardwms.service.XLSReadingService;
 import com.dashboardwms.views.DashboardViewType;
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.server.FileResource;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.ThemeResource;
@@ -20,11 +27,17 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Upload;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
+import com.vaadin.ui.Upload.FailedEvent;
+import com.vaadin.ui.Upload.FailedListener;
+import com.vaadin.ui.Upload.FinishedEvent;
+import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.PasswordField;
+import com.vaadin.ui.Upload.SucceededListener;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -46,11 +59,13 @@ public final class DashboardMenu extends CustomComponent {
     private static final String STYLE_SELECTED = "selected";
     private MenuItem settingsItem;
     private UsuarioService usuarioService;
-    
-
+    private List<String> listaEmisoras;
+    private AplicacionService aplicacionService;
+    private MenuBar userMenu = new MenuBar();
     final CssLayout menuItemsLayout = new CssLayout();
 	final CssLayout menuContent = new CssLayout();
 	private String  usuario;
+	private String emisora;
     public DashboardMenu() {
    
 
@@ -70,34 +85,27 @@ public final class DashboardMenu extends CustomComponent {
         menuContent.setWidth(null);
         menuContent.setHeight("100%");
 
-        menuContent.addComponent(buildTitle());
-        menuContent.addComponent(buildUserMenu());
+        menuContent.addComponent(userMenu);
         menuContent.addComponent(buildToggleButton());
         buildMenuItems();
         menuContent.addComponent(menuItemsLayout);
+
+      //  menuContent.addComponent(buildTitle());
+        
         Responsive.makeResponsive(menuContent);
        
 
         return menuContent;
     }
 
-    private Component buildTitle() {
-        Label logo = new Label("Plug Streaming");
-        logo.setIcon(new ThemeResource("img/icoplug.ico"));
-        logo.setSizeUndefined();
-        logo.addStyleName("valo-menu-title");
-        
-        HorizontalLayout logoWrapper = new HorizontalLayout(logo);
-        logoWrapper.setComponentAlignment(logo, Alignment.MIDDLE_CENTER);
-        logoWrapper.addStyleName("valo-menu-title");
-        return logoWrapper;
-    }
 
     
-    public void setVariables(String emisora, String appMovil, String usuario, XLSReadingService xlsReadingService, UsuarioService usuarioService){
-    	settingsItem.setText(emisora);
+    public void setVariables(String emisora, String appMovil, String usuario, XLSReadingService xlsReadingService, UsuarioService usuarioService, List<String> listaEmisoras, AplicacionService aplicacionService) throws PerdidaCredencialesException{
+    	this.emisora = emisora;
+       this.listaEmisoras = listaEmisoras;
     	this.usuario = usuario;
     	this.usuarioService = usuarioService;
+    	this.aplicacionService = aplicacionService;
     	if(emisora!=null){
     	if(appMovil!=null){	    	
     	if(xlsReadingService.verificarAppMovil(appMovil))
@@ -107,16 +115,54 @@ public final class DashboardMenu extends CustomComponent {
     	if(usuario!=null)
         if(usuario.equalsIgnoreCase("admin"))
         	menuItemsLayout.addComponent(botonAdministracion);
-    	
-    	
+    	try{
+
+        	buildUserMenu();
+    	}catch(Exception e){
+    		throw new PerdidaCredencialesException("Credenciales vacías");
+    	}
     }
     
-    private Component buildUserMenu() {
-        final MenuBar settings = new MenuBar();
-        settings.addStyleName("user-menu");
+    private void buildUserMenu() {
+        userMenu.addStyleName("user-menu");
 
-        settingsItem = settings.addItem("", null, null);
-       
+        settingsItem = userMenu.addItem("", null, null);
+        settingsItem.setText(emisora);
+        String ruta = usuarioService.getLogo(usuario);
+        if(usuario.equalsIgnoreCase("admin")){
+
+        	settingsItem.setIcon(new ThemeResource("img/icoplug.ico"));
+        	listaEmisoras = aplicacionService.getListaAplicacionesDistinct();
+        	if(emisora.equalsIgnoreCase("todas"))
+        	settingsItem.setText(listaEmisoras.get(0));
+        }
+        	
+        
+    	if(ruta!=null){
+    	FileResource resource = new FileResource(new File(ruta));
+    	settingsItem.setIcon(resource);
+    	}
+    	
+        if(listaEmisoras!=null)
+        {
+        	
+        	
+        	for (final String emisora : listaEmisoras) {
+        		if(!emisora.equalsIgnoreCase(this.emisora))
+        		 settingsItem.addItem(emisora, new Command() {
+        	            @Override
+        	            public void menuSelected(final MenuItem selectedItem) {
+
+        	             	 VaadinSession.getCurrent().setAttribute("emisora", emisora);
+
+        	             	VaadinSession.getCurrent().setAttribute("appMovil", usuarioService.getAppMovil(emisora));
+        	               getUI().getNavigator()
+        					.navigateTo(DashboardwmsUI.MAINVIEW);
+        	              
+        	            }
+        	        });
+			}
+        }
         
         settingsItem.addItem("Cambiar Contraseña", new Command() {
             @Override
@@ -125,7 +171,14 @@ public final class DashboardMenu extends CustomComponent {
             }
         });
         
-   
+        settingsItem.addItem("Cambiar Logo", new Command() {
+            @Override
+            public void menuSelected(final MenuItem selectedItem) {
+            	buildModalWindowLogo();
+            }
+        });
+        
+        
         settingsItem.addItem("Salir", new Command() {
             @Override
             public void menuSelected(final MenuItem selectedItem) {
@@ -139,7 +192,6 @@ public final class DashboardMenu extends CustomComponent {
         });
         
 
-        return settings;
     }
 
     private Component buildToggleButton() {
@@ -182,7 +234,7 @@ public final class DashboardMenu extends CustomComponent {
         menuItemsLayout.addComponent(botonTiempoReal);
         menuItemsLayout.addComponent(botonEstadisticasPaises);
         menuItemsLayout.addComponent(botonOyentesDia);
-   
+        
 
     }
 
@@ -297,5 +349,80 @@ public final class DashboardMenu extends CustomComponent {
 				}
 				}
 	});
+    }
+    
+    
+
+    private void buildModalWindowLogo(){
+    	final ImageUploader receiver = new ImageUploader(); 
+  	   
+    		// Create the upload with a caption and set receiver later
+    	final	Upload upload = new Upload();
+    		upload.setReceiver(receiver);
+    		  upload.setButtonCaption("Cargar");
+    	         
+    		  
+//    	         upload.setImmediate(true);
+    	         upload.setStyleName(ValoTheme.BUTTON_TINY);
+    	     	upload.addSucceededListener(receiver);
+    	     	
+    	final Window subWindow = new Window();
+    	subWindow.setModal(true);
+		subWindow.addStyleName(ValoTheme.WINDOW_TOP_TOOLBAR);
+	   		subWindow.setCaption("Seleccione el nuevo logo");
+		subWindow.setResizable(false);
+		subWindow.setDraggable(false);
+		subWindow.setSizeUndefined();
+		
+		subWindow.center();
+		VerticalLayout mainLayout = new VerticalLayout();
+		mainLayout.addStyleName(ValoTheme.LAYOUT_CARD);
+		mainLayout.setSizeUndefined();
+		mainLayout.setSpacing(true);
+		mainLayout.setMargin(true);
+		 VerticalLayout vLayout = new VerticalLayout();
+		vLayout.setSizeUndefined();
+		vLayout.setSpacing(true);
+		vLayout.setMargin(true);
+		vLayout.addStyleName(ValoTheme.LAYOUT_CARD);
+		 HorizontalLayout fields = new HorizontalLayout();
+         fields.setSpacing(true);
+         fields.setMargin(true);
+         fields.addStyleName("fields");
+         CssLayout labels = new CssLayout();
+         labels.addStyleName("labels");
+
+         Label welcome = new Label("Seleccione el nuevo logo");
+         welcome.setSizeUndefined();
+         welcome.addStyleName(ValoTheme.LABEL_H3);
+        
+         labels.addComponent(welcome);
+
+         
+         fields.addComponents(upload);
+         vLayout.addComponent(fields);
+         subWindow.setContent(vLayout);
+		getUI().addWindow(subWindow); 
+	
+		upload.addSucceededListener(new SucceededListener() {
+			
+			@Override
+			public void uploadSucceeded(SucceededEvent event) {
+				Notification.show("Logo modificado exitosamente");
+				File archivo = receiver.file;
+				String ruta = null;
+				if(archivo!=null)
+				{ruta = receiver.file.getAbsolutePath();
+				usuarioService.modificarLogo(ruta, usuario);
+				FileResource resource = new FileResource(archivo);
+		    	settingsItem.setIcon(resource);
+				subWindow.close();
+				}
+				else
+					Notification.show("Debe seleccionar una imagen");
+				
+			}
+		});
+    
     }
 }

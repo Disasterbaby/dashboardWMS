@@ -3,7 +3,6 @@ package com.dashboardwms.dao;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -226,6 +225,34 @@ public class JdbcAplicacionDAO implements AplicacionDAO {
 		
 		 rowset = this.jdbcTemplate.queryForRowSet(
 				QUERY_DATE_RANGE_BY_HOUR, new Object[] { nombre, fechaInicio,
+						fechaFin });
+		 successfullyExecuted = true;
+			 } catch (UncategorizedSQLException e) {
+				 System.out.println("reintentar");
+					if (failedCount < 10) {
+						failedCount++;
+						try {
+							java.lang.Thread.sleep(2 * 1000L); // Wait for 2 seconds
+						} catch (java.lang.Exception exception) {
+							System.out.println("Exception " + exception);
+						}
+					}
+				}
+			}
+		return rowset;
+	}
+
+	@Override
+	public SqlRowSet getUsuariosConectadosHoraEspecifica(String nombre,
+			String fechaInicio, String fechaFin) {
+		boolean successfullyExecuted = false;
+		int failedCount = 0;
+		SqlRowSet rowset = null;	
+		while (!successfullyExecuted){
+			try {
+		
+		 rowset = this.jdbcTemplate.queryForRowSet(
+				QUERY_SPECIFIC_HOUR, new Object[] { nombre, fechaInicio,
 						fechaFin });
 		 successfullyExecuted = true;
 			 } catch (UncategorizedSQLException e) {

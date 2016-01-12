@@ -1,6 +1,7 @@
 package com.dashboardwms.views;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -42,8 +43,6 @@ public class LoginView extends VerticalLayout implements View  {
 	UsuarioService usuarioService;
 
 	 final HorizontalLayout fields = new HorizontalLayout();
-//	final List<String> listaAplicaciones = new ArrayList<String>();
-
     final ComboBox listaEmisoras = new ComboBox();
     
 
@@ -52,11 +51,7 @@ public class LoginView extends VerticalLayout implements View  {
     	
 
 		Responsive.makeResponsive(this);
-//    	
-// 	listaAplicaciones.addAll(aplicacionService.getListaAplicacionesDistinct());
-    	
 
- 	
  	
     	setSizeFull();
     	
@@ -116,27 +111,44 @@ public class LoginView extends VerticalLayout implements View  {
             	 
                  String usuario = username.getValue();
                  String passwordValue = password.getValue();
-                String emisora = usuarioService.verificarCredenciales(usuario, passwordValue);
-                String appMovil = usuarioService.getAppMovil(emisora);
+                List<String> listaEmisoras = usuarioService.verificarCredenciales(usuario, passwordValue);
+                
+                Boolean claveVigente = usuarioService.verificarVencimiento(usuario);
 
-             if(emisora == null)
+             if(listaEmisoras == null)
              {	 Notification.show("Intente de nuevo", "Nombre de Usuario o Contraseña incorrectos", Notification.Type.ERROR_MESSAGE);
              	password.setValue("");
-             }else if(emisora.equalsIgnoreCase("todas")){
-            	 VaadinSession.getCurrent().setAttribute("emisora", emisora);
-            	 VaadinSession.getCurrent().setAttribute("usuario", usuario);
-
-            	   getUI().getNavigator()
-   				.navigateTo(DashboardwmsUI.POSTLOGINVIEW);
+             }
+             else if(listaEmisoras.isEmpty())
+             {	 Notification.show("Intente de nuevo", "Nombre de Usuario o Contraseña incorrectos", Notification.Type.ERROR_MESSAGE);
+             	password.setValue("");
+             }
+             else if(!claveVigente){
+            	 Notification.show( "Clave expirada", "Comuníquese con el Administrador", Notification.Type.ERROR_MESSAGE);
+              	password.setValue(""); 
+             
+           
             	 
              }else{
+            	 
+            	 String emisora = listaEmisoras.get(0);
+                 String appMovil = usuarioService.getAppMovil(emisora);
+//                 if(emisora.equalsIgnoreCase("todas")){
+//                	 VaadinSession.getCurrent().setAttribute("emisora", emisora);
+//                	 VaadinSession.getCurrent().setAttribute("usuario", usuario);
+//
+//                	   getUI().getNavigator()
+//       				.navigateTo(DashboardwmsUI.POSTLOGINVIEW);
+//                 }
+//                else{
             	 Notification.show("Bienvenido", Notification.Type.HUMANIZED_MESSAGE);
             	 VaadinSession.getCurrent().setAttribute("emisora", emisora);
             	 VaadinSession.getCurrent().setAttribute("usuario", usuario);
             	 VaadinSession.getCurrent().setAttribute("appMovil", appMovil);
+            	 VaadinSession.getCurrent().setAttribute("listaEmisoras", listaEmisoras);
                getUI().getNavigator()
-				.navigateTo(DashboardwmsUI.MAINVIEW);
-             }
+				.navigateTo(DashboardwmsUI.MAINVIEW);}
+//             }
             	
              }
          });
@@ -164,7 +176,6 @@ public class LoginView extends VerticalLayout implements View  {
 
 	@Override
 	public void enter(ViewChangeEvent event) {
-     
 	}
 
 }

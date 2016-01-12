@@ -2,6 +2,7 @@ package com.dashboardwms.views;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.xml.parsers.ParserConfigurationException;
@@ -24,8 +25,10 @@ import com.dashboardwms.components.LiveDataLayout;
 import com.dashboardwms.components.MobileStatisticsPanel;
 import com.dashboardwms.domain.Aplicacion;
 import com.dashboardwms.domain.Servidor;
+import com.dashboardwms.exceptions.PerdidaCredencialesException;
 import com.dashboardwms.geoip.LookupService;
 import com.dashboardwms.service.AplicacionService;
+import com.dashboardwms.service.CargaImagenService;
 import com.dashboardwms.service.ClienteService;
 import com.dashboardwms.service.UsuarioService;
 import com.dashboardwms.service.XLSReadingService;
@@ -36,10 +39,15 @@ import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Responsive;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.server.VaadinSession;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Embedded;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 
 /*
  * Dashboard MainView is a simple HorizontalLayout that wraps the menu on the
@@ -50,7 +58,7 @@ import com.vaadin.ui.HorizontalLayout;
 @Component("MainView")
 @Scope("prototype")
 @VaadinView(DashboardwmsUI.MAINVIEW)
-public class MainView extends HorizontalLayout implements View {
+public class MainView extends VerticalLayout implements View  {
 	
 	
 
@@ -68,7 +76,11 @@ public class MainView extends HorizontalLayout implements View {
 	
 	@Autowired
 	XLSReadingService xlsReadingService;
+	
+	@Autowired
+	CargaImagenService cargaService;
 
+	 HorizontalLayout layoutContent = new HorizontalLayout();
    private final DashboardMenu menu = new DashboardMenu();
    private final LiveDataLayout liveDataLayout = new LiveDataLayout();
    private final CountryStatisticsPanel countryStatisticsPanel = new CountryStatisticsPanel();
@@ -82,13 +94,15 @@ public class MainView extends HorizontalLayout implements View {
 	String usuario  = (String) VaadinSession.getCurrent().getAttribute("usuario");  
 	
 	String appMovil  = (String)  VaadinSession.getCurrent().getAttribute("appMovil");
+	
+	List<String> listaEmisoras = (List<String>) VaadinSession.getCurrent().getAttribute("listaEmisoras");
 
     @PostConstruct
 	public void PostConstruct() {
     	
-    	
-	     
-    	
+    	setMargin(false);
+    	setSpacing(false);
+    
     	
     	try {
     		    
@@ -99,13 +113,9 @@ public class MainView extends HorizontalLayout implements View {
     	final	LookupService cl = new LookupService(Utilidades.LOCATIONS_DB,LookupService.GEOIP_MEMORY_CACHE);
 		countryStatisticsPanel.setClienteService(clienteService);
 		countryStatisticsPanel.setLookupService(cl);
+		administracionUsuariosPanel.setCargaService(cargaService);
 		liveDataLayout.cl = cl;
-		homePanel.setClienteService(clienteService);
 		homePanel.setEmisora(emisora);
-		homePanel.setAppMovil(appMovil);
-		homePanel.setXLSReadingService(xlsReadingService);
-		homePanel.setLookupService(cl);
-		homePanel.setXMLConnectionService(xmlConnectionService);
 		homePanel.setAplicacionService(aplicacionService);
 		liveDataLayout.setAplicacionService(aplicacionService);
    	dailyStatisticsPanel.setAplicacionService(aplicacionService);
@@ -116,10 +126,14 @@ public class MainView extends HorizontalLayout implements View {
     	administracionUsuariosPanel.setXLSReadingService(xlsReadingService);
 
     	administracionUsuariosPanel.setAplicacionService(aplicacionService);
-        setSizeFull();
-        addStyleName("mainview");
+    	
+    	setSizeFull();
+try{
 
-        menu.setVariables(emisora, appMovil, usuario, xlsReadingService, usuarioService);
+    menu.setVariables(emisora, appMovil, usuario, xlsReadingService, usuarioService, listaEmisoras, aplicacionService);
+}catch(PerdidaCredencialesException e){
+	UI.getCurrent().getNavigator().navigateTo("");
+}
 
         
         Responsive.makeResponsive(menu);
@@ -132,15 +146,15 @@ public class MainView extends HorizontalLayout implements View {
 			
 			@Override
 			public void buttonClick(ClickEvent event) {
-				removeComponent(mobileStatisticsPanel);
-				removeComponent(dailyStatisticsPanel);
-				removeComponent(liveDataLayout);
+				layoutContent.removeComponent(mobileStatisticsPanel);
+				layoutContent.removeComponent(dailyStatisticsPanel);
+				layoutContent.removeComponent(liveDataLayout);
 
-				removeComponent(homePanel);
-				removeComponent(countryStatisticsPanel);
+				layoutContent.removeComponent(homePanel);
+				layoutContent.removeComponent(countryStatisticsPanel);
 				administracionUsuariosPanel.fillTable();
-				addComponent(administracionUsuariosPanel);
-				 setExpandRatio(administracionUsuariosPanel,  1.0f);
+				layoutContent.addComponent(administracionUsuariosPanel);
+				layoutContent.setExpandRatio(administracionUsuariosPanel,  1.0f);
 			}
 		});
         
@@ -148,15 +162,15 @@ public class MainView extends HorizontalLayout implements View {
 			
 			@Override
 			public void buttonClick(ClickEvent event) {
-				removeComponent(mobileStatisticsPanel);
-				removeComponent(dailyStatisticsPanel);
-				removeComponent(liveDataLayout);
+				layoutContent.removeComponent(mobileStatisticsPanel);
+				layoutContent.removeComponent(dailyStatisticsPanel);
+				layoutContent.removeComponent(liveDataLayout);
 
-				removeComponent(homePanel);
-				removeComponent(administracionUsuariosPanel);
+				layoutContent.removeComponent(homePanel);
+				layoutContent.removeComponent(administracionUsuariosPanel);
 				countryStatisticsPanel.cboxPeriodo.setValue(Utilidades.ULTIMO_MES);
-				addComponent(countryStatisticsPanel);
-				 setExpandRatio(countryStatisticsPanel,  1.0f);
+				layoutContent.addComponent(countryStatisticsPanel);
+				layoutContent.setExpandRatio(countryStatisticsPanel,  1.0f);
 			}
 		});
         
@@ -165,12 +179,12 @@ public class MainView extends HorizontalLayout implements View {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				
-				removeComponent(dailyStatisticsPanel);
-				removeComponent(liveDataLayout);
-			removeComponent(countryStatisticsPanel);
+				layoutContent.removeComponent(dailyStatisticsPanel);
+				layoutContent.removeComponent(liveDataLayout);
+				layoutContent.removeComponent(countryStatisticsPanel);
 
-			removeComponent(homePanel);
-			removeComponent(administracionUsuariosPanel);
+				layoutContent.removeComponent(homePanel);
+				layoutContent.removeComponent(administracionUsuariosPanel);
 			try {
 				mobileStatisticsPanel.fillData();
 			} catch (InvalidResultSetAccessException | ParseException e) {
@@ -178,9 +192,9 @@ public class MainView extends HorizontalLayout implements View {
 				e.printStackTrace();
 			}
 			
-			addComponent(mobileStatisticsPanel);
+			layoutContent.addComponent(mobileStatisticsPanel);
 			
-			 setExpandRatio(mobileStatisticsPanel,  1.0f);
+			layoutContent.setExpandRatio(mobileStatisticsPanel,  1.0f);
 			}
 		});
         
@@ -190,12 +204,12 @@ public class MainView extends HorizontalLayout implements View {
 			public void buttonClick(ClickEvent event) {
 				
 
-				removeComponent(mobileStatisticsPanel);
-			removeComponent(countryStatisticsPanel);
-			removeComponent(liveDataLayout);
+				layoutContent.removeComponent(mobileStatisticsPanel);
+				layoutContent.removeComponent(countryStatisticsPanel);
+				layoutContent.removeComponent(liveDataLayout);
 
-			removeComponent(homePanel);
-			removeComponent(administracionUsuariosPanel);
+				layoutContent.removeComponent(homePanel);
+				layoutContent.removeComponent(administracionUsuariosPanel);
 			try {
 				dailyStatisticsPanel.fillData();
 			} catch (InvalidResultSetAccessException | ParseException e) {
@@ -203,9 +217,9 @@ public class MainView extends HorizontalLayout implements View {
 				e.printStackTrace();
 			}
 			
-			addComponent(dailyStatisticsPanel);
+			layoutContent.addComponent(dailyStatisticsPanel);
 			
-			 setExpandRatio(dailyStatisticsPanel,  1.0f);
+			layoutContent.setExpandRatio(dailyStatisticsPanel,  1.0f);
 			}
 		});
         
@@ -213,12 +227,21 @@ public class MainView extends HorizontalLayout implements View {
 			
 			@Override
 			public void buttonClick(ClickEvent event) {
-				removeComponent(mobileStatisticsPanel);
-				removeComponent(countryStatisticsPanel);
-				removeComponent(liveDataLayout);
-				removeComponent(dailyStatisticsPanel);
-				removeComponent(administracionUsuariosPanel);
+				layoutContent.removeComponent(mobileStatisticsPanel);
+				layoutContent.removeComponent(countryStatisticsPanel);
+				layoutContent.removeComponent(liveDataLayout);
+				layoutContent.removeComponent(dailyStatisticsPanel);
+				layoutContent.removeComponent(administracionUsuariosPanel);
 				try {
+			    	   Servidor servidor = new Servidor();
+						servidor = xmlConnectionService.getLiveData();
+						for (Aplicacion aplicacion : servidor.getListaAplicaciones()) {
+							if(aplicacion.getNombre().equalsIgnoreCase(emisora)){
+
+								homePanel.setAplicacion(aplicacion);
+								break;
+							}
+						}
 					homePanel.fillData();
 				} catch (InvalidResultSetAccessException | ParseException e) {
 					// TODO Auto-generated catch block
@@ -233,9 +256,9 @@ public class MainView extends HorizontalLayout implements View {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				addComponent(homePanel);
+				layoutContent.addComponent(homePanel);
 
-				 setExpandRatio(homePanel,  1.0f);
+				layoutContent.setExpandRatio(homePanel,  1.0f);
 			}
 		});
         menu.botonTiempoReal.addClickListener(new ClickListener() {
@@ -260,13 +283,13 @@ public class MainView extends HorizontalLayout implements View {
 						e.printStackTrace();
 					}
 
-					removeComponent(mobileStatisticsPanel);
-					removeComponent(dailyStatisticsPanel);
-					removeComponent(countryStatisticsPanel);
-					removeComponent(homePanel);
-					removeComponent(administracionUsuariosPanel);
-					addComponent(liveDataLayout);
-					 setExpandRatio(liveDataLayout, 1.0f);
+					layoutContent.removeComponent(mobileStatisticsPanel);
+					layoutContent.removeComponent(dailyStatisticsPanel);
+					layoutContent.removeComponent(countryStatisticsPanel);
+					layoutContent.removeComponent(homePanel);
+					layoutContent.removeComponent(administracionUsuariosPanel);
+					layoutContent.addComponent(liveDataLayout);
+					layoutContent.setExpandRatio(liveDataLayout, 1.0f);
 		   		
 					liveDataLayout.addStyleName("view-content");
 					liveDataLayout.setSizeFull();
@@ -276,7 +299,7 @@ public class MainView extends HorizontalLayout implements View {
 			}
 		});
 		
-            addComponent(menu);
+        layoutContent.addComponent(menu);
 //        	try {
 //				Servidor servidor = new Servidor();
 //				servidor = xmlConnectionService.getLiveData();
@@ -297,6 +320,17 @@ public class MainView extends HorizontalLayout implements View {
 //
 //               setExpandRatio(liveDataLayout, 1.0f);
                try {
+            	   
+            	   Servidor servidor = new Servidor();
+				servidor = xmlConnectionService.getLiveData();
+				if(servidor.getListaAplicaciones()!=null)
+				for (Aplicacion aplicacion : servidor.getListaAplicaciones()) {
+					if(aplicacion.getNombre().equalsIgnoreCase(emisora)){
+
+						homePanel.setAplicacion(aplicacion);
+						break;
+					}
+				}
 				homePanel.fillData();
 			} catch (InvalidResultSetAccessException | ParseException e) {
 				// TODO Auto-generated catch block
@@ -308,10 +342,21 @@ public class MainView extends HorizontalLayout implements View {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-          addComponent(homePanel);
+               
 
-             setExpandRatio(homePanel, 1.0f);
-                   
+           	
+           	layoutContent.setSizeFull();
+           	layoutContent.addStyleName("mainview");
+               layoutContent.addComponent(homePanel);
+
+               layoutContent.setExpandRatio(homePanel, 1.0f);
+
+              	addComponent(layoutContent);
+               HorizontalLayout footer = new HorizontalLayout();
+           	footer = buildTitle();
+           	footer.setHeight("70px");
+           	addComponent(footer);
+           	setExpandRatio(layoutContent, 1f);
                
     	} catch (IOException e) {
 			System.out.println(e.getMessage());
@@ -325,14 +370,14 @@ public class MainView extends HorizontalLayout implements View {
 			public void valueChange(ValueChangeEvent event) {
 			
 					String periodo = (String) event.getProperty().getValue();
-					removeComponent(countryStatisticsPanel);
-					removeComponent(liveDataLayout);
+					layoutContent.removeComponent(countryStatisticsPanel);
+					layoutContent.removeComponent(liveDataLayout);
 					
 					dailyStatisticsPanel.cboxPeriodo.setValue(periodo);
 				
-					addComponent(dailyStatisticsPanel);
+					layoutContent.addComponent(dailyStatisticsPanel);
 					
-					 setExpandRatio(dailyStatisticsPanel,  1.0f);
+					layoutContent.setExpandRatio(dailyStatisticsPanel,  1.0f);
 					 menu.clearMenuSelection();
 						menu.botonOyentesDia.addStyleName(Utilidades.STYLE_SELECTED);
 					}
@@ -342,6 +387,22 @@ public class MainView extends HorizontalLayout implements View {
 		});
     }
 
+    private HorizontalLayout buildTitle() {
+   
+   	
+   	Embedded logoEmbedded = new Embedded();
+   	logoEmbedded.setSource(new ThemeResource("img/plugstreaming.png"));
+   
+    	logoEmbedded.setHeight("60px");
+    	
+      HorizontalLayout logoWrapper = new HorizontalLayout(logoEmbedded);
+      logoWrapper.setHeight("70px");
+      logoWrapper.setMargin(false);
+      logoWrapper.setComponentAlignment(logoEmbedded, Alignment.TOP_CENTER);
+      logoWrapper.setExpandRatio(logoEmbedded, 1f);
+        logoWrapper.addStyleName("valo-menu-title");
+        return logoWrapper;
+    }
 
 
 

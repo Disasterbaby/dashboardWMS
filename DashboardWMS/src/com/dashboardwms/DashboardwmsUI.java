@@ -43,6 +43,7 @@ import ru.xpoft.vaadin.DiscoveryNavigator;
 
 
 
+
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.navigator.Navigator;
@@ -112,8 +113,11 @@ public class DashboardwmsUI extends UI {
         	                return false;
 
         	            } else if (isLoggedIn && isLoginView) {
+        	            	if (VaadinSession.getCurrent().getAttribute("usuario")!=null)  
+           	            	 getNavigator().navigateTo(MAINVIEW);
+        	            	else
+            	                getNavigator().navigateTo(LOGINVIEW);
         	            	
-        	            	 getNavigator().navigateTo(MAINVIEW);
         	                return false;
         	            } else if(!isLoggedIn && isLoginView)
         	            	return true;
