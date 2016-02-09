@@ -207,6 +207,8 @@ public class XMLConnectionServiceImpl implements XMLConnectionService {
 													.getChildNodes();
 											for (int m = 0; m < nodosCliente
 													.getLength(); m++) {
+										
+												try{
 												Node nodoCliente = nodosCliente
 														.item(m);
 												String nombreNodoCliente = nodoCliente
@@ -244,9 +246,14 @@ public class XMLConnectionServiceImpl implements XMLConnectionService {
 													break;
 												}
 												}
+												
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+												
+											}
 											}
 											listaClientes.add(cliente);
-
+									
 										}
 										if (nombreNodoInstancia
 												.equalsIgnoreCase("HTTPSession")) {
@@ -257,6 +264,7 @@ public class XMLConnectionServiceImpl implements XMLConnectionService {
 													.getChildNodes();
 											for (int m = 0; m < nodosCliente
 													.getLength(); m++) {
+												try{
 												Node nodoCliente = nodosCliente
 														.item(m);
 												String nombreNodoCliente = nodoCliente
@@ -290,7 +298,12 @@ public class XMLConnectionServiceImpl implements XMLConnectionService {
 													break;
 												}
 												}
+												}catch(Exception e){
+													System.out.println(e.getMessage());
+																						
+																					}
 											}
+							
 											listaClientes.add(cliente);
 										}
 										if (nombreNodoInstancia
@@ -303,6 +316,7 @@ public class XMLConnectionServiceImpl implements XMLConnectionService {
 													.getChildNodes();
 											for (int m = 0; m < nodosCliente
 													.getLength(); m++) {
+												try{
 												Node nodoCliente = nodosCliente
 														.item(m);
 												String nombreNodoCliente = nodoCliente
@@ -332,6 +346,10 @@ public class XMLConnectionServiceImpl implements XMLConnectionService {
 													break;
 												}
 												}
+												}catch(Exception e){
+													System.out.println(e.getMessage());
+																						
+																					}
 											}
 											listaClientes.add(cliente);
 										}

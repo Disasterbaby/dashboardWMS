@@ -8,8 +8,10 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
+import com.dashboardwms.dao.ConexionDAO;
 import com.dashboardwms.domain.Aplicacion;
 import com.dashboardwms.domain.Cliente;
 import com.dashboardwms.domain.Servidor;
@@ -17,7 +19,7 @@ import com.dashboardwms.utilities.Utilidades;
 
 
 
-
+@Service
 public class ActualizarServiceImpl implements ActuallizarService {
 
 	

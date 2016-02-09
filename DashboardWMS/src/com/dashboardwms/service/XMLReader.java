@@ -95,9 +95,6 @@ try {
 								.getNodeName();
 						String valorNodoAplicacion = nodoAplicacion
 								.getLastChild().getTextContent().trim();
-						if(!valorNodoAplicacion.equalsIgnoreCase(nombreAplicacion))
-							break;
-						
 						switch (nombreNodoAplicacion) {
 						case "Name": {
 							aplicacion.setNombre(valorNodoAplicacion);
@@ -123,6 +120,11 @@ try {
 							break;
 						}
 						}
+
+						if((!aplicacion.getNombre().equalsIgnoreCase(nombreAplicacion)))
+							break;
+						
+						
 						if (nombreNodoAplicacion
 								.equalsIgnoreCase("ApplicationInstance")) {
 					
@@ -208,6 +210,7 @@ try {
 											.getChildNodes();
 									for (int m = 0; m < nodosCliente
 											.getLength(); m++) {
+										try{
 										Node nodoCliente = nodosCliente
 												.item(m);
 										String nombreNodoCliente = nodoCliente
@@ -245,6 +248,10 @@ try {
 											break;
 										}
 										}
+									}catch(Exception e){
+										System.out.println(e.getMessage());
+																			
+																		}
 									}
 									listaClientes.add(cliente);
 
@@ -258,6 +265,7 @@ try {
 											.getChildNodes();
 									for (int m = 0; m < nodosCliente
 											.getLength(); m++) {
+										try{
 										Node nodoCliente = nodosCliente
 												.item(m);
 										String nombreNodoCliente = nodoCliente
@@ -291,6 +299,10 @@ try {
 											break;
 										}
 										}
+									}catch(Exception e){
+										System.out.println(e.getMessage());
+																			
+																		}
 									}
 									listaClientes.add(cliente);
 								}
@@ -304,6 +316,7 @@ try {
 											.getChildNodes();
 									for (int m = 0; m < nodosCliente
 											.getLength(); m++) {
+										try{
 										Node nodoCliente = nodosCliente
 												.item(m);
 										String nombreNodoCliente = nodoCliente
@@ -333,6 +346,10 @@ try {
 											break;
 										}
 										}
+									}catch(Exception e){
+										System.out.println(e.getMessage());
+																			
+																		}
 									}
 									listaClientes.add(cliente);
 								}
@@ -341,7 +358,7 @@ try {
 							aplicacion.setListaClientes(listaClientes);
 						}
 					}
-					if(!aplicacion.getNombre().isEmpty())
+					if(aplicacion.getNombre().equalsIgnoreCase(nombreAplicacion))
 				listaAplicaciones.add(aplicacion);
 				}
 

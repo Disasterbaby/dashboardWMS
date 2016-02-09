@@ -1,6 +1,7 @@
 package com.dashboardwms.views;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import com.dashboardwms.domain.Aplicacion;
 import com.dashboardwms.domain.Servidor;
 import com.dashboardwms.exceptions.PerdidaCredencialesException;
 import com.dashboardwms.geoip.LookupService;
+import com.dashboardwms.service.ActuallizarService;
 import com.dashboardwms.service.AplicacionService;
 import com.dashboardwms.service.CargaImagenService;
 import com.dashboardwms.service.ClienteService;
@@ -79,6 +81,9 @@ public class MainView extends VerticalLayout implements View  {
 	
 	@Autowired
 	CargaImagenService cargaService;
+	
+	@Autowired
+	ActuallizarService actualizarService;
 
 	 HorizontalLayout layoutContent = new HorizontalLayout();
    private final DashboardMenu menu = new DashboardMenu();
@@ -141,6 +146,23 @@ try{
         mobileStatisticsPanel.setXLSReadingService(xlsReadingService);
        
         mobileStatisticsPanel.setAppMovil(appMovil);
+        
+        menu.botonActualizar.addClickListener(new ClickListener() {
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+				try {
+					actualizarService.insertUpdateInfo(emisora);
+					actualizarHome();
+				    ;
+				} catch (ClassNotFoundException | ParserConfigurationException
+						| SAXException | IOException | SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+		});
         
         menu.botonAdministracion.addClickListener(new ClickListener() {
 			
@@ -227,38 +249,7 @@ try{
 			
 			@Override
 			public void buttonClick(ClickEvent event) {
-				layoutContent.removeComponent(mobileStatisticsPanel);
-				layoutContent.removeComponent(countryStatisticsPanel);
-				layoutContent.removeComponent(liveDataLayout);
-				layoutContent.removeComponent(dailyStatisticsPanel);
-				layoutContent.removeComponent(administracionUsuariosPanel);
-				try {
-			    	   Servidor servidor = new Servidor();
-						servidor = xmlConnectionService.getLiveData();
-						for (Aplicacion aplicacion : servidor.getListaAplicaciones()) {
-							if(aplicacion.getNombre().equalsIgnoreCase(emisora)){
-
-								homePanel.setAplicacion(aplicacion);
-								break;
-							}
-						}
-					homePanel.fillData();
-				} catch (InvalidResultSetAccessException | ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ParserConfigurationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SAXException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				layoutContent.addComponent(homePanel);
-
-				layoutContent.setExpandRatio(homePanel,  1.0f);
+				actualizarHome();
 			}
 		});
         menu.botonTiempoReal.addClickListener(new ClickListener() {
@@ -406,7 +397,40 @@ try{
 
 
 
-    
+    private void actualizarHome(){
+    	layoutContent.removeComponent(mobileStatisticsPanel);
+		layoutContent.removeComponent(countryStatisticsPanel);
+		layoutContent.removeComponent(liveDataLayout);
+		layoutContent.removeComponent(dailyStatisticsPanel);
+		layoutContent.removeComponent(administracionUsuariosPanel);
+		try {
+	    	   Servidor servidor = new Servidor();
+				servidor = xmlConnectionService.getLiveData();
+				for (Aplicacion aplicacion : servidor.getListaAplicaciones()) {
+					if(aplicacion.getNombre().equalsIgnoreCase(emisora)){
+
+						homePanel.setAplicacion(aplicacion);
+						break;
+					}
+				}
+			homePanel.fillData();
+		} catch (InvalidResultSetAccessException | ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		layoutContent.addComponent(homePanel);
+
+		layoutContent.setExpandRatio(homePanel,  1.0f);
+    }
 
 	@Override
 	public void enter(ViewChangeEvent event) {

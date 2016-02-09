@@ -37,9 +37,11 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.Embedded;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.Panel;
@@ -198,8 +200,7 @@ public class MobileStatisticsPanel extends Panel {
 			listaDispositivos = xlsReadingService.getRegistrationsByDevice(appMovil);
 		   Chart chart = new Chart(ChartType.PIE);
 		   
-	       Configuration conf = chart.getConfiguration();
-	       conf.setExporting(true);
+	      final Configuration conf = chart.getConfiguration();
 	       conf.setTitle("");
 
 	       PlotOptionsPie plotOptions = new PlotOptionsPie();
@@ -255,7 +256,7 @@ public class MobileStatisticsPanel extends Panel {
 	        toolbar.addStyleName("dashboard-panel-toolbar");
 	        toolbar.setWidth("100%");
 
-	        Label caption = new Label(chart.getCaption());
+	       final Label caption = new Label(chart.getCaption());
 	        caption.addStyleName(ValoTheme.LABEL_H4);
 	        caption.addStyleName(ValoTheme.LABEL_COLORED);
 	        caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
@@ -263,7 +264,16 @@ public class MobileStatisticsPanel extends Panel {
 
 	        MenuBar tools = new MenuBar();
 	        tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
-	       
+	        final MenuItem print = tools.addItem("", FontAwesome.PRINT, new Command() {
+
+				@Override
+				public void menuSelected(final MenuItem selectedItem) {
+					
+					
+					generarPDF(conf, caption.getCaption());
+				}
+			});
+			print.setStyleName("icon-only");
 	        MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
 
 	            @Override
@@ -310,11 +320,10 @@ public class MobileStatisticsPanel extends Panel {
 		 Chart vaadinChartMinutos = new Chart();
 		 vaadinChartMinutos.setHeight("100%");
 		 vaadinChartMinutos.setWidth("100%");
-	        Configuration configuration = vaadinChartMinutos.getConfiguration();
+	 final       Configuration configuration = vaadinChartMinutos.getConfiguration();
 	        configuration.getChart().setType(ChartType.SPLINE);
 
-	        configuration.setExporting(true);
-
+	 
 	        configuration.getxAxis().setType(AxisType.DATETIME);
 	       
 	        				
@@ -373,7 +382,16 @@ public class MobileStatisticsPanel extends Panel {
 
 		MenuBar tools = new MenuBar();
 		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+		final MenuItem print = tools.addItem("", FontAwesome.PRINT, new Command() {
 
+			@Override
+			public void menuSelected(final MenuItem selectedItem) {
+				
+				
+				generarPDF(configuration, captionGraficoMinutos.getValue());
+			}
+		});
+		print.setStyleName("icon-only");
 		MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
 
 			@Override
@@ -407,11 +425,9 @@ public class MobileStatisticsPanel extends Panel {
 		 Chart vaadinChartSesiones = new Chart();
 		 vaadinChartSesiones.setHeight("100%");
 		 vaadinChartSesiones.setWidth("100%");
-	        Configuration configuration = vaadinChartSesiones.getConfiguration();
+	     final   Configuration configuration = vaadinChartSesiones.getConfiguration();
 	        configuration.getChart().setType(ChartType.SPLINE);
 
-
-	        configuration.setExporting(true);
 	        configuration.getxAxis().setType(AxisType.DATETIME);
 	        				
 	        Axis yAxis = configuration.getyAxis();
@@ -469,7 +485,16 @@ public class MobileStatisticsPanel extends Panel {
 
 		MenuBar tools = new MenuBar();
 		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+		final MenuItem print = tools.addItem("", FontAwesome.PRINT, new Command() {
 
+			@Override
+			public void menuSelected(final MenuItem selectedItem) {
+				
+				
+				generarPDF(configuration, captionGraficoSesiones.getValue());
+			}
+		});
+		print.setStyleName("icon-only");
 		MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
 
 			@Override
@@ -503,9 +528,9 @@ public class MobileStatisticsPanel extends Panel {
 		 Chart vaadinChartRegistros = new Chart();
 		 vaadinChartRegistros.setHeight("100%");
 		 vaadinChartRegistros.setWidth("100%");
-	        Configuration configuration = vaadinChartRegistros.getConfiguration();
+	      final  Configuration configuration = vaadinChartRegistros.getConfiguration();
 	        configuration.getChart().setType(ChartType.SPLINE);
-	         configuration.setExporting(true);
+	   
 	        configuration.getxAxis().setType(AxisType.DATETIME);
 	       
 	        				
@@ -562,7 +587,16 @@ public class MobileStatisticsPanel extends Panel {
 
 		MenuBar tools = new MenuBar();
 		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+		final MenuItem print = tools.addItem("", FontAwesome.PRINT, new Command() {
 
+			@Override
+			public void menuSelected(final MenuItem selectedItem) {
+				
+				
+				generarPDF(configuration, captionGraficoRegistros.getValue());
+			}
+		});
+		print.setStyleName("icon-only");
 		MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
 
 			@Override
@@ -853,7 +887,29 @@ public class MobileStatisticsPanel extends Panel {
     }
     
     
+	private void generarPDF(final Configuration conf, final String titulo)
+	{
 
+	Embedded pdf = Utilidades.buildPDF(conf, titulo);
+	Window subWindow = new Window();
+	subWindow.setSizeFull();
+	subWindow.setModal(true);
+	subWindow.setCaption(null);
+	VerticalLayout subContent = new VerticalLayout();
+	subContent.setMargin(false);
+	subContent.setSizeFull();
+	subWindow.setContent(subContent);
+	pdf.setSizeFull();
+	subContent.addComponent(pdf);
+//
+//	// Center it in the browser window
+	subWindow.center();
+//
+//	// Open it in the UI
+	getUI().addWindow(subWindow);
+	
+		
+	}
 
 }
 

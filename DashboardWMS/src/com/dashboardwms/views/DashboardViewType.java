@@ -9,7 +9,8 @@ public enum DashboardViewType { HOME("Inicio",FontAwesome.HOME, true),
             "Estadísticas Países",  FontAwesome.GLOBE, false), OYENTES_DIA(
             "Oyentes por Día", FontAwesome.BAR_CHART_O, false), ADMINISTRACION(
             "Administración",  FontAwesome.DATABASE, true), MOVIL(
-            "Estadísticas Móviles",  FontAwesome.MOBILE_PHONE, false);
+            "Estadísticas Móviles",  FontAwesome.MOBILE_PHONE, false),
+            ACTUALIZAR("Actualizar", FontAwesome.REFRESH, true);
 
     private final String viewName;
     private final Resource icon;

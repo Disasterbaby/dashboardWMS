@@ -1,33 +1,21 @@
 package com.dashboardwms.components;
 
-import java.awt.Color;
-import java.awt.Font;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.TimeZone;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
-import org.jfree.chart.labels.StandardPieToolTipGenerator;
-import org.jfree.chart.plot.PiePlot3D;
-import org.jfree.data.general.DatasetUtilities;
-import org.jfree.data.general.DefaultPieDataset;
-import org.jfree.data.general.PieDataset;
-import org.vaadin.addon.JFreeChartWrapper;
+
+
+
 
 import com.dashboardwms.geoip.Location;
 import com.dashboardwms.geoip.LookupService;
 import com.dashboardwms.service.ClienteService;
 import com.dashboardwms.utilities.Utilidades;
 import com.vaadin.addon.charts.Chart;
-import com.vaadin.addon.charts.PointClickEvent;
-import com.vaadin.addon.charts.PointClickListener;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.Configuration;
 import com.vaadin.addon.charts.model.Cursor;
@@ -47,12 +35,13 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.Embedded;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.Table;
@@ -279,8 +268,7 @@ public class CountryStatisticsPanel extends Panel {
    private void fillContentWrapperGraficoMinutos(HashSet<Location> listaPaises){
 	   
 	   Chart chart = new Chart(ChartType.PIE);
-	   chart.getConfiguration().setExporting(true);
-       Configuration conf = chart.getConfiguration();
+       final Configuration conf = chart.getConfiguration();
 
        conf.setTitle("");
 
@@ -328,7 +316,7 @@ hLayout.setSizeFull();
         toolbar.addStyleName("dashboard-panel-toolbar");
         toolbar.setWidth("100%");
 
-        Label caption = new Label(chart.getCaption());
+      final  Label caption = new Label(chart.getCaption());
         caption.addStyleName(ValoTheme.LABEL_H4);
         caption.addStyleName(ValoTheme.LABEL_COLORED);
         caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
@@ -336,7 +324,17 @@ hLayout.setSizeFull();
 
         MenuBar tools = new MenuBar();
         tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
-       
+        final MenuItem print = tools.addItem("", FontAwesome.PRINT, new Command() {
+
+   				@Override
+   				public void menuSelected(final MenuItem selectedItem) {
+   					
+   					
+   					generarPDF(conf, caption.getValue());
+   				}
+   			});
+   			print.setStyleName("icon-only");
+        
         MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
 
             @Override
@@ -375,9 +373,8 @@ hLayout.setSizeFull();
     	HorizontalLayout hLayout = new HorizontalLayout();
     	hLayout.setSizeFull();   Chart chart = new Chart(ChartType.PIE);
  	   
-        Configuration conf = chart.getConfiguration();
+       final Configuration conf = chart.getConfiguration();
 
- 	   chart.getConfiguration().setExporting(true);
         conf.setTitle("");
 
         PlotOptionsPie plotOptions = new PlotOptionsPie();
@@ -424,7 +421,7 @@ hLayout.setSizeFull();
         toolbar.addStyleName("dashboard-panel-toolbar");
         toolbar.setWidth("100%");
 
-        Label caption = new Label(chart.getCaption());
+      final  Label caption = new Label(chart.getCaption());
         caption.addStyleName(ValoTheme.LABEL_H4);
         caption.addStyleName(ValoTheme.LABEL_COLORED);
         caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
@@ -432,7 +429,16 @@ hLayout.setSizeFull();
 
         MenuBar tools = new MenuBar();
         tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
-       
+        final MenuItem print = tools.addItem("", FontAwesome.PRINT, new Command() {
+
+   				@Override
+   				public void menuSelected(final MenuItem selectedItem) {
+   					
+   					
+   					generarPDF(conf, caption.getValue());
+   				}
+   			});
+   			print.setStyleName("icon-only");
         MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
 
             @Override
@@ -562,123 +568,33 @@ hLayout.setSizeFull();
     	tablaUsuariosConectados.sort();
     }
     
-    
-	private static PieDataset dataSetNumeroUsuarios(HashSet<Location> listaPaises) {
-        DefaultPieDataset dataset = new DefaultPieDataset();
-        if(listaPaises!=null)
-        for (Location location : listaPaises) {
-			dataset.setValue(location.countryName, location.getCantidadUsuarios());
-		}
-
-        return dataset;        
-    }
+ 
 	
+    
+
+	private void generarPDF(final Configuration conf, final String titulo)
+	{
+
+	Embedded pdf = Utilidades.buildPDF(conf, titulo);
+	Window subWindow = new Window();
+	subWindow.setSizeFull();
+	subWindow.setModal(true);
+	subWindow.setCaption(null);
+	VerticalLayout subContent = new VerticalLayout();
+	subContent.setMargin(false);
+	subContent.setSizeFull();
+	subWindow.setContent(subContent);
+	pdf.setSizeFull();
+	subContent.addComponent(pdf);
+//
+//	// Center it in the browser window
+	subWindow.center();
+//
+//	// Open it in the UI
+	getUI().addWindow(subWindow);
 	
-	private static PieDataset dataSetCantidadMinutos(HashSet<Location> listaPaises) {
-        DefaultPieDataset dataset = new DefaultPieDataset();
-        for (Location location : listaPaises) {
-			dataset.setValue(location.countryName, location.getMinutosEscuchados());
-			
-		}
-
-        return dataset;        
-        
-    }
-	
-    private static JFreeChart chartPaises(PieDataset dataset) {
-        
-        JFreeChart chart = ChartFactory.createPieChart3D(
-            null,  // chart title
-            dataset,             // data
-            false,               // include legend
-            true,
-            true
-        );
-       
-       
-        chart.setBackgroundPaint(Color.WHITE);
-        chart.setBorderVisible(false);
-     chart.setTextAntiAlias(true);
-        chart.setAntiAlias(true); 
-        PiePlot3D plot = (PiePlot3D) chart.getPlot();
-        plot.setStartAngle(300);
-        plot.setBackgroundPaint(Color.WHITE);
-     
-        plot.setOutlinePaint(Color.WHITE);
-             plot.setDarkerSides(true);
-       plot.setLabelBackgroundPaint(Color.WHITE);
-        plot.setBackgroundAlpha(0.0F); 
-        plot.setLabelOutlinePaint(null);
-        plot.setLabelShadowPaint(null);
-        plot.setLabelPaint(new Color(70, 70, 70));
-        plot.setLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 22));
-        plot.setShadowPaint(null);
-        plot.setBaseSectionOutlinePaint(Color.BLACK);
-  
-        plot.setInteriorGap(0);
-        plot.setNoDataMessage("No existen datos disponibles");
-        plot.setCircular(true);
-        plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0} - {2}"));
-        plot.setToolTipGenerator(new StandardPieToolTipGenerator("{2}")); 
-        colorChart(plot,  dataset.getKeys());
-        return chart;
-        
-    }
-    
-
-
-        /**
-         * Assign a color from the standard ones to each category
-         */
-        public static  void colorChart(PiePlot3D plot, List<String> categories ) {
-             Color[] COLORS;
-            
-                COLORS = new Color[ 7 ];
-                COLORS[4] = Color.CYAN;
-                COLORS[0] = Color.BLUE;
-                COLORS[2] = Color.GREEN;
-                COLORS[1] = Color.MAGENTA;
-                COLORS[5] = Color.ORANGE;
-                COLORS[3] = Color.PINK;
-                COLORS[6] = Color.YELLOW;
-            // Use the standard colors as a list so we can shuffle it and get 
-            // a different order each time.
-            List<Color> myColors = Arrays.asList( COLORS );
-       
-            for ( int i = 0; i < categories.size(); i++ ) {
-                plot.setSectionPaint( categories.get(i), myColors.get( i ) );
-            }
-        }
-  
-    
-	   private static JFreeChartWrapper wrapperChartPaises(PieDataset datasetCantidadPais) {
-		   
-    JFreeChart createchart = chartPaises(datasetCantidadPais);
-  
-    return new JFreeChartWrapper(createchart);
-	   	}
-    
-	   
-//	    public void fillComboBox(List<String> listaAplicaciones){
-//	    	cboxAplicaciones.removeAllItems();
-//			BeanItemContainer<String> listaAplicacionesContainer = new BeanItemContainer<String>(String.class);
-//			listaAplicaciones.add(0, "Todas");
-//			listaAplicacionesContainer.addAll(listaAplicaciones);
-//			cboxAplicaciones.setContainerDataSource(listaAplicacionesContainer);
-//			fillData(clienteService.getCantidadClientesPorPais("Todas", cl));
-//			
-//			cboxAplicaciones.addValueChangeListener(new ValueChangeListener() {
-//				
-//				@Override
-//				public void valueChange(ValueChangeEvent event) {
-//					String aplicacionSeleccionada = (String)cboxAplicaciones.getValue();
-//				
-//					
-//				}		});
-//			
-//			cboxAplicaciones.setValue("Todas");
-//	    }
-
+	}
+		
 	    
 	    public void fillData(HashSet<Location> listaPaises){
 	    	fillTableMinutosTotales(listaPaises);

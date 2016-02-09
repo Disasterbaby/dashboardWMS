@@ -56,6 +56,7 @@ public final class DashboardMenu extends CustomComponent {
     public ValoMenuItemButton botonAdministracion;
     public ValoMenuItemButton botonEstadisticasMoviles;
     public ValoMenuItemButton botonHome;
+    public ValoMenuItemButton botonActualizar;
     private static final String STYLE_SELECTED = "selected";
     private MenuItem settingsItem;
     private UsuarioService usuarioService;
@@ -121,6 +122,8 @@ public final class DashboardMenu extends CustomComponent {
     	}catch(Exception e){
     		throw new PerdidaCredencialesException("Credenciales vacías");
     	}
+    	
+    	menuItemsLayout.addComponent(botonActualizar);
     }
     
     private void buildUserMenu() {
@@ -230,6 +233,7 @@ public final class DashboardMenu extends CustomComponent {
         botonAdministracion.addClickListener(buttonClickListener);
         botonEstadisticasMoviles = new ValoMenuItemButton(DashboardViewType.MOVIL);
         botonEstadisticasMoviles.addClickListener(buttonClickListener);
+        botonActualizar = new ValoMenuItemButton(DashboardViewType.ACTUALIZAR);
         menuItemsLayout.addComponent(botonHome);
         menuItemsLayout.addComponent(botonTiempoReal);
         menuItemsLayout.addComponent(botonEstadisticasPaises);
@@ -264,6 +268,7 @@ public final class DashboardMenu extends CustomComponent {
         botonOyentesDia.removeStyleName(STYLE_SELECTED);
         botonEstadisticasMoviles.removeStyleName(STYLE_SELECTED);
         botonAdministracion.removeStyleName(STYLE_SELECTED);
+        botonActualizar.removeStyleName(STYLE_SELECTED);
     }
 
     public final class ValoMenuItemButton extends Button {

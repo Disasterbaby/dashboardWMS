@@ -18,11 +18,8 @@ import org.xml.sax.SAXException;
 
 import com.dashboardwms.domain.Aplicacion;
 import com.dashboardwms.domain.Cliente;
-import com.dashboardwms.geoip.LookupService;
 import com.dashboardwms.service.AplicacionService;
-import com.dashboardwms.service.ClienteService;
-import com.dashboardwms.service.XLSReadingService;
-import com.dashboardwms.service.XMLConnectionService;
+import com.dashboardwms.utilities.Utilidades;
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.Axis;
 import com.vaadin.addon.charts.model.AxisType;
@@ -32,12 +29,12 @@ import com.vaadin.addon.charts.model.DataSeries;
 import com.vaadin.addon.charts.model.DataSeriesItem;
 import com.vaadin.addon.charts.model.PlotOptionsSpline;
 import com.vaadin.addon.charts.model.Title;
-import com.vaadin.addon.charts.util.SVGGenerator;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Responsive;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.Embedded;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
@@ -45,6 +42,7 @@ import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 public class HomePanel extends Panel {
@@ -278,7 +276,7 @@ private void fillPanels(){
  Chart vaadinChartPeriodo = new Chart();
 		vaadinChartPeriodo.setHeight("100%");
 		vaadinChartPeriodo.setWidth("100%");
-        Configuration configuration = vaadinChartPeriodo.getConfiguration();
+      final  Configuration configuration = vaadinChartPeriodo.getConfiguration();
         configuration.getChart().setType(ChartType.SPLINE);
 
 
@@ -327,7 +325,7 @@ private void fillPanels(){
 		HorizontalLayout toolbar = new HorizontalLayout();
 		toolbar.addStyleName("dashboard-panel-toolbar");
 		toolbar.setWidth("100%");
-Label caption = new Label("Usuarios Conectados Hoy");
+final Label caption = new Label("Usuarios Conectados Hoy");
 caption.addStyleName(ValoTheme.LABEL_H4);
 caption.addStyleName(ValoTheme.LABEL_COLORED);
 caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
@@ -336,6 +334,16 @@ caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 		MenuBar tools = new MenuBar();
 		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
 
+		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+		MenuItem print = tools.addItem("", FontAwesome.PRINT, new Command() {
+
+			@Override
+			public void menuSelected(final MenuItem selectedItem) {
+				generarPDF(configuration, caption.getValue());
+			}
+		});
+		print.setStyleName("icon-only");
+		
 		MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
 
 			@Override
@@ -372,15 +380,15 @@ caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 		fechaInicio.add(Calendar.DATE, -7);
 		listaAplicaciones = aplicacionService.getUsuariosConectadosPorHora(
 				emisora, fechaInicio.getTime(), fechaFin);
- Chart vaadinChartPeriodo = new Chart();
+final Chart vaadinChartPeriodo = new Chart();
  
 		vaadinChartPeriodo.setHeight("100%");
 		vaadinChartPeriodo.setWidth("100%");
-        Configuration configuration = vaadinChartPeriodo.getConfiguration();
+        final Configuration configuration = vaadinChartPeriodo.getConfiguration();
         configuration.getChart().setType(ChartType.SPLINE);
 
 
-configuration.setExporting(true);
+        //configuration.setExporting(true);
         configuration.getxAxis().setType(AxisType.DATETIME);
        
         				
@@ -426,7 +434,7 @@ configuration.setExporting(true);
 		toolbar.addStyleName("dashboard-panel-toolbar");
 		toolbar.setWidth("100%");
 
-Label caption = new Label("Usuarios Conectados Últimos 7 Días");
+final Label caption = new Label("Usuarios Conectados Últimos 7 Días");
 caption.addStyleName(ValoTheme.LABEL_H4);
 caption.addStyleName(ValoTheme.LABEL_COLORED);
 caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
@@ -435,6 +443,17 @@ caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 		MenuBar tools = new MenuBar();
 		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
 
+		final MenuItem print = tools.addItem("", FontAwesome.PRINT, new Command() {
+
+			@Override
+			public void menuSelected(final MenuItem selectedItem) {
+				
+				
+				generarPDF(configuration, caption.getValue());
+			}
+		});
+		print.setStyleName("icon-only");
+		
 		MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
 
 			@Override
@@ -450,13 +469,14 @@ caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 			}
 		});
 		max.setStyleName("icon-only");
-
+	
 		toolbar.addComponents(caption, tools);
 		toolbar.setExpandRatio(caption, 1);
 		toolbar.setComponentAlignment(caption, Alignment.MIDDLE_LEFT);
 
 		card.addComponents(toolbar, vaadinChartPeriodo);
 		componentGraficoUltimaSemana.addComponent(card);
+
 	}
     
 	private void fillContentWrapperGrafico30Dias()
@@ -469,14 +489,14 @@ caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 		fechaInicio.add(Calendar.DATE, -30);
 		listaAplicaciones = aplicacionService.getUsuariosConectadosPorHora(
 				emisora, fechaInicio.getTime(), fechaFin);
- Chart vaadinChartPeriodo = new Chart();
+ final Chart vaadinChartPeriodo = new Chart();
 		vaadinChartPeriodo.setHeight("100%");
 		vaadinChartPeriodo.setWidth("100%");
-        Configuration configuration = vaadinChartPeriodo.getConfiguration();
+       final Configuration configuration = vaadinChartPeriodo.getConfiguration();
         configuration.getChart().setType(ChartType.SPLINE);
 
 
-configuration.setExporting(true);
+//configuration.setExporting(true);
         configuration.getxAxis().setType(AxisType.DATETIME);
        
         				
@@ -521,7 +541,7 @@ configuration.setExporting(true);
 		HorizontalLayout toolbar = new HorizontalLayout();
 		toolbar.addStyleName("dashboard-panel-toolbar");
 		toolbar.setWidth("100%");
-Label caption = new Label("Usuarios Conectados Últimos 30 Días");
+final Label caption = new Label("Usuarios Conectados Últimos 30 Días");
 caption.addStyleName(ValoTheme.LABEL_H4);
 caption.addStyleName(ValoTheme.LABEL_COLORED);
 caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
@@ -529,7 +549,16 @@ caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 
 		MenuBar tools = new MenuBar();
 		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+		MenuItem print = tools.addItem("", FontAwesome.PRINT, new Command() {
 
+			@Override
+			public void menuSelected(final MenuItem selectedItem) {
+				
+				generarPDF(configuration, caption.getValue());
+			}
+		});
+		print.setStyleName("icon-only");
+		
 		MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
 
 			@Override
@@ -565,14 +594,13 @@ caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 		fechaInicio.add(Calendar.HOUR, -1);
 		listaAplicaciones = aplicacionService.getUsuariosConectadosPorHora(
 				emisora, fechaInicio.getTime(), fechaFin);
- Chart vaadinChartPeriodo = new Chart();
+final Chart vaadinChartPeriodo = new Chart();
 		vaadinChartPeriodo.setHeight("100%");
 		vaadinChartPeriodo.setWidth("100%");
-        Configuration configuration = vaadinChartPeriodo.getConfiguration();
+       final Configuration configuration = vaadinChartPeriodo.getConfiguration();
         configuration.getChart().setType(ChartType.SPLINE);
 
 
-configuration.setExporting(true);
         configuration.getxAxis().setType(AxisType.DATETIME);
        
         				
@@ -617,7 +645,7 @@ configuration.setExporting(true);
 		HorizontalLayout toolbar = new HorizontalLayout();
 		toolbar.addStyleName("dashboard-panel-toolbar");
 		toolbar.setWidth("100%");
-Label caption = new Label("Oyentes Conectados Última Hora");
+final Label caption = new Label("Oyentes Conectados Última Hora");
 caption.addStyleName(ValoTheme.LABEL_H4);
 caption.addStyleName(ValoTheme.LABEL_COLORED);
 caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
@@ -625,7 +653,15 @@ caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 
 		MenuBar tools = new MenuBar();
 		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+		MenuItem print = tools.addItem("", FontAwesome.PRINT, new Command() {
 
+			@Override
+			public void menuSelected(final MenuItem selectedItem) {
+				generarPDF(configuration, caption.getValue());
+			}
+		});
+		print.setStyleName("icon-only");
+		
 		MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
 
 			@Override
@@ -651,6 +687,31 @@ caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 	}
 	
 
+	
+	
+	private void generarPDF(final Configuration conf, final String titulo)
+	{
+
+	Embedded pdf = Utilidades.buildPDF(conf, titulo);
+	Window subWindow = new Window();
+	subWindow.setSizeFull();
+	subWindow.setModal(true);
+	subWindow.setCaption(null);
+	VerticalLayout subContent = new VerticalLayout();
+	subContent.setMargin(false);
+	subContent.setSizeFull();
+	subWindow.setContent(subContent);
+	pdf.setSizeFull();
+	subContent.addComponent(pdf);
+//
+//	// Center it in the browser window
+	subWindow.center();
+//
+//	// Open it in the UI
+	getUI().addWindow(subWindow);
+	
+	}
+    
   
 }
 

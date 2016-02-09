@@ -38,10 +38,7 @@
 		<dependency org="com.vaadin" name="vaadin-client-compiler"
 			rev="&vaadin.version;" conf="widgetset-compile->default" />
 			
-	
-		<!-- JFreeChart -->
-		<dependency org="org.vaadin.addon" name="jfreechartwrapper" rev="3.0.2" />
-		
+			
 		<!-- SQLite -->
 		<dependency org="org.xerial" name="sqlite-jdbc" rev="3.7.2"/>
 		
@@ -72,6 +69,8 @@
 		<dependency org="org.apache.commons" name="commons-lang3" rev="3.0"/>
 		
 
+<dependency org="commons-digester" name="commons-digester" rev="2.1"/>
 
+	<dependency org="com.lowagie" name="itext" rev="2.1.7"/>
 	</dependencies>
 </ivy-module>

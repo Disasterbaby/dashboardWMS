@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import org.springframework.jdbc.InvalidResultSetAccessException;
+
 import com.dashboardwms.service.AplicacionService;
 import com.dashboardwms.service.ClienteService;
 import com.dashboardwms.utilities.Utilidades;
@@ -36,9 +37,11 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.Embedded;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.Panel;
@@ -245,9 +248,8 @@ public class DailyStatisticsPanel extends Panel {
 		 Chart chart = new Chart(ChartType.COLUMN);
 		 chart.setHeight("100%");
 		 chart.setWidth("100%");
-	        Configuration conf = chart.getConfiguration();
+	       final Configuration conf = chart.getConfiguration();
 	        conf.getxAxis().setType(AxisType.CATEGORY);
-	        chart.getConfiguration().setExporting(true);
 	        conf.setTitle("");
 
 	        XAxis xAxis = new XAxis();
@@ -305,7 +307,16 @@ public class DailyStatisticsPanel extends Panel {
 
 		MenuBar tools = new MenuBar();
 		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+	     final MenuItem print = tools.addItem("", FontAwesome.PRINT, new Command() {
 
+					@Override
+					public void menuSelected(final MenuItem selectedItem) {
+						
+						
+						generarPDF(conf, captionInfoDispositivos.getValue());
+					}
+				});
+				print.setStyleName("icon-only");
 		MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
 
 			@Override
@@ -339,10 +350,9 @@ public class DailyStatisticsPanel extends Panel {
  Chart vaadinChartPeriodo = new Chart();
 		vaadinChartPeriodo.setHeight("100%");
 		vaadinChartPeriodo.setWidth("100%");
-        Configuration configuration = vaadinChartPeriodo.getConfiguration();
+      final  Configuration configuration = vaadinChartPeriodo.getConfiguration();
         configuration.getChart().setType(ChartType.SPLINE);
 
-        configuration.setExporting(true);
 
       configuration.getxAxis().setType(AxisType.DATETIME);
        
@@ -395,7 +405,16 @@ public class DailyStatisticsPanel extends Panel {
 
 		MenuBar tools = new MenuBar();
 		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+	     final MenuItem print = tools.addItem("", FontAwesome.PRINT, new Command() {
 
+					@Override
+					public void menuSelected(final MenuItem selectedItem) {
+						
+						
+						generarPDF(configuration, captionInfoPeriodo.getValue());
+					}
+				});
+				print.setStyleName("icon-only");
 		MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
 
 			@Override
@@ -715,6 +734,27 @@ public class DailyStatisticsPanel extends Panel {
 		
 	}
 	
+	private void generarPDF(final Configuration conf, final String titulo)
+	{
 
+	Embedded pdf = Utilidades.buildPDF(conf, titulo);
+	Window subWindow = new Window();
+	subWindow.setSizeFull();
+	subWindow.setModal(true);
+	subWindow.setCaption(null);
+	VerticalLayout subContent = new VerticalLayout();
+	subContent.setMargin(false);
+	subContent.setSizeFull();
+	subWindow.setContent(subContent);
+	pdf.setSizeFull();
+	subContent.addComponent(pdf);
+//
+//	// Center it in the browser window
+	subWindow.center();
+//
+//	// Open it in the UI
+	getUI().addWindow(subWindow);
+	
+	}
 		
 }
