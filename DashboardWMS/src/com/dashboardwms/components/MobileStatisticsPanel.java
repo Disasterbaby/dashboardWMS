@@ -12,6 +12,7 @@ import java.util.TimeZone;
 
 import org.springframework.jdbc.InvalidResultSetAccessException;
 
+import com.dashboardwms.domain.Bean;
 import com.dashboardwms.service.XLSReadingService;
 import com.dashboardwms.utilities.Utilidades;
 import com.vaadin.addon.charts.Chart;
@@ -34,6 +35,7 @@ import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Responsive;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
@@ -42,6 +44,8 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.Panel;
@@ -69,8 +73,18 @@ public class MobileStatisticsPanel extends Panel {
 	private Label captionGraficoMinutos = new Label();
 	private Label captionGraficoRegistros = new Label();
 	private Label captionInfoPeriodo = new Label();
-
 	private Label captionGraficoRegistrations = new Label();
+	
+
+	private Configuration confRegistros = new Configuration();
+	private Configuration confRegistrosDispositivos = new Configuration();
+
+	private Configuration confMinutos = new Configuration();
+	private Configuration confSesiones = new Configuration();
+
+	List<Bean> listTableResumen = new ArrayList<Bean>();
+	List<Bean> listTableDispositivos = new ArrayList<Bean>();
+	
 	private String appMovil;
 	Calendar calendar = Calendar.getInstance();
 	
@@ -133,7 +147,19 @@ public class MobileStatisticsPanel extends Panel {
 		title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 		header.addComponent(title);
 	     Label lbVer = new Label("Ver: ");
-	        HorizontalLayout tools = new HorizontalLayout(lbVer, cboxPeriodo);
+	 	Button btnPrint = new Button();
+		btnPrint.setIcon(FontAwesome.PRINT);
+		btnPrint.addStyleName("icon-only");
+
+		btnPrint.setDescription("Generar PDF");
+		btnPrint.addClickListener(new ClickListener() {
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				generarPDF();
+			}
+		});
+	        HorizontalLayout tools = new HorizontalLayout(lbVer, cboxPeriodo, btnPrint);
 	        tools.setComponentAlignment(lbVer, Alignment.MIDDLE_CENTER);
 
 		Responsive.makeResponsive(tools);
@@ -227,7 +253,6 @@ public class MobileStatisticsPanel extends Panel {
 				String dispositivo = (String) pairs.getKey();
 
 	            Integer cantidad = (Integer) pairs.getValue();
-	            System.out.println(dispositivo + " " + cantidad);
 	            series.add(new DataSeriesItem(dispositivo, cantidad));
 	    	  	
 				it.remove();
@@ -237,11 +262,11 @@ public class MobileStatisticsPanel extends Panel {
 	       
 	       conf.setSeries(series);
 
-	   
+	       confRegistrosDispositivos = conf;
 	       chart.drawChart(conf);
 		   
-	HorizontalLayout hLayout = new HorizontalLayout();
-	hLayout.setSizeFull();
+	       HorizontalLayout hLayout = new HorizontalLayout();
+	       hLayout.setSizeFull();
 	    	Responsive.makeResponsive(chart);
 	    	chart.setCaption("Registros por Dispositivo");
 	    	chart.setSizeFull();
@@ -263,17 +288,8 @@ public class MobileStatisticsPanel extends Panel {
 	        chart.setCaption(null);
 
 	        MenuBar tools = new MenuBar();
-	        tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
-	        final MenuItem print = tools.addItem("", FontAwesome.PRINT, new Command() {
 
-				@Override
-				public void menuSelected(final MenuItem selectedItem) {
-					
-					
-					generarPDF(conf, caption.getCaption());
-				}
-			});
-			print.setStyleName("icon-only");
+			tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
 	        MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
 
 	            @Override
@@ -306,9 +322,6 @@ public class MobileStatisticsPanel extends Panel {
 	        card.addComponents(toolbar, hLayout);
 	        componentGraficoRegistrations.addComponent(card);
 	    }
-	    
-	    
-	
 	
 	private void fillContentWrapperGraficoMinutos(Date fechaInicio, Date fechaFin)
 			throws InvalidResultSetAccessException, ParseException {
@@ -331,7 +344,7 @@ public class MobileStatisticsPanel extends Panel {
 	        yAxis.setTitle(new Title(""));
 	        yAxis.setMin(0);
 
-	        
+	       
 	        configuration.setTitle("");
 	        configuration.getTooltip().setxDateFormat("%d-%m-%Y");
 	        DataSeries ls = new DataSeries();
@@ -359,7 +372,7 @@ public class MobileStatisticsPanel extends Panel {
 	 
 
 	        configuration.addSeries(ls);
-
+	        confMinutos = configuration;
 	        vaadinChartMinutos.drawChart(configuration);
 	        Responsive.makeResponsive(vaadinChartMinutos);
 	        vaadinChartMinutos.setSizeFull();
@@ -381,17 +394,8 @@ public class MobileStatisticsPanel extends Panel {
 		vaadinChartMinutos.setCaption(null);
 
 		MenuBar tools = new MenuBar();
-		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
-		final MenuItem print = tools.addItem("", FontAwesome.PRINT, new Command() {
 
-			@Override
-			public void menuSelected(final MenuItem selectedItem) {
-				
-				
-				generarPDF(configuration, captionGraficoMinutos.getValue());
-			}
-		});
-		print.setStyleName("icon-only");
+		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
 		MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
 
 			@Override
@@ -462,7 +466,7 @@ public class MobileStatisticsPanel extends Panel {
 	 
 
 	        configuration.addSeries(ls);
-
+	        confSesiones = configuration;
 	        vaadinChartSesiones.drawChart(configuration);
 	        Responsive.makeResponsive(vaadinChartSesiones);
 	        vaadinChartSesiones.setSizeFull();
@@ -485,16 +489,7 @@ public class MobileStatisticsPanel extends Panel {
 
 		MenuBar tools = new MenuBar();
 		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
-		final MenuItem print = tools.addItem("", FontAwesome.PRINT, new Command() {
-
-			@Override
-			public void menuSelected(final MenuItem selectedItem) {
-				
-				
-				generarPDF(configuration, captionGraficoSesiones.getValue());
-			}
-		});
-		print.setStyleName("icon-only");
+		
 		MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
 
 			@Override
@@ -564,7 +559,7 @@ public class MobileStatisticsPanel extends Panel {
 	        
 		
 	        configuration.addSeries(ls);
-
+	        confRegistros = configuration;
 	        vaadinChartRegistros.drawChart(configuration);
 	        Responsive.makeResponsive(vaadinChartRegistros);
 	        vaadinChartRegistros.setSizeFull();
@@ -587,16 +582,6 @@ public class MobileStatisticsPanel extends Panel {
 
 		MenuBar tools = new MenuBar();
 		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
-		final MenuItem print = tools.addItem("", FontAwesome.PRINT, new Command() {
-
-			@Override
-			public void menuSelected(final MenuItem selectedItem) {
-				
-				
-				generarPDF(configuration, captionGraficoRegistros.getValue());
-			}
-		});
-		print.setStyleName("icon-only");
 		MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
 
 			@Override
@@ -726,6 +711,7 @@ public class MobileStatisticsPanel extends Panel {
 	}
 
 	private void fillTablePeriodo(Date fechaInicio, Date fechaFin) {
+		listTableResumen.clear();
 		tablaInformacionPeriodo.removeAllItems();				
 		
 			tablaInformacionPeriodo.addItem("TotalSesiones");
@@ -740,28 +726,48 @@ public class MobileStatisticsPanel extends Panel {
 			Item row = tablaInformacionPeriodo.getItem("TotalSesiones");
 			row.getItemProperty("Key").setValue("Total de Sesiones");
 			row.getItemProperty("Value").setValue(totalSesiones);
+			
+
+			Bean bean = new Bean("Total de Sesiones", totalSesiones);
+			listTableResumen.add(bean);
+			
 
 			Item row1 = tablaInformacionPeriodo.getItem("TotalMinutos");
 			row1.getItemProperty("Key").setValue("Total de Minutos");
 			row1.getItemProperty("Value").setValue(totalMinutos);
+			
+			Bean bean1 = new Bean("Total de Minutos", totalMinutos);
+			listTableResumen.add(bean1);
+			
 
 			Item row2 = tablaInformacionPeriodo.getItem("TotalRegistros");
 			row2.getItemProperty("Key").setValue("Total de Registros");
 			row2.getItemProperty("Value").setValue(totalRegistros);
+			
+			Bean bean2 = new Bean("Total de Registros", totalRegistros);
+			listTableResumen.add(bean2);
 
 			Item row3 = tablaInformacionPeriodo.getItem("TopeSesiones");
 			row3.getItemProperty("Key").setValue("Tope de Sesiones");
 			row3.getItemProperty("Value").setValue(topeSesiones);
 
+			Bean bean3 = new Bean("Tope de Sesiones", topeSesiones);
+			listTableResumen.add(bean3);
+			
 			Item row4 = tablaInformacionPeriodo.getItem("TopeMinutos");
 			row4.getItemProperty("Key").setValue("Tope de Minutos");
 			row4.getItemProperty("Value").setValue(topeMinutos);
+			
+
+			Bean bean4 = new Bean("Tope de Minutos", topeMinutos);
+			listTableResumen.add(bean4);
 
 			Item row5 = tablaInformacionPeriodo.getItem("TopeRegistros");
 			row5.getItemProperty("Key").setValue("Tope de Registros");
 			row5.getItemProperty("Value").setValue(topeRegistros);
 
-			
+			Bean bean5 = new Bean("Tope de Registros", topeRegistros);
+			listTableResumen.add(bean5);
 		
 
 	}
@@ -859,6 +865,7 @@ public class MobileStatisticsPanel extends Panel {
     }
     
     private void fillTablaRegistrations(){
+    	listTableDispositivos.clear();
     	tablaRegistrations.removeAllItems();
 
 		   LinkedHashMap<String, Integer> listaDispositivos = new LinkedHashMap<>();
@@ -878,7 +885,8 @@ public class MobileStatisticsPanel extends Panel {
     			Item row = tablaRegistrations.getItem(dispositivo);
         		row.getItemProperty("Dispositivo").setValue(dispositivo);
     			row.getItemProperty("Cantidad").setValue(cantidad);
-	    	  	
+    			Bean bean = new Bean(pairs.getKey().toString(), (Integer) pairs.getValue());
+    			listTableDispositivos.add(bean);
 				it.remove();
 			}
     		
@@ -886,12 +894,15 @@ public class MobileStatisticsPanel extends Panel {
     	tablaRegistrations.sort();
     }
     
-    
-	private void generarPDF(final Configuration conf, final String titulo)
+ 
+	
+	private void generarPDF()
 	{
 
-	Embedded pdf = Utilidades.buildPDF(conf, titulo);
-	Window subWindow = new Window();
+	Embedded pdf = Utilidades.buildMobileStatisticsPDF(captionGraficoSesiones.getValue(), 
+			captionGraficoMinutos.getValue(), captionGraficoRegistrations.getValue(), captionInfoPeriodo.getValue(), captionGraficoRegistros.getValue(), 
+			confSesiones, confMinutos, confRegistros, confRegistrosDispositivos, listTableDispositivos, listTableResumen);
+			Window subWindow = new Window();
 	subWindow.setSizeFull();
 	subWindow.setModal(true);
 	subWindow.setCaption(null);
@@ -908,7 +919,6 @@ public class MobileStatisticsPanel extends Panel {
 //	// Open it in the UI
 	getUI().addWindow(subWindow);
 	
-		
 	}
 
 }

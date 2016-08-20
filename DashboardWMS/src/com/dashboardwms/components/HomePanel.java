@@ -64,7 +64,6 @@ public class HomePanel extends Panel {
 	private CssLayout componentGrafico30Dias = new CssLayout();
 	
 	
-	
 
 	Label valorUsuariosConectados = new Label();	
 	Label valorTopeDiaActual = new Label();
@@ -72,7 +71,10 @@ public class HomePanel extends Panel {
 	Label valorTope30Dias = new Label();
 
 
-
+	private Configuration configDia = new Configuration();
+	private Configuration configSemana = new Configuration();
+	private Configuration configHora = new Configuration();
+	private Configuration configMes = new Configuration();
 
 	public void setEmisora(String emisora) {
 		this.emisora = emisora;
@@ -249,7 +251,7 @@ private void fillPanels(){
 		List<Cliente> listaClientes = new ArrayList<Cliente>();
 		if(aplicacion!=null)
 		listaClientes = aplicacion.getListaClientes();
-
+		if(listaClientes!=null)
 		valorUsuariosConectados.setValue(listaClientes.size()+"");
 
 	
@@ -311,6 +313,7 @@ private void fillPanels(){
 
         configuration.addSeries(ls);
 
+        configDia = configuration;
         vaadinChartPeriodo.drawChart(configuration);
         Responsive.makeResponsive(vaadinChartPeriodo);
 		vaadinChartPeriodo.setSizeFull();
@@ -325,10 +328,10 @@ private void fillPanels(){
 		HorizontalLayout toolbar = new HorizontalLayout();
 		toolbar.addStyleName("dashboard-panel-toolbar");
 		toolbar.setWidth("100%");
-final Label caption = new Label("Usuarios Conectados Hoy");
-caption.addStyleName(ValoTheme.LABEL_H4);
-caption.addStyleName(ValoTheme.LABEL_COLORED);
-caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
+		final Label caption = new Label("Usuarios Conectados Hoy");
+		caption.addStyleName(ValoTheme.LABEL_H4);
+		caption.addStyleName(ValoTheme.LABEL_COLORED);
+		caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 		vaadinChartPeriodo.setCaption(null);
 
 		MenuBar tools = new MenuBar();
@@ -339,7 +342,7 @@ caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 
 			@Override
 			public void menuSelected(final MenuItem selectedItem) {
-				generarPDF(configuration, caption.getValue());
+				generarPDF();
 			}
 		});
 		print.setStyleName("icon-only");
@@ -418,6 +421,8 @@ final Chart vaadinChartPeriodo = new Chart();
  
 
         configuration.addSeries(ls);
+        
+        configSemana = configuration;
 
         vaadinChartPeriodo.drawChart(configuration);
         Responsive.makeResponsive(vaadinChartPeriodo);
@@ -449,7 +454,7 @@ caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 			public void menuSelected(final MenuItem selectedItem) {
 				
 				
-				generarPDF(configuration, caption.getValue());
+				generarPDF();
 			}
 		});
 		print.setStyleName("icon-only");
@@ -527,6 +532,8 @@ caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 
         configuration.addSeries(ls);
 
+        configMes = configuration;
+        
         vaadinChartPeriodo.drawChart(configuration);
         Responsive.makeResponsive(vaadinChartPeriodo);
 		vaadinChartPeriodo.setSizeFull();
@@ -554,7 +561,7 @@ caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 			@Override
 			public void menuSelected(final MenuItem selectedItem) {
 				
-				generarPDF(configuration, caption.getValue());
+				generarPDF();
 			}
 		});
 		print.setStyleName("icon-only");
@@ -630,6 +637,8 @@ final Chart vaadinChartPeriodo = new Chart();
  
 
         configuration.addSeries(ls);
+        
+        configHora = configuration;
 
         vaadinChartPeriodo.drawChart(configuration);
         Responsive.makeResponsive(vaadinChartPeriodo);
@@ -657,7 +666,7 @@ caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 
 			@Override
 			public void menuSelected(final MenuItem selectedItem) {
-				generarPDF(configuration, caption.getValue());
+				generarPDF();
 			}
 		});
 		print.setStyleName("icon-only");
@@ -689,10 +698,12 @@ caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 
 	
 	
-	private void generarPDF(final Configuration conf, final String titulo)
+	private void generarPDF()
 	{
 
-	Embedded pdf = Utilidades.buildPDF(conf, titulo);
+	Embedded pdf = Utilidades.buildResumenPDF(configHora, configDia, configSemana, configMes,
+			"Oyentes Conectados Última Hora", "Usuarios Conectados Últimos 7 Días",
+			"Usuarios Conectados Hoy", "Usuarios Conectados Últimos 30 Días");
 	Window subWindow = new Window();
 	subWindow.setSizeFull();
 	subWindow.setModal(true);

@@ -6,6 +6,7 @@
   <packaging>war</packaging>
   <name>plugstd</name>
   <dependencies>
+
     <dependency>
       <groupId>com.vaadin</groupId>
       <artifactId>vaadin-server</artifactId>
@@ -788,6 +789,7 @@
       <artifactId>tomcat-websocket-api</artifactId>
       <version>7.0.57</version>
     </dependency>
+    
   </dependencies>
   <build>
     <sourceDirectory>src</sourceDirectory>

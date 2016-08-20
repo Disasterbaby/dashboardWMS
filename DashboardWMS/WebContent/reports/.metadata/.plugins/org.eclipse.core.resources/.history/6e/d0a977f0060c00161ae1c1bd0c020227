@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.2.0.final using JasperReports Library version 6.2.0  -->
+<!-- 2016-04-26T18:55:04 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MobileReport" pageWidth="612" pageHeight="792" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="8ddf42c4-b24a-48f5-9441-ea63af78045f">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="Dataset" uuid="440bbb81-6ed7-427f-adb8-19a478463f80">
+		<queryString>
+			<![CDATA[]]>
+		</queryString>
+		<field name="key" class="java.lang.String"/>
+		<field name="value" class="java.lang.Integer"/>
+	</subDataset>
+	<parameter name="PATH_LOGO" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="TITULO_TOP_LEFT" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="TITULO_TOP_RIGHT" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="TITULO_BOTTOM" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="TITULO_MIDDLE" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="SVG_STRING_SESIONES" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="SVG_STRING_MINUTOS" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="SVG_STRING_REGISTROS" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="SVG_STRING_REGISTROS_DISPOSITIVOS" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="LIST_DISPOSITIVO" class="java.util.List" isForPrompting="false"/>
+	<parameter name="LIST_RESUMEN" class="java.util.List" isForPrompting="false"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="45" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<image hAlign="Center">
+				<reportElement x="0" y="1" width="562" height="39" uuid="71bbc41c-2179-46c2-b3f4-5e28b299743c"/>
+				<imageExpression><![CDATA[$P{PATH_LOGO}]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<detail>
+		<band height="243" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="5" width="280" height="30" forecolor="#3090F0" uuid="01e62e76-0114-4297-b1db-abde4325a550"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{TITULO_TOP_LEFT}]]></textFieldExpression>
+			</textField>
+			<image scaleImage="FillFrame">
+				<reportElement x="0" y="39" width="280" height="200" uuid="dd659144-ce29-48cc-afa7-f79e10989e96"/>
+				<imageExpression><![CDATA[net.sf.jasperreports.renderers.BatikRenderer.getInstanceFromText($P{SVG_STRING_SESIONES})]]></imageExpression>
+			</image>
+			<image scaleImage="FillFrame">
+				<reportElement x="292" y="39" width="280" height="200" uuid="fd39a398-1f35-4775-9d9b-297ac9bab889">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<imageExpression><![CDATA[net.sf.jasperreports.renderers.BatikRenderer.getInstanceFromText($P{SVG_STRING_MINUTOS})]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement stretchType="RelativeToBandHeight" x="292" y="5" width="280" height="30" forecolor="#3090F0" uuid="e1268c35-1488-4330-b0d4-baaca1ce3873"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{TITULO_TOP_RIGHT}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="198">
+			<textField>
+				<reportElement x="0" y="1" width="572" height="30" forecolor="#3090F0" uuid="47846414-8b3e-4f3b-ac59-71618f657532"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{TITULO_MIDDLE}]]></textFieldExpression>
+			</textField>
+			<image scaleImage="FillFrame">
+				<reportElement x="0" y="31" width="280" height="159" uuid="71e22b3b-6566-4fb8-8c18-c580b4869683"/>
+				<box>
+					<topPen lineWidth="5.4" lineColor="#4EF230"/>
+					<leftPen lineWidth="5.4" lineColor="#4EF230"/>
+					<bottomPen lineWidth="5.4" lineColor="#4EF230"/>
+					<rightPen lineWidth="5.4" lineColor="#4EF230"/>
+				</box>
+				<imageExpression><![CDATA[net.sf.jasperreports.renderers.BatikRenderer.getInstanceFromText($P{SVG_STRING_SESIONES})]]></imageExpression>
+			</image>
+			<componentElement>
+				<reportElement x="332" y="30" width="240" height="20" isRemoveLineWhenBlank="true" forecolor="#808080" uuid="68233e28-3336-4fe6-bf32-f7c558b096bd">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Dataset" uuid="5144777d-7695-45de-b29c-42fe4d314acb">
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{LIST_RESUMEN})]]></dataSourceExpression>
+					</datasetRun>
+					<jr:column width="130" uuid="1b036b2b-10bf-49b0-9c41-88f1afc57c1f">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<jr:detailCell style="Table_TD" height="20">
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+							<box>
+								<topPen lineColor="#808080"/>
+								<leftPen lineColor="#808080"/>
+								<bottomPen lineColor="#808080"/>
+								<rightPen lineWidth="0.0"/>
+							</box>
+							<textField>
+								<reportElement x="0" y="0" width="130" height="20" forecolor="#808080" uuid="505a3ce0-62db-48fa-86d4-5f844300b923"/>
+								<box>
+									<topPen lineWidth="0.0" lineColor="#808080"/>
+									<leftPen lineWidth="0.0" lineColor="#808080"/>
+									<bottomPen lineWidth="0.0" lineColor="#808080"/>
+								</box>
+								<textElement verticalAlignment="Middle">
+									<paragraph lineSpacing="Proportional" leftIndent="5"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{key}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="f5015673-693e-4ce8-a6f0-e5ed4c088ab5">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+						<jr:detailCell style="Table_TD" height="20">
+							<box>
+								<topPen lineColor="#808080"/>
+								<leftPen lineWidth="0.0"/>
+								<bottomPen lineColor="#808080"/>
+								<rightPen lineColor="#808080"/>
+							</box>
+							<textField>
+								<reportElement x="0" y="0" width="110" height="20" forecolor="#808080" uuid="fda7e521-3794-4700-af09-237b94e42df6"/>
+								<box>
+									<topPen lineWidth="0.0"/>
+									<bottomPen lineWidth="0.0"/>
+									<rightPen lineWidth="0.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<paragraph rightIndent="5"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{value}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+		<band height="239">
+			<textField>
+				<reportElement x="0" y="1" width="572" height="30" forecolor="#3090F0" uuid="eb21a8a9-699a-4841-863c-12335943381c"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{TITULO_BOTTOM}]]></textFieldExpression>
+			</textField>
+			<frame>
+				<reportElement x="0" y="36" width="572" height="200" uuid="9af1fa4a-35ef-4885-987d-80b8a546efe1"/>
+				<box>
+					<topPen lineWidth="0.8"/>
+					<leftPen lineWidth="0.8"/>
+					<bottomPen lineWidth="0.8"/>
+					<rightPen lineWidth="0.8"/>
+				</box>
+				<image scaleImage="FillFrame">
+					<reportElement x="0" y="0" width="280" height="200" uuid="4e88869f-6d27-4efc-aaeb-991e15a414d2"/>
+					<imageExpression><![CDATA[net.sf.jasperreports.renderers.BatikRenderer.getInstanceFromText($P{SVG_STRING_REGISTROS_DISPOSITIVOS})]]></imageExpression>
+				</image>
+				<componentElement>
+					<reportElement x="332" y="0" width="240" height="20" isRemoveLineWhenBlank="true" forecolor="#808080" uuid="271d6131-f2dd-4f52-bb2c-a24997a9c384">
+						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+						<datasetRun subDataset="Dataset" uuid="4a5e1247-c27a-48eb-b1dd-74ecdb7fedb6">
+							<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{LIST_DISPOSITIVO})]]></dataSourceExpression>
+						</datasetRun>
+						<jr:column width="130" uuid="b760b53c-3217-49a7-a373-2c8d27da3154">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+							<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+							<jr:detailCell style="Table_TD" height="20">
+								<property name="com.jaspersoft.studio.unit.height" value="px"/>
+								<box>
+									<topPen lineColor="#808080"/>
+									<leftPen lineColor="#808080"/>
+									<bottomPen lineColor="#808080"/>
+									<rightPen lineWidth="0.0"/>
+								</box>
+								<textField>
+									<reportElement x="0" y="0" width="130" height="20" forecolor="#808080" uuid="698c6d59-18df-49be-aa0a-2166fae370f5"/>
+									<box>
+										<topPen lineWidth="0.0" lineColor="#808080"/>
+										<leftPen lineWidth="0.0" lineColor="#808080"/>
+										<bottomPen lineWidth="0.0" lineColor="#808080"/>
+									</box>
+									<textElement verticalAlignment="Middle">
+										<paragraph lineSpacing="Proportional" leftIndent="5"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{key}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="110" uuid="33bea37d-7d6c-4f6a-9657-540b4ab26e3f">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+							<jr:detailCell style="Table_TD" height="20">
+								<box>
+									<topPen lineColor="#808080"/>
+									<leftPen lineWidth="0.0"/>
+									<bottomPen lineColor="#808080"/>
+									<rightPen lineColor="#808080"/>
+								</box>
+								<textField>
+									<reportElement x="0" y="0" width="110" height="20" forecolor="#808080" uuid="37710261-6473-45bd-829c-f657acd94868"/>
+									<box>
+										<topPen lineWidth="0.0"/>
+										<bottomPen lineWidth="0.0"/>
+										<rightPen lineWidth="0.0"/>
+									</box>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<paragraph rightIndent="5"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{value}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:table>
+				</componentElement>
+			</frame>
+		</band>
+	</detail>
+</jasperReport>

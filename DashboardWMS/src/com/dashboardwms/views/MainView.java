@@ -406,6 +406,7 @@ try{
 		try {
 	    	   Servidor servidor = new Servidor();
 				servidor = xmlConnectionService.getLiveData();
+				if(servidor.getListaAplicaciones()!=null)
 				for (Aplicacion aplicacion : servidor.getListaAplicaciones()) {
 					if(aplicacion.getNombre().equalsIgnoreCase(emisora)){
 

@@ -1,15 +1,18 @@
 package com.dashboardwms.components;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
 import org.springframework.jdbc.InvalidResultSetAccessException;
 
+import com.dashboardwms.domain.Bean;
 import com.dashboardwms.service.AplicacionService;
 import com.dashboardwms.service.ClienteService;
 import com.dashboardwms.utilities.Utilidades;
@@ -34,6 +37,9 @@ import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Responsive;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
@@ -41,7 +47,6 @@ import com.vaadin.ui.Embedded;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.Window;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.Panel;
@@ -50,6 +55,7 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.Align;
 import com.vaadin.ui.Table.ColumnHeaderMode;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 public class DailyStatisticsPanel extends Panel {
@@ -73,6 +79,11 @@ public class DailyStatisticsPanel extends Panel {
 	private String emisora;
 
 	private static Boolean tipoRango = true;
+	
+	private Configuration confDispositivos = new Configuration();
+	private Configuration confPeriodo = new Configuration();
+	List<Bean> listTableTop = new ArrayList<Bean>();
+	List<Bean> listTableBottom = new ArrayList<Bean>();
 	Calendar calendar = Calendar.getInstance();
 
 	public void setEmisora(String emisora) {
@@ -130,7 +141,19 @@ public class DailyStatisticsPanel extends Panel {
 		title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 		header.addComponent(title);
 	     Label lbVer = new Label("Ver: ");
-	        HorizontalLayout tools = new HorizontalLayout(lbVer, cboxPeriodo, dfFechaInicial, dfFechaFinal);
+	     Button btnPrint = new Button();
+	     btnPrint.setIcon(FontAwesome.PRINT);
+	     btnPrint.addStyleName("icon-only");
+
+	     btnPrint.setDescription("Generar PDF");
+	     btnPrint.addClickListener(new ClickListener() {
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+				generarPDF();
+			}
+		});
+	        HorizontalLayout tools = new HorizontalLayout(lbVer, cboxPeriodo, dfFechaInicial, dfFechaFinal, btnPrint);
 	        tools.setComponentAlignment(lbVer, Alignment.MIDDLE_CENTER);
 		dfFechaInicial.setVisible(false);
 		dfFechaFinal.setVisible(false);
@@ -306,17 +329,10 @@ public class DailyStatisticsPanel extends Panel {
 		chart.setCaption(null);
 
 		MenuBar tools = new MenuBar();
-		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
-	     final MenuItem print = tools.addItem("", FontAwesome.PRINT, new Command() {
+		confDispositivos = conf;
 
-					@Override
-					public void menuSelected(final MenuItem selectedItem) {
-						
-						
-						generarPDF(conf, captionInfoDispositivos.getValue());
-					}
-				});
-				print.setStyleName("icon-only");
+		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+
 		MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
 
 			@Override
@@ -405,16 +421,7 @@ public class DailyStatisticsPanel extends Panel {
 
 		MenuBar tools = new MenuBar();
 		tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
-	     final MenuItem print = tools.addItem("", FontAwesome.PRINT, new Command() {
-
-					@Override
-					public void menuSelected(final MenuItem selectedItem) {
-						
-						
-						generarPDF(configuration, captionInfoPeriodo.getValue());
-					}
-				});
-				print.setStyleName("icon-only");
+	     confPeriodo = configuration;
 		MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
 
 			@Override
@@ -549,12 +556,6 @@ public class DailyStatisticsPanel extends Panel {
 			panel.removeStyleName("max");
 		}
 	}
-
-
-
-
-	
-	
 
 	public ValueChangeListener cboxChangeListener = new ValueChangeListener() {
 		@Override
@@ -699,17 +700,17 @@ public class DailyStatisticsPanel extends Panel {
 		tablaInformacionPeriodo.removeAllItems();				
 		LinkedHashMap<String, Double> info = clienteService.getInfoRangoFechas(
 				emisora, fechaInicio, fechaFin);
+		listTableTop.clear();
 		Iterator it = info.entrySet().iterator();
 		while (it.hasNext()) {
 
 			Map.Entry pairs = (Map.Entry) it.next();
 			tablaInformacionPeriodo.addItem(pairs);
-			System.out.println(pairs.getKey());
-
 			Item row = tablaInformacionPeriodo.getItem(pairs);
 			row.getItemProperty("Key").setValue(pairs.getKey());
 			row.getItemProperty("Value").setValue(pairs.getValue());
-
+			Bean bean = new Bean(pairs.getKey().toString(), (Double) pairs.getValue());
+			listTableTop.add(bean);
 			it.remove();
 		}
 
@@ -718,6 +719,7 @@ public class DailyStatisticsPanel extends Panel {
 	private void fillTableDispositivos(Date fechaInicio, Date fechaFin){
 		tablaDispositivosPeriodo.removeAllItems();				
 		LinkedHashMap<String, Integer> info = clienteService.getCantidadDispositivosRangoFechas(emisora, fechaInicio, fechaFin);
+		listTableBottom.clear();
 		Iterator it = info.entrySet().iterator();
 		while (it.hasNext()) {
 
@@ -727,18 +729,20 @@ public class DailyStatisticsPanel extends Panel {
 			Item row = tablaDispositivosPeriodo.getItem(pairs);
 			row.getItemProperty("Key").setValue(pairs.getKey());
 			row.getItemProperty("Value").setValue(pairs.getValue());
-
+			Bean bean = new Bean(pairs.getKey().toString(), (Integer) pairs.getValue());
+			listTableBottom.add(bean);
 			it.remove();
 		}
 
 		
 	}
 	
-	private void generarPDF(final Configuration conf, final String titulo)
+	private void generarPDF()
 	{
 
-	Embedded pdf = Utilidades.buildPDF(conf, titulo);
-	Window subWindow = new Window();
+	Embedded pdf = Utilidades.buildDailyListenersPDF(confPeriodo, confDispositivos,
+			captionInfoPeriodo.getValue(), captionInfoDispositivos.getValue(), listTableTop, listTableBottom);
+			Window subWindow = new Window();
 	subWindow.setSizeFull();
 	subWindow.setModal(true);
 	subWindow.setCaption(null);

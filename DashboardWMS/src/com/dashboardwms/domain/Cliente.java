@@ -7,6 +7,7 @@ import com.dashboardwms.geoip.Location;
 
 public class Cliente implements Serializable {
 	
+	
 	private String tipo;
 	private String ipAddress;
 	private String protocolo;

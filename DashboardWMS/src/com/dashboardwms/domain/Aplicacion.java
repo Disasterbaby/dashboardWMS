@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.List;
 
 public class Aplicacion implements Serializable {
-
 	private String nombre;
 	private String estatus;
 	private Integer conexionesActuales = 0;
